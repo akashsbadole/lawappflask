@@ -1,0 +1,246 @@
+{% extends "base.html" %}
+
+{% block title %}Add Firm - Law Firm Management System{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Add Firm</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <div class="btn-group me-2">
+            <a href="{{ url_for('firms') }}" class="btn btn-sm btn-outline-secondary">
+                <i class="fas fa-arrow-left me-1"></i>Back to Firms
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">New Firm Information</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('add_firm') }}">
+                    {{ form.hidden_tag() }}
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            {{ form.name.label(class="form-label") }}
+                            {{ form.name(class="form-control") }}
+                            {% if form.name.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.name.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            {{ form.firm_code.label(class="form-label") }}
+                            {{ form.firm_code(class="form-control") }}
+                            <small class="form-text text-muted">Unique code for internal reference.</small>
+                            {% if form.firm_code.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.firm_code.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        {{ form.subdomain.label(class="form-label") }}
+                        {{ form.subdomain(class="form-control") }}
+                        <small class="form-text text-muted">For multi-tenant access (e.g., yourfirm.lawedge.com).</small>
+                        {% if form.subdomain.errors %}
+                            <div class="text-danger">
+                                {% for error in form.subdomain.errors %}
+                                    <small>{{ error }}</small>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        {{ form.address.label(class="form-label") }}
+                        {{ form.address(class="form-control", rows="3") }}
+                        {% if form.address.errors %}
+                            <div class="text-danger">
+                                {% for error in form.address.errors %}
+                                    <small>{{ error }}</small>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            {{ form.phone.label(class="form-label") }}
+                            {{ form.phone(class="form-control") }}
+                            {% if form.phone.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.phone.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            {{ form.email.label(class="form-label") }}
+                            {{ form.email(class="form-control") }}
+                            {% if form.email.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.email.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            {{ form.website.label(class="form-label") }}
+                            {{ form.website(class="form-control") }}
+                            {% if form.website.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.website.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            {{ form.gst_number.label(class="form-label") }}
+                            {{ form.gst_number(class="form-control") }}
+                            {% if form.gst_number.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.gst_number.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            {{ form.pan_number.label(class="form-label") }}
+                            {{ form.pan_number(class="form-control") }}
+                            {% if form.pan_number.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.pan_number.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            {{ form.primary_color.label(class="form-label") }}
+                            <div class="input-group">
+                                {{ form.primary_color(class="form-control") }}
+                                <span class="input-group-text color-preview" id="primaryColorPreview"></span>
+                            </div>
+                            {% if form.primary_color.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.primary_color.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        {{ form.secondary_color.label(class="form-label") }}
+                        <div class="input-group">
+                            {{ form.secondary_color(class="form-control") }}
+                            <span class="input-group-text color-preview" id="secondaryColorPreview"></span>
+                        </div>
+                        {% if form.secondary_color.errors %}
+                            <div class="text-danger">
+                                {% for error in form.secondary_color.errors %}
+                                    <small>{{ error }}</small>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="d-flex justify-content-end">
+                        <a href="{{ url_for('firms') }}" class="btn btn-secondary me-2">Cancel</a>
+                        <button type="submit" class="btn btn-primary">Add Firm</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Multi-Tenant Information</h5>
+            </div>
+            <div class="card-body">
+                <p>Multi-tenant support allows multiple law firms to use the same LawEdge system while keeping their data completely separate.</p>
+                
+                <h6>Key Benefits:</h6>
+                <ul>
+                    <li>Data isolation between firms</li>
+                    <li>Custom branding per firm</li>
+                    <li>Independent user management</li>
+                    <li>Separate reporting and analytics</li>
+                    <li>Cost-effective solution for multiple firms</li>
+                </ul>
+                
+                <h6>Subdomain Setup:</h6>
+                <p>Each firm can have its own subdomain (e.g., yourfirm.lawedge.com) for a branded experience. This is optional but recommended for firms that want a custom URL.</p>
+                
+                <h6>Branding Options:</h6>
+                <p>Each firm can customize its appearance with:</p>
+                <ul>
+                    <li>Primary and secondary colors</li>
+                    <li>Custom logo</li>
+                    <li>Branded email templates</li>
+                    <li>Firm-specific reports</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="card mt-3">
+            <div class="card-header">
+                <h5 class="mb-0">Tax Information</h5>
+            </div>
+            <div class="card-body">
+                <p>For legal compliance and billing purposes, each firm should provide their tax identification numbers:</p>
+                
+                <h6>GST Number:</h6>
+                <p>Goods and Services Tax identification number for firms operating in India. Required for GST-compliant invoicing.</p>
+                
+                <h6>PAN Number:</h6>
+                <p>Permanent Account Number issued by the Income Tax Department of India. Required for financial transactions and reporting.</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    $(document).ready(function() {
+        // Update color preview when color input changes
+        $('#primary_color').on('input', function() {
+            $('#primaryColorPreview').css('background-color', $(this).val());
+        });
+        
+        $('#secondary_color').on('input', function() {
+            $('#secondaryColorPreview').css('background-color', $(this).val());
+        });
+        
+        // Initialize color previews
+        $('#primaryColorPreview').css('background-color', $('#primary_color').val());
+        $('#secondaryColorPreview').css('background-color', $('#secondary_color').val());
+    });
+</script>
+{% endblock %}

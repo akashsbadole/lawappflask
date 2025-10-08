@@ -1,0 +1,649 @@
+{% extends "base.html" %}
+
+{% block title %}Mobile App Analytics - Law Firm Management System{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Mobile App Analytics</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <div class="btn-group me-2">
+            <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="fas fa-calendar me-1"></i>Date Range
+            </button>
+            <ul class="dropdown-menu">
+                <li><a class="dropdown-item" href="{{ url_for('mobile_app_analytics', period='today') }}">Today</a></li>
+                <li><a class="dropdown-item" href="{{ url_for('mobile_app_analytics', period='this_week') }}">This Week</a></li>
+                <li><a class="dropdown-item" href="{{ url_for('mobile_app_analytics', period='this_month') }}">This Month</a></li>
+                <li><a class="dropdown-item" href="{{ url_for('mobile_app_analytics', period='this_quarter') }}">This Quarter</a></li>
+                <li><a class="dropdown-item" href="{{ url_for('mobile_app_analytics', period='this_year') }}">This Year</a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item" href="{{ url_for('mobile_app_analytics', period='custom') }}">Custom Range</a></li>
+            </ul>
+        </div>
+        <div class="btn-group">
+            <a href="{{ url_for('mobile_applications') }}" class="btn btn-sm btn-outline-secondary">
+                <i class="fas fa-arrow-left me-1"></i>Back to Mobile Apps
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Analytics Summary Cards -->
+<div class="row mb-4">
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-primary shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Total Downloads</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ analytics.total_downloads }}</div>
+                        <div class="mt-1">
+                            {% if analytics.download_change >= 0 %}
+                                <span class="text-success"><i class="fas fa-arrow-up"></i> {{ analytics.download_change }}%</span>
+                            {% else %}
+                                <span class="text-danger"><i class="fas fa-arrow-down"></i> {{ analytics.download_change|abs }}%</span>
+                            {% endif %}
+                            <span class="text-muted">vs previous period</span>
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-download fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-success shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Active Users</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ analytics.active_users }}</div>
+                        <div class="mt-1">
+                            {% if analytics.active_user_change >= 0 %}
+                                <span class="text-success"><i class="fas fa-arrow-up"></i> {{ analytics.active_user_change }}%</span>
+                            {% else %}
+                                <span class="text-danger"><i class="fas fa-arrow-down"></i> {{ analytics.active_user_change|abs }}%</span>
+                            {% endif %}
+                            <span class="text-muted">vs previous period</span>
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-users fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-info shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Session Duration</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ analytics.avg_session_duration|round(1) }} min</div>
+                        <div class="mt-1">
+                            {% if analytics.session_duration_change >= 0 %}
+                                <span class="text-success"><i class="fas fa-arrow-up"></i> {{ analytics.session_duration_change }}%</span>
+                            {% else %}
+                                <span class="text-danger"><i class="fas fa-arrow-down"></i> {{ analytics.session_duration_change|abs }}%</span>
+                            {% endif %}
+                            <span class="text-muted">vs previous period</span>
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-clock fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-warning shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Retention Rate</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ analytics.retention_rate|round(1) }}%</div>
+                        <div class="mt-1">
+                            {% if analytics.retention_change >= 0 %}
+                                <span class="text-success"><i class="fas fa-arrow-up"></i> {{ analytics.retention_change }}%</span>
+                            {% else %}
+                                <span class="text-danger"><i class="fas fa-arrow-down"></i> {{ analytics.retention_change|abs }}%</span>
+                            {% endif %}
+                            <span class="text-muted">vs previous period</span>
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-redo fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Charts Row -->
+<div class="row mb-4">
+    <div class="col-xl-8 col-lg-7">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                <h6 class="m-0 font-weight-bold text-primary">User Acquisition</h6>
+                <div class="dropdown no-arrow">
+                    <a class="dropdown-toggle" href="#" role="button" id="userAcquisitionDropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in" aria-labelledby="userAcquisitionDropdown">
+                        <div class="dropdown-header">Time Range:</div>
+                        <a class="dropdown-item" href="{{ url_for('mobile_app_analytics', period='this_week') }}">This Week</a>
+                        <a class="dropdown-item" href="{{ url_for('mobile_app_analytics', period='this_month') }}">This Month</a>
+                        <a class="dropdown-item" href="{{ url_for('mobile_app_analytics', period='this_quarter') }}">This Quarter</a>
+                        <a class="dropdown-item" href="{{ url_for('mobile_app_analytics', period='this_year') }}">This Year</a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" href="{{ url_for('export_user_acquisition_data') }}">Export Data</a>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="chart-area">
+                    <canvas id="userAcquisitionChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-xl-4 col-lg-5">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                <h6 class="m-0 font-weight-bold text-primary">Platform Distribution</h6>
+                <div class="dropdown no-arrow">
+                    <a class="dropdown-toggle" href="#" role="button" id="platformDistributionDropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in" aria-labelledby="platformDistributionDropdown">
+                        <div class="dropdown-header">Options:</div>
+                        <a class="dropdown-item" href="{{ url_for('export_platform_distribution_data') }}">Export Data</a>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="chart-pie pt-4 pb-2">
+                    <canvas id="platformDistributionChart"></canvas>
+                </div>
+                <div class="mt-4 text-center small">
+                    <span class="mr-2">
+                        <i class="fas fa-circle text-primary"></i> iOS
+                    </span>
+                    <span class="mr-2">
+                        <i class="fas fa-circle text-success"></i> Android
+                    </span>
+                    <span class="mr-2">
+                        <i class="fas fa-circle text-info"></i> Web
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Additional Charts Row -->
+<div class="row mb-4">
+    <div class="col-xl-4 col-lg-5">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                <h6 class="m-0 font-weight-bold text-primary">Feature Usage</h6>
+                <div class="dropdown no-arrow">
+                    <a class="dropdown-toggle" href="#" role="button" id="featureUsageDropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in" aria-labelledby="featureUsageDropdown">
+                        <div class="dropdown-header">Options:</div>
+                        <a class="dropdown-item" href="{{ url_for('export_feature_usage_data') }}">Export Data</a>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="chart-bar">
+                    <canvas id="featureUsageChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-xl-4 col-lg-5">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                <h6 class="m-0 font-weight-bold text-primary">User Retention</h6>
+                <div class="dropdown no-arrow">
+                    <a class="dropdown-toggle" href="#" role="button" id="userRetentionDropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in" aria-labelledby="userRetentionDropdown">
+                        <div class="dropdown-header">Options:</div>
+                        <a class="dropdown-item" href="{{ url_for('export_user_retention_data') }}">Export Data</a>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="chart-line">
+                    <canvas id="userRetentionChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-xl-4 col-lg-5">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                <h6 class="m-0 font-weight-bold text-primary">App Ratings</h6>
+                <div class="dropdown no-arrow">
+                    <a class="dropdown-toggle" href="#" role="button" id="appRatingsDropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in" aria-labelledby="appRatingsDropdown">
+                        <div class="dropdown-header">Options:</div>
+                        <a class="dropdown-item" href="{{ url_for('export_app_ratings_data') }}">Export Data</a>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="chart-bar">
+                    <canvas id="appRatingsChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- User Behavior and Performance Metrics -->
+<div class="row mb-4">
+    <div class="col-lg-6">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">User Behavior</h6>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered" width="100%" cellspacing="0">
+                        <thead>
+                            <tr>
+                                <th>Metric</th>
+                                <th>Current Period</th>
+                                <th>Previous Period</th>
+                                <th>Change</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Sessions per User</td>
+                                <td>{{ user_behavior.sessions_per_user.current|round(2) }}</td>
+                                <td>{{ user_behavior.sessions_per_user.previous|round(2) }}</td>
+                                <td class="{% if user_behavior.sessions_per_user.change >= 0 %}text-success{% else %}text-danger{% endif %}">
+                                    {% if user_behavior.sessions_per_user.change >= 0 %}+{% endif %}{{ user_behavior.sessions_per_user.percent_change|round(2) }}%
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Screen Views per Session</td>
+                                <td>{{ user_behavior.screen_views_per_session.current|round(2) }}</td>
+                                <td>{{ user_behavior.screen_views_per_session.previous|round(2) }}</td>
+                                <td class="{% if user_behavior.screen_views_per_session.change >= 0 %}text-success{% else %}text-danger{% endif %}">
+                                    {% if user_behavior.screen_views_per_session.change >= 0 %}+{% endif %}{{ user_behavior.screen_views_per_session.percent_change|round(2) }}%
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Average Session Duration</td>
+                                <td>{{ user_behavior.avg_session_duration.current|round(2) }} min</td>
+                                <td>{{ user_behavior.avg_session_duration.previous|round(2) }} min</td>
+                                <td class="{% if user_behavior.avg_session_duration.change >= 0 %}text-success{% else %}text-danger{% endif %}">
+                                    {% if user_behavior.avg_session_duration.change >= 0 %}+{% endif %}{{ user_behavior.avg_session_duration.percent_change|round(2) }}%
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Bounce Rate</td>
+                                <td>{{ user_behavior.bounce_rate.current|round(2) }}%</td>
+                                <td>{{ user_behavior.bounce_rate.previous|round(2) }}%</td>
+                                <td class="{% if user_behavior.bounce_rate.change <= 0 %}text-success{% else %}text-danger{% endif %}">
+                                    {% if user_behavior.bounce_rate.change >= 0 %}+{% endif %}{{ user_behavior.bounce_rate.percent_change|round(2) }}%
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-6">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Performance Metrics</h6>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered" width="100%" cellspacing="0">
+                        <thead>
+                            <tr>
+                                <th>Metric</th>
+                                <th>Current</th>
+                                <th>Target</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>App Load Time</td>
+                                <td>{{ performance_metrics.app_load_time.current|round(2) }}s</td>
+                                <td>{{ performance_metrics.app_load_time.target|round(2) }}s</td>
+                                <td>
+                                    {% if performance_metrics.app_load_time.percentage <= 100 %}
+                                        <span class="badge bg-success">On Target</span>
+                                    {% else %}
+                                        <span class="badge bg-warning">{{ performance_metrics.app_load_time.percentage|round(0) }}%</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Crash Rate</td>
+                                <td>{{ performance_metrics.crash_rate.current|round(2) }}%</td>
+                                <td>{{ performance_metrics.crash_rate.target|round(2) }}%</td>
+                                <td>
+                                    {% if performance_metrics.crash_rate.percentage <= 100 %}
+                                        <span class="badge bg-success">On Target</span>
+                                    {% else %}
+                                        <span class="badge bg-danger">{{ performance_metrics.crash_rate.percentage|round(0) }}%</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>API Response Time</td>
+                                <td>{{ performance_metrics.api_response_time.current|round(2) }}s</td>
+                                <td>{{ performance_metrics.api_response_time.target|round(2) }}s</td>
+                                <td>
+                                    {% if performance_metrics.api_response_time.percentage <= 100 %}
+                                        <span class="badge bg-success">On Target</span>
+                                    {% else %}
+                                        <span class="badge bg-warning">{{ performance_metrics.api_response_time.percentage|round(0) }}%</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Network Error Rate</td>
+                                <td>{{ performance_metrics.network_error_rate.current|round(2) }}%</td>
+                                <td>{{ performance_metrics.network_error_rate.target|round(2) }}%</td>
+                                <td>
+                                    {% if performance_metrics.network_error_rate.percentage <= 100 %}
+                                        <span class="badge bg-success">On Target</span>
+                                    {% else %}
+                                        <span class="badge bg-danger">{{ performance_metrics.network_error_rate.percentage|round(0) }}%</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Top Screens and User Flow -->
+<div class="row mb-4">
+    <div class="col-lg-6">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Top Screens</h6>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered" width="100%" cellspacing="0">
+                        <thead>
+                            <tr>
+                                <th>Screen</th>
+                                <th>Views</th>
+                                <th>Unique Views</th>
+                                <th>Avg. Time</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for screen in top_screens %}
+                            <tr>
+                                <td>{{ screen.name }}</td>
+                                <td>{{ screen.views }}</td>
+                                <td>{{ screen.unique_views }}</td>
+                                <td>{{ screen.avg_time|round(2) }}s</td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="4" class="text-center">No screen data available.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-6">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">User Flow</h6>
+            </div>
+            <div class="card-body">
+                <div class="chart-area">
+                    <canvas id="userFlowChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    $(document).ready(function() {
+        // User Acquisition Chart
+        var userAcquisitionCtx = document.getElementById('userAcquisitionChart').getContext('2d');
+        var userAcquisitionChart = new Chart(userAcquisitionCtx, {
+            type: 'line',
+            data: {
+                labels: {{ user_acquisition_chart.labels|tojson }},
+                datasets: [{
+                    label: 'New Users',
+                    data: {{ user_acquisition_chart.data|tojson }},
+                    backgroundColor: 'rgba(54, 185, 204, 0.2)',
+                    borderColor: 'rgba(54, 185, 204, 1)',
+                    pointBackgroundColor: 'rgba(54, 185, 204, 1)',
+                    pointBorderColor: '#fff',
+                    pointHoverBackgroundColor: '#fff',
+                    pointHoverBorderColor: 'rgba(54, 185, 204, 1)',
+                    tension: 0.3,
+                    fill: true
+                }]
+            },
+            options: {
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+        
+        // Platform Distribution Chart
+        var platformDistributionCtx = document.getElementById('platformDistributionChart').getContext('2d');
+        var platformDistributionChart = new Chart(platformDistributionCtx, {
+            type: 'doughnut',
+            data: {
+                labels: {{ platform_distribution_chart.labels|tojson }},
+                datasets: [{
+                    data: {{ platform_distribution_chart.data|tojson }},
+                    backgroundColor: [
+                        'rgba(54, 185, 204, 0.8)',
+                        'rgba(28, 200, 138, 0.8)',
+                        'rgba(246, 194, 62, 0.8)'
+                    ],
+                    hoverBackgroundColor: [
+                        'rgba(54, 185, 204, 1)',
+                        'rgba(28, 200, 138, 1)',
+                        'rgba(246, 194, 62, 1)'
+                    ],
+                    hoverBorderColor: "rgba(234, 236, 244, 1)",
+                }]
+            },
+            options: {
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
+                }
+            }
+        });
+        
+        // Feature Usage Chart
+        var featureUsageCtx = document.getElementById('featureUsageChart').getContext('2d');
+        var featureUsageChart = new Chart(featureUsageCtx, {
+            type: 'bar',
+            data: {
+                labels: {{ feature_usage_chart.labels|tojson }},
+                datasets: [{
+                    label: 'Usage Count',
+                    data: {{ feature_usage_chart.data|tojson }},
+                    backgroundColor: 'rgba(28, 200, 138, 0.8)',
+                    borderColor: 'rgba(28, 200, 138, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                }
+            }
+        });
+        
+        // User Retention Chart
+        var userRetentionCtx = document.getElementById('userRetentionChart').getContext('2d');
+        var userRetentionChart = new Chart(userRetentionCtx, {
+            type: 'line',
+            data: {
+                labels: {{ user_retention_chart.labels|tojson }},
+                datasets: [{
+                    label: 'Retention Rate',
+                    data: {{ user_retention_chart.data|tojson }},
+                    backgroundColor: 'rgba(246, 194, 62, 0.2)',
+                    borderColor: 'rgba(246, 194, 62, 1)',
+                    pointBackgroundColor: 'rgba(246, 194, 62, 1)',
+                    pointBorderColor: '#fff',
+                    pointHoverBackgroundColor: '#fff',
+                    pointHoverBorderColor: 'rgba(246, 194, 62, 1)',
+                    tension: 0.3,
+                    fill: true
+                }]
+            },
+            options: {
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100,
+                        ticks: {
+                            callback: function(value) {
+                                return value + '%';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+        
+        // App Ratings Chart
+        var appRatingsCtx = document.getElementById('appRatingsChart').getContext('2d');
+        var appRatingsChart = new Chart(appRatingsCtx, {
+            type: 'bar',
+            data: {
+                labels: {{ app_ratings_chart.labels|tojson }},
+                datasets: [{
+                    label: 'Number of Ratings',
+                    data: {{ app_ratings_chart.data|tojson }},
+                    backgroundColor: [
+                        'rgba(231, 74, 59, 0.8)',
+                        'rgba(246, 194, 62, 0.8)',
+                        'rgba(246, 194, 62, 0.8)',
+                        'rgba(28, 200, 138, 0.8)',
+                        'rgba(28, 200, 138, 0.8)'
+                    ],
+                    borderColor: [
+                        'rgba(231, 74, 59, 1)',
+                        'rgba(246, 194, 62, 1)',
+                        'rgba(246, 194, 62, 1)',
+                        'rgba(28, 200, 138, 1)',
+                        'rgba(28, 200, 138, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            stepSize: 1
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                }
+            }
+        });
+        
+        // User Flow Chart
+        var userFlowCtx = document.getElementById('userFlowChart').getContext('2d');
+        var userFlowChart = new Chart(userFlowCtx, {
+            type: 'bar',
+            data: {
+                labels: {{ user_flow_chart.labels|tojson }},
+                datasets: [{
+                    label: 'Users',
+                    data: {{ user_flow_chart.data|tojson }},
+                    backgroundColor: 'rgba(155, 89, 182, 0.8)',
+                    borderColor: 'rgba(155, 89, 182, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                maintainAspectRatio: false,
+                indexAxis: 'y',
+                scales: {
+                    x: {
+                        beginAtZero: true
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                }
+            }
+        });
+    });
+</script>
+{% endblock %}

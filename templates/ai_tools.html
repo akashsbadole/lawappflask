@@ -1,0 +1,828 @@
+{% extends "base.html" %}
+
+{% block title %}AI & Automation Tools - Law Firm Management System{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">AI & Automation Tools</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <div class="btn-group me-2">
+            <a href="{{ url_for('add_automation_rule') }}" class="btn btn-sm btn-outline-secondary">
+                <i class="fas fa-plus me-1"></i>Add Automation Rule
+            </a>
+        </div>
+        <div class="btn-group">
+            <a href="{{ url_for='automation_logs') }}" class="btn btn-sm btn-outline-secondary">
+                <i class="fas fa-history me-1"></i>Automation Logs
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Tabs for AI & Automation Navigation -->
+<ul class="nav nav-tabs mb-4" id="aiAutomationTabs" role="tablist">
+    <li class="nav-item" role="presentation">
+        <button class="nav-link {% if active_tab == 'document_analysis' %}active{% endif %}" id="documentAnalysis-tab" data-bs-toggle="tab" data-bs-target="#documentAnalysis" type="button" role="tab" aria-controls="documentAnalysis" aria-selected="{% if active_tab == 'document_analysis' %}true{% else %}false{% endif %}">
+            <i class="fas fa-file-alt me-1"></i>Document Analysis
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link {% if active_tab == 'case_prediction' %}active{% endif %}" id="casePrediction-tab" data-bs-toggle="tab" data-bs-target="#casePrediction" type="button" role="tab" aria-controls="casePrediction" aria-selected="{% if active_tab == 'case_prediction' %}true{% else %}false{% endif %}">
+            <i class="fas fa-gavel me-1"></i>Case Prediction
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link {% if active_tab == 'automation' %}active{% endif %}" id="automation-tab" data-bs-toggle="tab" data-bs-target="#automation" type="button" role="tab" aria-controls="automation" aria-selected="{% if active_tab == 'automation' %}true{% else %}false{% endif %}">
+            <i class="fas fa-robot me-1"></i>Automation Rules
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link {% if active_tab == 'ai_assistant' %}active{% endif %}" id="aiAssistant-tab" data-bs-toggle="tab" data-bs-target="#aiAssistant" type="button" role="tab" aria-controls="aiAssistant" aria-selected="{% if active_tab == 'ai_assistant' %}true{% else %}false{% endif %}">
+            <i class="fas fa-comments me-1"></i>AI Assistant
+        </button>
+    </li>
+</ul>
+
+<!-- Tab Content -->
+<div class="tab-content" id="aiAutomationTabsContent">
+    <!-- Document Analysis Tab -->
+    <div class="tab-pane fade {% if active_tab == 'document_analysis' %}show active{% endif %}" id="documentAnalysis" role="tabpanel" aria-labelledby="documentAnalysis-tab">
+        <div class="row mb-4">
+            <div class="col-lg-6">
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">Upload Document for Analysis</h6>
+                    </div>
+                    <div class="card-body">
+                        <form method="POST" action="{{ url_for('analyze_document') }}" enctype="multipart/form-data">
+                            {{ document_analysis_form.hidden_tag() }}
+                            
+                            <div class="mb-3">
+                                {{ document_analysis_form.document.label(class="form-label") }}
+                                {{ document_analysis_form.document(class="form-control") }}
+                                {% if document_analysis_form.document.errors %}
+                                    <div class="text-danger">
+                                        {% for error in document_analysis_form.document.errors %}
+                                            <small>{{ error }}</small>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="mb-3">
+                                {{ document_analysis_form.analysis_type.label(class="form-label") }}
+                                {{ document_analysis_form.analysis_type(class="form-control") }}
+                                {% if document_analysis_form.analysis_type.errors %}
+                                    <div class="text-danger">
+                                        {% for error in document_analysis_form.analysis_type.errors %}
+                                            <small>{{ error }}</small>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="mb-3">
+                                {{ document_analysis_form.case_id.label(class="form-label") }}
+                                {{ document_analysis_form.case_id(class="form-control") }}
+                                {% if document_analysis_form.case_id.errors %}
+                                    <div class="text-danger">
+                                        {% for error in document_analysis_form.case_id.errors %}
+                                            <small>{{ error }}</small>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="d-flex justify-content-end">
+                                <button type="submit" class="btn btn-primary">Analyze Document</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-6">
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">Analysis Results</h6>
+                    </div>
+                    <div class="card-body">
+                        {% if analysis_results %}
+                            <div class="alert alert-success">
+                                <h5 class="alert-heading">Analysis Complete!</h5>
+                                <p>{{ analysis_results.summary }}</p>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <h6>Key Information Extracted:</h6>
+                                <ul>
+                                    {% for key, value in analysis_results.extracted_data.items() %}
+                                    <li><strong>{{ key|title }}:</strong> {{ value }}</li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <h6>Recommended Actions:</h6>
+                                <ol>
+                                    {% for action in analysis_results.recommended_actions %}
+                                    <li>{{ action }}</li>
+                                    {% endfor %}
+                                </ol>
+                            </div>
+                            
+                            <div class="d-flex justify-content-end">
+                                <a href="{{ url_for('save_analysis_results', analysis_id=analysis_results.id) }}" class="btn btn-primary me-2">Save Results</a>
+                                <a href="{{ url_for('export_analysis_results', analysis_id=analysis_results.id) }}" class="btn btn-outline-secondary">Export</a>
+                            </div>
+                        {% else %}
+                            <div class="text-center py-4">
+                                <p class="text-muted">Upload a document and select an analysis type to see results here.</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Recent Document Analyses</h6>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered" width="100%" cellspacing="0">
+                        <thead>
+                            <tr>
+                                <th>Document</th>
+                                <th>Analysis Type</th>
+                                <th>Date</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for analysis in recent_analyses %}
+                            <tr>
+                                <td>{{ analysis.document_name }}</td>
+                                <td>{{ analysis.analysis_type|title }}</td>
+                                <td>{{ analysis.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                                <td>
+                                    {% if analysis.status == 'completed' %}
+                                        <span class="badge bg-success">Completed</span>
+                                    {% elif analysis.status == 'processing' %}
+                                        <span class="badge bg-warning">Processing</span>
+                                    {% elif analysis.status == 'failed' %}
+                                        <span class="badge bg-danger">Failed</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">{{ analysis.status }}</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div class="btn-group" role="group">
+                                        <a href="{{ url_for('view_analysis_results', analysis_id=analysis.id) }}" class="btn btn-sm btn-primary" title="View Results">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <a href="{{ url_for('export_analysis_results', analysis_id=analysis.id) }}" class="btn btn-sm btn-outline-secondary" title="Export">
+                                            <i class="fas fa-download"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="5" class="text-center">No recent document analyses found.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Case Prediction Tab -->
+    <div class="tab-pane fade {% if active_tab == 'case_prediction' %}show active{% endif %}" id="casePrediction" role="tabpanel" aria-labelledby="casePrediction-tab">
+        <div class="row mb-4">
+            <div class="col-lg-6">
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">Case Prediction Parameters</h6>
+                    </div>
+                    <div class="card-body">
+                        <form method="POST" action="{{ url_for('predict_case_outcome') }}">
+                            {{ case_prediction_form.hidden_tag() }}
+                            
+                            <div class="mb-3">
+                                {{ case_prediction_form.case_type.label(class="form-label") }}
+                                {{ case_prediction_form.case_type(class="form-control") }}
+                                {% if case_prediction_form.case_type.errors %}
+                                    <div class="text-danger">
+                                        {% for error in case_prediction_form.case_type.errors %}
+                                            <small>{{ error }}</small>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="mb-3">
+                                {{ case_prediction_form.jurisdiction.label(class="form-label") }}
+                                {{ case_prediction_form.jurisdiction(class="form-control") }}
+                                {% if case_prediction_form.jurisdiction.errors %}
+                                    <div class="text-danger">
+                                        {% for error in case_prediction_form.jurisdiction.errors %}
+                                            <small>{{ error }}</small>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="mb-3">
+                                {{ case_prediction_form.case_complexity.label(class="form-label") }}
+                                {{ case_prediction_form.case_complexity(class="form-control") }}
+                                {% if case_prediction_form.case_complexity.errors %}
+                                    <div class="text-danger">
+                                        {% for error in case_prediction_form.case_complexity.errors %}
+                                            <small>{{ error }}</small>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="mb-3">
+                                {{ case_prediction_form.estimated_duration.label(class="form-label") }}
+                                {{ case_prediction_form.estimated_duration(class="form-control") }}
+                                {% if case_prediction_form.estimated_duration.errors %}
+                                    <div class="text-danger">
+                                        {% for error in case_prediction_form.estimated_duration.errors %}
+                                            <small>{{ error }}</small>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="mb-3">
+                                {{ case_prediction_form.opposing_counsel.label(class="form-label") }}
+                                {{ case_prediction_form.opposing_counsel(class="form-control") }}
+                                {% if case_prediction_form.opposing_counsel.errors %}
+                                    <div class="text-danger">
+                                        {% for error in case_prediction_form.opposing_counsel.errors %}
+                                            <small>{{ error }}</small>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="mb-3">
+                                {{ case_prediction_form.additional_factors.label(class="form-label") }}
+                                {{ case_prediction_form.additional_factors(class="form-control", rows="3") }}
+                                {% if case_prediction_form.additional_factors.errors %}
+                                    <div class="text-danger">
+                                        {% for error in case_prediction_form.additional_factors.errors %}
+                                            <small>{{ error }}</small>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="d-flex justify-content-end">
+                                <button type="submit" class="btn btn-primary">Predict Outcome</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-6">
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">Prediction Results</h6>
+                    </div>
+                    <div class="card-body">
+                        {% if prediction_results %}
+                            <div class="mb-3">
+                                <h6>Predicted Outcome:</h6>
+                                <div class="progress mb-2">
+                                    <div class="progress-bar bg-success" role="progressbar" style="width: {{ prediction_results.success_probability }}%;" aria-valuenow="{{ prediction_results.success_probability }}" aria-valuemin="0" aria-valuemax="100">
+                                        {{ prediction_results.success_probability }}% Success
+                                    </div>
+                                </div>
+                                <p>{{ prediction_results.outcome_description }}</p>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <h6>Key Factors Influencing Prediction:</h6>
+                                <ul>
+                                    {% for factor in prediction_results.key_factors %}
+                                    <li>{{ factor }}</li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <h6>Recommended Strategy:</h6>
+                                <p>{{ prediction_results.recommended_strategy }}</p>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <h6>Potential Risks:</h6>
+                                <ul>
+                                    {% for risk in prediction_results.potential_risks %}
+                                    <li>{{ risk }}</li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                            
+                            <div class="d-flex justify-content-end">
+                                <a href="{{ url_for('save_prediction_results', prediction_id=prediction_results.id) }}" class="btn btn-primary me-2">Save Results</a>
+                                <a href="{{ url_for('export_prediction_results', prediction_id=prediction_results.id) }}" class="btn btn-outline-secondary">Export</a>
+                            </div>
+                        {% else %}
+                            <div class="text-center py-4">
+                                <p class="text-muted">Enter case parameters and click "Predict Outcome" to see results here.</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Prediction Accuracy</h6>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="chart-area">
+                            <canvas id="predictionAccuracyChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>Model Performance Metrics</h6>
+                        <div class="table-responsive">
+                            <table class="table table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th>Metric</th>
+                                        <th>Value</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Overall Accuracy</td>
+                                        <td>{{ model_metrics.accuracy|round(2) }}%</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Precision</td>
+                                        <td>{{ model_metrics.precision|round(2) }}%</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Recall</td>
+                                        <td>{{ model_metrics.recall|round(2) }}%</td>
+                                    </tr>
+                                    <tr>
+                                        <td>F1 Score</td>
+                                        <td>{{ model_metrics.f1_score|round(2) }}%</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Automation Rules Tab -->
+    <div class="tab-pane fade {% if active_tab == 'automation' %}show active{% endif %}" id="automation" role="tabpanel" aria-labelledby="automation-tab">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                <h6 class="m-0 font-weight-bold text-primary">Automation Rules</h6>
+                <div class="dropdown no-arrow">
+                    <a class="dropdown-toggle" href="#" role="button" id="automationDropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in" aria-labelledby="automationDropdown">
+                        <div class="dropdown-header">Automation Options:</div>
+                        <a class="dropdown-item" href="{{ url_for('add_automation_rule') }}">Add New Rule</a>
+                        <a class="dropdown-item" href="{{ url_for('automation_logs') }}">View Logs</a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" href="{{ url_for('export_automation_rules') }}">Export Rules</a>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered" width="100%" cellspacing="0">
+                        <thead>
+                            <tr>
+                                <th>Rule Name</th>
+                                <th>Trigger</th>
+                                <th>Action</th>
+                                <th>Status</th>
+                                <th>Last Run</th>
+                                <th>Next Run</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for rule in automation_rules %}
+                            <tr>
+                                <td>{{ rule.name }}</td>
+                                <td>{{ rule.trigger }}</td>
+                                <td>{{ rule.action }}</td>
+                                <td>
+                                    {% if rule.status == 'active' %}
+                                        <span class="badge bg-success">Active</span>
+                                    {% elif rule.status == 'inactive' %}
+                                        <span class="badge bg-secondary">Inactive</span>
+                                    {% elif rule.status == 'error' %}
+                                        <span class="badge bg-danger">Error</span>
+                                    {% else %}
+                                        <span class="badge bg-light text-dark">{{ rule.status }}</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ rule.last_run.strftime('%Y-%m-%d %H:%M') if rule.last_run else 'Never' }}</td>
+                                <td>{{ rule.next_run.strftime('%Y-%m-%d %H:%M') if rule.next_run else 'N/A' }}</td>
+                                <td>
+                                    <div class="btn-group" role="group">
+                                        <a href="{{ url_for('edit_automation_rule', rule_id=rule.id) }}" class="btn btn-sm btn-info" title="Edit">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <button type="button" class="btn btn-sm btn-success toggle-rule" data-id="{{ rule.id }}" data-status="{{ rule.status }}" title="Toggle">
+                                            {% if rule.status == 'active' %}
+                                                <i class="fas fa-pause"></i>
+                                            {% else %}
+                                                <i class="fas fa-play"></i>
+                                            {% endif %}
+                                        </button>
+                                        <button type="button" class="btn btn-sm btn-primary run-rule" data-id="{{ rule.id }}" title="Run Now">
+                                            <i class="fas fa-play-circle"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-sm btn-danger delete-rule" data-id="{{ rule.id }}" data-name="{{ rule.name }}" title="Delete">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="7" class="text-center">No automation rules found.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <div class="text-center mt-3">
+                    <a href="{{ url_for('add_automation_rule') }}" class="btn btn-primary">Add New Rule</a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Automation Templates</h6>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    {% for template in automation_templates %}
+                    <div class="col-md-4 mb-4">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h5 class="card-title">{{ template.name }}</h5>
+                                <p class="card-text">{{ template.description }}</p>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <small class="text-muted">{{ template.category }}</small>
+                                    <a href="{{ url_for('create_rule_from_template', template_id=template.id) }}" class="btn btn-sm btn-primary">Use Template</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- AI Assistant Tab -->
+    <div class="tab-pane fade {% if active_tab == 'ai_assistant' %}show active{% endif %}" id="aiAssistant" role="tabpanel" aria-labelledby="aiAssistant-tab">
+        <div class="row mb-4">
+            <div class="col-lg-8">
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">AI Assistant</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="chat-container" id="chatContainer">
+                            {% for message in chat_history %}
+                            <div class="chat-message {% if message.sender == 'user' %}user-message{% else %}assistant-message{% endif %}">
+                                <div class="message-content">
+                                    <p>{{ message.content }}</p>
+                                    <small class="text-muted">{{ message.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</small>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        
+                        <form method="POST" action="{{ url_for('ask_ai_assistant') }}" id="aiAssistantForm">
+                            {{ ai_assistant_form.hidden_tag() }}
+                            
+                            <div class="input-group mb-3">
+                                {{ ai_assistant_form.message(class="form-control", placeholder="Ask a question...", id="messageInput") }}
+                                <button class="btn btn-primary" type="submit" id="sendMessageBtn">
+                                    <i class="fas fa-paper-plane"></i>
+                                </button>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    {{ ai_assistant_form.assistant_type.label(class="form-label") }}
+                                    {{ ai_assistant_form.assistant_type(class="form-control") }}
+                                </div>
+                                <div class="col-md-6">
+                                    {{ ai_assistant_form.context.label(class="form-label") }}
+                                    {{ ai_assistant_form.context(class="form-control") }}
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-4">
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">Quick Actions</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-grid gap-2">
+                            <button type="button" class="btn btn-outline-primary quick-action" data-action="summarize_case">
+                                <i class="fas fa-file-alt me-2"></i>Summarize Case
+                            </button>
+                            <button type="button" class="btn btn-outline-primary quick-action" data-action="draft_document">
+                                <i class="fas fa-file-signature me-2"></i>Draft Document
+                            </button>
+                            <button type="button" class="btn btn-outline-primary quick-action" data-action="research_law">
+                                <i class="fas fa-balance-scale me-2"></i>Research Law
+                            </button>
+                            <button type="button" class="btn btn-outline-primary quick-action" data-action="analyze_contract">
+                                <i class="fas fa-file-contract me-2"></i>Analyze Contract
+                            </button>
+                            <button type="button" class="btn btn-outline-primary quick-action" data-action="generate_timeline">
+                                <i class="fas fa-calendar-alt me-2"></i>Generate Timeline
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">Recent Conversations</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="list-group">
+                            {% for conversation in recent_conversations %}
+                            <a href="{{ url_for('view_ai_conversation', conversation_id=conversation.id) }}" class="list-group-item list-group-item-action">
+                                <div class="d-flex w-100 justify-content-between">
+                                    <h6 class="mb-1">{{ conversation.title }}</h6>
+                                    <small>{{ conversation.created_at.strftime('%m/%d') }}</small>
+                                </div>
+                                <p class="mb-1">{{ conversation.preview }}</p>
+                                <small>{{ conversation.assistant_type }}</small>
+                            </a>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Rule Confirmation Modal -->
+<div class="modal fade" id="deleteRuleModal" tabindex="-1" aria-labelledby="deleteRuleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteRuleModalLabel">Confirm Delete</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to delete the automation rule "<strong id="deleteRuleName"></strong>"? This action cannot be undone.
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form id="deleteRuleForm" method="POST">
+                    <button type="submit" class="btn btn-danger">Delete</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    $(document).ready(function() {
+        // Prediction Accuracy Chart
+        var predictionAccuracyCtx = document.getElementById('predictionAccuracyChart').getContext('2d');
+        var predictionAccuracyChart = new Chart(predictionAccuracyCtx, {
+            type: 'bar',
+            data: {
+                labels: {{ prediction_accuracy_chart.labels|tojson }},
+                datasets: [{
+                    label: 'Accuracy %',
+                    data: {{ prediction_accuracy_chart.data|tojson }},
+                    backgroundColor: 'rgba(54, 185, 204, 0.8)',
+                    borderColor: 'rgba(54, 185, 204, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100,
+                        ticks: {
+                            callback: function(value) {
+                                return value + '%';
+                            }
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                }
+            }
+        });
+        
+        // Toggle automation rule status
+        $('.toggle-rule').on('click', function() {
+            var ruleId = $(this).data('id');
+            var currentStatus = $(this).data('status');
+            var newStatus = currentStatus === 'active' ? 'inactive' : 'active';
+            
+            $.ajax({
+                url: '/toggle_automation_rule/' + ruleId,
+                type: 'POST',
+                data: {
+                    status: newStatus
+                },
+                success: function(response) {
+                    if (response.success) {
+                        location.reload();
+                    } else {
+                        alert('Error updating rule status: ' + response.message);
+                    }
+                },
+                error: function() {
+                    alert('Error updating rule status. Please try again.');
+                }
+            });
+        });
+        
+        // Run automation rule now
+        $('.run-rule').on('click', function() {
+            var ruleId = $(this).data('id');
+            
+            $.ajax({
+                url: '/run_automation_rule/' + ruleId,
+                type: 'POST',
+                success: function(response) {
+                    if (response.success) {
+                        alert('Rule executed successfully!');
+                        location.reload();
+                    } else {
+                        alert('Error executing rule: ' + response.message);
+                    }
+                },
+                error: function() {
+                    alert('Error executing rule. Please try again.');
+                }
+            });
+        });
+        
+        // Delete automation rule confirmation
+        $('.delete-rule').on('click', function() {
+            var ruleId = $(this).data('id');
+            var ruleName = $(this).data('name');
+            
+            $('#deleteRuleName').text(ruleName);
+            $('#deleteRuleForm').attr('action', '/delete_automation_rule/' + ruleId);
+            
+            var deleteRuleModal = new bootstrap.Modal(document.getElementById('deleteRuleModal'));
+            deleteRuleModal.show();
+        });
+        
+        // AI Assistant Form Submission
+        $('#aiAssistantForm').on('submit', function(e) {
+            e.preventDefault();
+            
+            var message = $('#messageInput').val();
+            if (!message.trim()) return;
+            
+            // Add user message to chat
+            var userMessageHtml = `
+                <div class="chat-message user-message">
+                    <div class="message-content">
+                        <p>${message}</p>
+                        <small class="text-muted">${new Date().toLocaleString()}</small>
+                    </div>
+                </div>
+            `;
+            $('#chatContainer').append(userMessageHtml);
+            
+            // Clear input
+            $('#messageInput').val('');
+            
+            // Show typing indicator
+            var typingHtml = `
+                <div class="chat-message assistant-message" id="typingIndicator">
+                    <div class="message-content">
+                        <p><em>AI Assistant is typing...</em></p>
+                    </div>
+                </div>
+            `;
+            $('#chatContainer').append(typingHtml);
+            
+            // Scroll to bottom
+            $('#chatContainer').scrollTop($('#chatContainer')[0].scrollHeight);
+            
+            // Submit form via AJAX
+            $.ajax({
+                url: $(this).attr('action'),
+                type: 'POST',
+                data: $(this).serialize(),
+                success: function(response) {
+                    // Remove typing indicator
+                    $('#typingIndicator').remove();
+                    
+                    // Add assistant response
+                    var assistantMessageHtml = `
+                        <div class="chat-message assistant-message">
+                            <div class="message-content">
+                                <p>${response.message}</p>
+                                <small class="text-muted">${new Date().toLocaleString()}</small>
+                            </div>
+                        </div>
+                    `;
+                    $('#chatContainer').append(assistantMessageHtml);
+                    
+                    // Scroll to bottom
+                    $('#chatContainer').scrollTop($('#chatContainer')[0].scrollHeight);
+                },
+                error: function() {
+                    // Remove typing indicator
+                    $('#typingIndicator').remove();
+                    
+                    // Add error message
+                    var errorMessageHtml = `
+                        <div class="chat-message assistant-message">
+                            <div class="message-content">
+                                <p>Sorry, I encountered an error. Please try again.</p>
+                                <small class="text-muted">${new Date().toLocaleString()}</small>
+                            </div>
+                        </div>
+                    `;
+                    $('#chatContainer').append(errorMessageHtml);
+                    
+                    // Scroll to bottom
+                    $('#chatContainer').scrollTop($('#chatContainer')[0].scrollHeight);
+                }
+            });
+        });
+        
+        // Quick action buttons
+        $('.quick-action').on('click', function() {
+            var action = $(this).data('action');
+            var message = '';
+            
+            switch(action) {
+                case 'summarize_case':
+                    message = 'Please summarize the current case for me.';
+                    break;
+                case 'draft_document':
+                    message = 'Please help me draft a legal document.';
+                    break;
+                case 'research_law':
+                    message = 'Please research relevant laws for my case.';
+                    break;
+                case 'analyze_contract':
+                    message = 'Please analyze this contract for potential issues.';
+                    break;
+                case 'generate_timeline':
+                    message = 'Please generate a timeline for this case.';
+                    break;
+            }
+            
+            $('#messageInput').val(message);
+            $('#messageInput').focus();
+        });
+    });
+</script>
+{% endblock %}

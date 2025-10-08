@@ -1,0 +1,516 @@
+{% extends "base.html" %}
+
+{% block title %}Add Trust Transaction - Law Firm Management System{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Add Trust Transaction</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <div class="btn-group me-2">
+            <a href="{{ url_for('trust_accounts', tab='transactions') }}" class="btn btn-sm btn-outline-secondary">
+                <i class="fas fa-arrow-left me-1"></i>Back to Transactions
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">New Trust Transaction</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('add_trust_transaction') }}">
+                    {{ form.hidden_tag() }}
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            {{ form.trust_account_id.label(class="form-label") }}
+                            {{ form.trust_account_id(class="form-control", id="accountSelect") }}
+                            {% if form.trust_account_id.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.trust_account_id.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            {{ form.transaction_type.label(class="form-label") }}
+                            {{ form.transaction_type(class="form-control", id="transactionTypeSelect") }}
+                            {% if form.transaction_type.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.transaction_type.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            {{ form.transaction_date.label(class="form-label") }}
+                            {{ form.transaction_date(class="form-control", type="date") }}
+                            {% if form.transaction_date.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.transaction_date.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            {{ form.amount.label(class="form-label") }}
+                            {{ form.amount(class="form-control") }}
+                            {% if form.amount.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.amount.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        {{ form.description.label(class="form-label") }}
+                        {{ form.description(class="form-control") }}
+                        {% if form.description.errors %}
+                            <div class="text-danger">
+                                {% for error in form.description.errors %}
+                                    <small>{{ error }}</small>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="row mb-3" id="transferFields" style="display: none;">
+                        <div class="col-md-6">
+                            {{ form.destination_account_id.label(class="form-label") }}
+                            {{ form.destination_account_id(class="form-control", id="destinationAccountSelect") }}
+                            {% if form.destination_account_id.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.destination_account_id.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            {{ form.transfer_reference.label(class="form-label") }}
+                            {{ form.transfer_reference(class="form-control") }}
+                            {% if form.transfer_reference.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.transfer_reference.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            {{ form.payment_method.label(class="form-label") }}
+                            {{ form.payment_method(class="form-control") }}
+                            {% if form.payment_method.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.payment_method.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            {{ form.reference_number.label(class="form-label") }}
+                            {{ form.reference_number(class="form-control") }}
+                            {% if form.reference_number.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.reference_number.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            {{ form.status.label(class="form-label") }}
+                            {{ form.status(class="form-control") }}
+                            {% if form.status.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.status.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            {{ form.processed_by.label(class="form-label") }}
+                            {{ form.processed_by(class="form-control") }}
+                            {% if form.processed_by.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.processed_by.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        {{ form.notes.label(class="form-label") }}
+                        {{ form.notes(class="form-control", rows="3") }}
+                        {% if form.notes.errors %}
+                            <div class="text-danger">
+                                {% for error in form.notes.errors %}
+                                    <small>{{ error }}</small>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <div class="form-check">
+                            {{ form.requires_approval(class="form-check-input", id="requiresApprovalCheck") }}
+                            {{ form.requires_approval.label(class="form-check-label", for="requiresApprovalCheck") }}
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3" id="approvalDetailsField" style="display: none;">
+                        {{ form.approval_details.label(class="form-label") }}
+                        {{ form.approval_details(class="form-control", rows="2") }}
+                        {% if form.approval_details.errors %}
+                            <div class="text-danger">
+                                {% for error in form.approval_details.errors %}
+                                    <small>{{ error }}</small>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                        <small class="form-text text-muted">Enter details about who needs to approve this transaction and any special instructions.</small>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <div class="form-check">
+                            {{ form.is_reconciled(class="form-check-input", id="isReconciledCheck") }}
+                            {{ form.is_reconciled.label(class="form-check-label", for="isReconciledCheck") }}
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3" id="reconciliationDetailsField" style="display: none;">
+                        {{ form.reconciliation_details.label(class="form-label") }}
+                        {{ form.reconciliation_details(class="form-control", rows="2") }}
+                        {% if form.reconciliation_details.errors %}
+                            <div class="text-danger">
+                                {% for error in form.reconciliation_details.errors %}
+                                    <small>{{ error }}</small>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                        <small class="form-text text-muted">Enter details about the reconciliation, such as bank statement reference and reconciliation date.</small>
+                    </div>
+                    
+                    <div class="d-flex justify-content-end">
+                        <a href="{{ url_for('trust_accounts', tab='transactions') }}" class="btn btn-secondary me-2">Cancel</a>
+                        <button type="submit" class="btn btn-primary">Add Transaction</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Transaction Guidelines</h5>
+            </div>
+            <div class="card-body">
+                <ul>
+                    <li>Select the correct trust account for the transaction</li>
+                    <li>Choose the appropriate transaction type</li>
+                    <li>Enter accurate amounts and descriptions</li>
+                    <li>Include reference numbers for all transactions</li>
+                    <li>Mark transactions as requiring approval when necessary</li>
+                    <li>Record reconciliation details when available</li>
+                    <li>Ensure all transactions comply with trust accounting rules</li>
+                    <li>Review all details before submitting</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="card mt-3">
+            <div class="card-header">
+                <h5 class="mb-0">Transaction Types</h5>
+            </div>
+            <div class="card-body">
+                <div class="accordion" id="transactionTypesAccordion">
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="depositHeading">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#depositCollapse" aria-expanded="false" aria-controls="depositCollapse">
+                                Deposit
+                            </button>
+                        </h2>
+                        <div id="depositCollapse" class="accordion-collapse collapse" aria-labelledby="depositHeading" data-bs-parent="#transactionTypesAccordion">
+                            <div class="accordion-body">
+                                Funds being added to a trust account, such as client payments, retainer fees, or settlement funds.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="withdrawalHeading">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#withdrawalCollapse" aria-expanded="false" aria-controls="withdrawalCollapse">
+                                Withdrawal
+                            </button>
+                        </h2>
+                        <div id="withdrawalCollapse" class="accordion-collapse collapse" aria-labelledby="withdrawalHeading" data-bs-parent="#transactionTypesAccordion">
+                            <div class="accordion-body">
+                                Funds being removed from a trust account, such as payments to clients, third parties, or firm fees.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="transferHeading">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#transferCollapse" aria-expanded="false" aria-controls="transferCollapse">
+                                Transfer
+                            </button>
+                        </h2>
+                        <div id="transferCollapse" class="accordion-collapse collapse" aria-labelledby="transferHeading" data-bs-parent="#transactionTypesAccordion">
+                            <div class="accordion-body">
+                                Funds being moved from one trust account to another, such as transferring settlement funds to a distribution account.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="feeHeading">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#feeCollapse" aria-expanded="false" aria-controls="feeCollapse">
+                                Fee
+                            </button>
+                        </h2>
+                        <div id="feeCollapse" class="accordion-collapse collapse" aria-labelledby="feeHeading" data-bs-parent="#transactionTypesAccordion">
+                            <div class="accordion-body">
+                                Bank fees, transaction fees, or other charges deducted from the trust account.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="interestHeading">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#interestCollapse" aria-expanded="false" aria-controls="interestCollapse">
+                                Interest
+                            </button>
+                        </h2>
+                        <div id="interestCollapse" class="accordion-collapse collapse" aria-labelledby="interestHeading" data-bs-parent="#transactionTypesAccordion">
+                            <div class="accordion-body">
+                                Interest earned on the trust account balance, which may need to be distributed to clients according to rules.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="adjustmentHeading">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#adjustmentCollapse" aria-expanded="false" aria-controls="adjustmentCollapse">
+                                Adjustment
+                            </button>
+                        </h2>
+                        <div id="adjustmentCollapse" class="accordion-collapse collapse" aria-labelledby="adjustmentHeading" data-bs-parent="#transactionTypesAccordion">
+                            <div class="accordion-body">
+                                Corrections or adjustments to previous transactions, such as correcting errors or reconciling discrepancies.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card mt-3">
+            <div class="card-header">
+                <h5 class="mb-0">Transaction Statuses</h5>
+            </div>
+            <div class="card-body">
+                <div class="accordion" id="transactionStatusesAccordion">
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="completedStatusHeading">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#completedStatusCollapse" aria-expanded="false" aria-controls="completedStatusCollapse">
+                                Completed
+                            </button>
+                        </h2>
+                        <div id="completedStatusCollapse" class="accordion-collapse collapse" aria-labelledby="completedStatusHeading" data-bs-parent="#transactionStatusesAccordion">
+                            <div class="accordion-body">
+                                Transaction has been successfully processed and the funds have been moved.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="pendingStatusHeading">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#pendingStatusCollapse" aria-expanded="false" aria-controls="pendingStatusCollapse">
+                                Pending
+                            </button>
+                        </h2>
+                        <div id="pendingStatusCollapse" class="accordion-collapse collapse" aria-labelledby="pendingStatusHeading" data-bs-parent="#transactionStatusesAccordion">
+                            <div class="accordion-body">
+                                Transaction is awaiting processing, approval, or confirmation from the bank.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="failedStatusHeading">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#failedStatusCollapse" aria-expanded="false" aria-controls="failedStatusCollapse">
+                                Failed
+                            </button>
+                        </h2>
+                        <div id="failedStatusCollapse" class="accordion-collapse collapse" aria-labelledby="failedStatusHeading" data-bs-parent="#transactionStatusesAccordion">
+                            <div class="accordion-body">
+                                Transaction could not be completed due to an error, insufficient funds, or other issues.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="reversedStatusHeading">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#reversedStatusCollapse" aria-expanded="false" aria-controls="reversedStatusCollapse">
+                                Reversed
+                            </button>
+                        </h2>
+                        <div id="reversedStatusCollapse" class="accordion-collapse collapse" aria-labelledby="reversedStatusHeading" data-bs-parent="#transactionStatusesAccordion">
+                            <div class="accordion-body">
+                                Transaction has been reversed, typically due to an error or client request.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card mt-3">
+            <div class="card-header">
+                <h5 class="mb-0">Recent Transactions</h5>
+            </div>
+            <div class="card-body">
+                {% if recent_transactions %}
+                <div class="list-group list-group-flush">
+                    {% for transaction in recent_transactions %}
+                    <div class="list-group-item px-0">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h6 class="mb-1">{{ transaction.description[:50] }}{% if transaction.description|length > 50 %}...{% endif %}</h6>
+                            <small>{{ transaction.transaction_date.strftime('%Y-%m-%d') }}</small>
+                        </div>
+                        <p class="mb-1">
+                            {{ transaction.trust_account.account_name }} • 
+                            {% if transaction.transaction_type in ['withdrawal', 'fee'] %}
+                                -₹{{ transaction.amount|round(2) }}
+                            {% else %}
+                                +₹{{ transaction.amount|round(2) }}
+                            {% endif %}
+                        </p>
+                        <div>
+                            {% if transaction.status == 'completed' %}
+                                <span class="badge bg-success">Completed</span>
+                            {% elif transaction.status == 'pending' %}
+                                <span class="badge bg-warning">Pending</span>
+                            {% elif transaction.status == 'failed' %}
+                                <span class="badge bg-danger">Failed</span>
+                            {% elif transaction.status == 'reversed' %}
+                                <span class="badge bg-info">Reversed</span>
+                            {% else %}
+                                <span class="badge bg-light text-dark">{{ transaction.status }}</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p class="text-muted">No recent transactions found.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    $(document).ready(function() {
+        // Handle transaction type selection
+        $('#transactionTypeSelect').on('change', function() {
+            var transactionType = $(this).val();
+            var transferFields = $('#transferFields');
+            
+            if (transactionType === 'transfer') {
+                transferFields.show();
+                $('#destination_account_id').prop('required', true);
+                $('#transfer_reference').prop('required', true);
+            } else {
+                transferFields.hide();
+                $('#destination_account_id').prop('required', false);
+                $('#transfer_reference').prop('required', false);
+            }
+        });
+        
+        // Handle requires approval checkbox
+        $('#requiresApprovalCheck').on('change', function() {
+            var isChecked = $(this).is(':checked');
+            var approvalDetailsField = $('#approvalDetailsField');
+            
+            if (isChecked) {
+                approvalDetailsField.show();
+                $('#approval_details').prop('required', true);
+            } else {
+                approvalDetailsField.hide();
+                $('#approval_details').prop('required', false);
+            }
+        });
+        
+        // Handle is reconciled checkbox
+        $('#isReconciledCheck').on('change', function() {
+            var isChecked = $(this).is(':checked');
+            var reconciliationDetailsField = $('#reconciliationDetailsField');
+            
+            if (isChecked) {
+                reconciliationDetailsField.show();
+                $('#reconciliation_details').prop('required', true);
+            } else {
+                reconciliationDetailsField.hide();
+                $('#reconciliation_details').prop('required', false);
+            }
+        });
+        
+        // Pre-select account if passed in URL
+        var urlParams = new URLSearchParams(window.location.search);
+        var accountId = urlParams.get('account_id');
+        if (accountId) {
+            $('#accountSelect').val(accountId);
+        }
+        
+        // Set default transaction date to today
+        var transactionDateField = $('#transaction_date');
+        if (!transactionDateField.val()) {
+            var today = new Date();
+            var year = today.getFullYear();
+            var month = String(today.getMonth() + 1).padStart(2, '0');
+            var day = String(today.getDate()).padStart(2, '0');
+            
+            transactionDateField.val(`${year}-${month}-${day}`);
+        }
+        
+        // Set default status to pending
+        var statusField = $('#status');
+        if (!statusField.val()) {
+            statusField.val('pending');
+        }
+        
+        // Set default processed by to current user if available
+        var processedByField = $('#processed_by');
+        if (!processedByField.val() && processedByField.find('option[value="' + current_user_id + '"]').length) {
+            processedByField.val(current_user_id);
+        }
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,446 @@
+{% extends "base.html" %}
+
+{% block title %}Upload Document - Law Firm Management System{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Upload Document</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <div class="btn-group me-2">
+            <a href="{{ url_for('documents') }}" class="btn btn-sm btn-outline-secondary">
+                <i class="fas fa-arrow-left me-1"></i>Back to Documents
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Upload New Document</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('upload_document') }}" enctype="multipart/form-data">
+                    {{ form.hidden_tag() }}
+                    
+                    <div class="mb-3">
+                        {{ form.title.label(class="form-label") }}
+                        {{ form.title(class="form-control") }}
+                        {% if form.title.errors %}
+                            <div class="text-danger">
+                                {% for error in form.title.errors %}
+                                    <small>{{ error }}</small>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        {{ form.description.label(class="form-label") }}
+                        {{ form.description(class="form-control", rows="3") }}
+                        {% if form.description.errors %}
+                            <div class="text-danger">
+                                {% for error in form.description.errors %}
+                                    <small>{{ error }}</small>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        {{ form.file.label(class="form-label") }}
+                        {{ form.file(class="form-control") }}
+                        {% if form.file.errors %}
+                            <div class="text-danger">
+                                {% for error in form.file.errors %}
+                                    <small>{{ error }}</small>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                        <small class="form-text text-muted">Maximum file size: 50MB. Allowed file types: PDF, DOC, DOCX, XLS, XLSX, PPT, PPTX, JPG, JPEG, PNG, GIF, TXT.</small>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            {{ form.client_id.label(class="form-label") }}
+                            {{ form.client_id(class="form-control", id="clientSelect") }}
+                            {% if form.client_id.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.client_id.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            {{ form.case_id.label(class="form-label") }}
+                            {{ form.case_id(class="form-control", id="caseSelect") }}
+                            {% if form.case_id.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.case_id.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            {{ form.category.label(class="form-label") }}
+                            {{ form.category(class="form-control") }}
+                            {% if form.category.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.category.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            {{ form.document_type.label(class="form-label") }}
+                            {{ form.document_type(class="form-control") }}
+                            {% if form.document_type.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.document_type.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        {{ form.tags.label(class="form-label") }}
+                        {{ form.tags(class="form-control") }}
+                        {% if form.tags.errors %}
+                            <div class="text-danger">
+                                {% for error in form.tags.errors %}
+                                    <small>{{ error }}</small>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                        <small class="form-text text-muted">Separate multiple tags with commas.</small>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <div class="form-check">
+                            {{ form.is_confidential(class="form-check-input", id="isConfidentialCheck") }}
+                            {{ form.is_confidential.label(class="form-check-label", for="isConfidentialCheck") }}
+                        </div>
+                        <small class="form-text text-muted">Mark as confidential to restrict access to authorized personnel only.</small>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <div class="form-check">
+                            {{ form.requires_signature(class="form-check-input", id="requiresSignatureCheck") }}
+                            {{ form.requires_signature.label(class="form-check-label", for="requiresSignatureCheck") }}
+                        </div>
+                        <small class="form-text text-muted">Check if this document requires client or other party signature.</small>
+                    </div>
+                    
+                    <div class="mb-3" id="signatureDetailsField" style="display: none;">
+                        {{ form.signature_details.label(class="form-label") }}
+                        {{ form.signature_details(class="form-control", rows="2") }}
+                        {% if form.signature_details.errors %}
+                            <div class="text-danger">
+                                {% for error in form.signature_details.errors %}
+                                    <small>{{ error }}</small>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                        <small class="form-text text-muted">Enter details about who needs to sign the document and any special instructions.</small>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <div class="form-check">
+                            {{ form.is_template(class="form-check-input", id="isTemplateCheck") }}
+                            {{ form.is_template.label(class="form-check-label", for="isTemplateCheck") }}
+                        </div>
+                        <small class="form-text text-muted">Mark as a template if this document can be reused for similar cases or clients.</small>
+                    </div>
+                    
+                    <div class="mb-3" id="templateDetailsField" style="display: none;">
+                        {{ form.template_details.label(class="form-label") }}
+                        {{ form.template_details(class="form-control", rows="2") }}
+                        {% if form.template_details.errors %}
+                            <div class="text-danger">
+                                {% for error in form.template_details.errors %}
+                                    <small>{{ error }}</small>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                        <small class="form-text text-muted">Enter details about when and how this template should be used.</small>
+                    </div>
+                    
+                    <div class="mb-3">
+                        {{ form.expiry_date.label(class="form-label") }}
+                        {{ form.expiry_date(class="form-control", type="date") }}
+                        {% if form.expiry_date.errors %}
+                            <div class="text-danger">
+                                {% for error in form.expiry_date.errors %}
+                                    <small>{{ error }}</small>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                        <small class="form-text text-muted">Set an expiry date if the document becomes invalid after a certain date.</small>
+                    </div>
+                    
+                    <div class="mb-3">
+                        {{ form.notes.label(class="form-label") }}
+                        {{ form.notes(class="form-control", rows="3") }}
+                        {% if form.notes.errors %}
+                            <div class="text-danger">
+                                {% for error in form.notes.errors %}
+                                    <small>{{ error }}</small>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="d-flex justify-content-end">
+                        <a href="{{ url_for('documents') }}" class="btn btn-secondary me-2">Cancel</a>
+                        <button type="submit" class="btn btn-primary">Upload Document</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Document Categories</h5>
+            </div>
+            <div class="card-body">
+                <div class="accordion" id="documentCategoriesAccordion">
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="pleadingHeading">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#pleadingCollapse" aria-expanded="false" aria-controls="pleadingCollapse">
+                                Pleading
+                            </button>
+                        </h2>
+                        <div id="pleadingCollapse" class="accordion-collapse collapse" aria-labelledby="pleadingHeading" data-bs-parent="#documentCategoriesAccordion">
+                            <div class="accordion-body">
+                                Legal documents filed with the court, such as complaints, answers, motions, and petitions.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="contractHeading">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#contractCollapse" aria-expanded="false" aria-controls="contractCollapse">
+                                Contract
+                            </button>
+                        </h2>
+                        <div id="contractCollapse" class="accordion-collapse collapse" aria-labelledby="contractHeading" data-bs-parent="#documentCategoriesAccordion">
+                            <div class="accordion-body">
+                                Agreements between parties, including service agreements, employment contracts, and settlement agreements.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="correspondenceHeading">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#correspondenceCollapse" aria-expanded="false" aria-controls="correspondenceCollapse">
+                                Correspondence
+                            </button>
+                        </h2>
+                        <div id="correspondenceCollapse" class="accordion-collapse collapse" aria-labelledby="correspondenceHeading" data-bs-parent="#documentCategoriesAccordion">
+                            <div class="accordion-body">
+                                Letters, emails, and other communications with clients, opposing counsel, courts, and other parties.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="evidenceHeading">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#evidenceCollapse" aria-expanded="false" aria-controls="evidenceCollapse">
+                                Evidence
+                            </button>
+                        </h2>
+                        <div id="evidenceCollapse" class="accordion-collapse collapse" aria-labelledby="evidenceHeading" data-bs-parent="#documentCategoriesAccordion">
+                            <div class="accordion-body">
+                                Documents, photos, videos, and other materials that support a case, such as exhibits, affidavits, and expert reports.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="courtHeading">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#courtCollapse" aria-expanded="false" aria-controls="courtCollapse">
+                                Court Order
+                            </button>
+                        </h2>
+                        <div id="courtCollapse" class="accordion-collapse collapse" aria-labelledby="courtHeading" data-bs-parent="#documentCategoriesAccordion">
+                            <div class="accordion-body">
+                                Orders issued by a judge or court, including judgments, injunctions, and procedural orders.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="researchHeading">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#researchCollapse" aria-expanded="false" aria-controls="researchCollapse">
+                                Research
+                            </button>
+                        </h2>
+                        <div id="researchCollapse" class="accordion-collapse collapse" aria-labelledby="researchHeading" data-bs-parent="#documentCategoriesAccordion">
+                            <div class="accordion-body">
+                                Legal research materials, including case law summaries, statutory analysis, and memoranda.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="financialHeading">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#financialCollapse" aria-expanded="false" aria-controls="financialCollapse">
+                                Financial
+                            </button>
+                        </h2>
+                        <div id="financialCollapse" class="accordion-collapse collapse" aria-labelledby="financialHeading" data-bs-parent="#documentCategoriesAccordion">
+                            <div class="accordion-body">
+                                Financial documents, including invoices, fee agreements, expense reports, and trust account records.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="administrativeHeading">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#administrativeCollapse" aria-expanded="false" aria-controls="administrativeCollapse">
+                                Administrative
+                            </button>
+                        </h2>
+                        <div id="administrativeCollapse" class="accordion-collapse collapse" aria-labelledby="administrativeHeading" data-bs-parent="#documentCategoriesAccordion">
+                            <div class="accordion-body">
+                                Administrative documents, including engagement letters, conflict checks, and office policies.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card mt-3">
+            <div class="card-header">
+                <h5 class="mb-0">Upload Guidelines</h5>
+            </div>
+            <div class="card-body">
+                <ul>
+                    <li>Use descriptive filenames that clearly identify the document content</li>
+                    <li>Ensure documents are properly scanned and readable</li>
+                    <li>Remove any sensitive or confidential information not relevant to the case</li>
+                    <li>Organize documents by client and case for easy retrieval</li>
+                    <li>Add relevant tags to improve searchability</li>
+                    <li>Mark confidential documents appropriately</li>
+                    <li>Set expiry dates for time-sensitive documents</li>
+                    <li>Comply with data protection and privacy regulations</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="card mt-3">
+            <div class="card-header">
+                <h5 class="mb-0">Document Security</h5>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    <strong>Important:</strong> Ensure you have the right to upload and share these documents. Unauthorized sharing of confidential information may violate attorney-client privilege and data protection laws.
+                </div>
+                <ul>
+                    <li>Confidential documents are only accessible to authorized personnel</li>
+                    <li>All document uploads are logged and tracked</li>
+                    <li>Documents are encrypted both in transit and at rest</li>
+                    <li>Regular security audits are performed on the document storage system</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    $(document).ready(function() {
+        // Handle client selection to update case options
+        $('#clientSelect').on('change', function() {
+            var clientId = $(this).val();
+            var caseSelect = $('#caseSelect');
+            
+            // Clear current options
+            caseSelect.empty();
+            caseSelect.append($('<option>', { value: '', text: 'Select a case (optional)' }));
+            
+            if (clientId) {
+                // Fetch cases for the selected client
+                $.ajax({
+                    url: '/api/client_cases/' + clientId,
+                    type: 'GET',
+                    success: function(data) {
+                        $.each(data.cases, function(index, caseItem) {
+                            caseSelect.append($('<option>', { 
+                                value: caseItem.id, 
+                                text: caseItem.title + ' (' + caseItem.case_number + ')' 
+                            }));
+                        });
+                        
+                        // Pre-select case if passed in URL
+                        var urlParams = new URLSearchParams(window.location.search);
+                        var caseId = urlParams.get('case_id');
+                        if (caseId) {
+                            caseSelect.val(caseId);
+                        }
+                    }
+                });
+            }
+        });
+        
+        // Handle confidential checkbox
+        $('#isConfidentialCheck').on('change', function() {
+            var isChecked = $(this).is(':checked');
+            if (isChecked) {
+                $('#confidentialAlert').show();
+            } else {
+                $('#confidentialAlert').hide();
+            }
+        });
+        
+        // Handle requires signature checkbox
+        $('#requiresSignatureCheck').on('change', function() {
+            var isChecked = $(this).is(':checked');
+            var signatureDetailsField = $('#signatureDetailsField');
+            
+            if (isChecked) {
+                signatureDetailsField.show();
+                $('#signature_details').prop('required', true);
+            } else {
+                signatureDetailsField.hide();
+                $('#signature_details').prop('required', false);
+            }
+        });
+        
+        // Handle is template checkbox
+        $('#isTemplateCheck').on('change', function() {
+            var isChecked = $(this).is(':checked');
+            var templateDetailsField = $('#templateDetailsField');
+            
+            if (isChecked) {
+                templateDetailsField.show();
+                $('#template_details').prop('required', true);
+            } else {
+                templateDetailsField.hide();
+                $('#template_details').prop('required', false);
+            }
+        });
+        
+        // Pre-select client if passed in URL
+        var urlParams = new URLSearchParams(window.location.search);
+        var clientId = urlParams.get('client_id');
+        if (clientId) {
+            $('#clientSelect').val(clientId).trigger('change');
+        }
+    });
+</script>
+{% endblock %}

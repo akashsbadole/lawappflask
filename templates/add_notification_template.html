@@ -1,0 +1,401 @@
+{% extends "base.html" %}
+
+{% block title %}Add Notification Template - Law Firm Management System{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Add Notification Template</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <div class="btn-group me-2">
+            <a href="{{ url_for('notifications_workflow', tab='templates') }}" class="btn btn-sm btn-outline-secondary">
+                <i class="fas fa-arrow-left me-1"></i>Back to Templates
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Create New Notification Template</h6>
+    </div>
+    <div class="card-body">
+        <form method="POST" action="{{ url_for('add_notification_template') }}">
+            {{ notification_template_form.hidden_tag() }}
+            
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    {{ notification_template_form.name.label(class="form-label") }}
+                    {{ notification_template_form.name(class="form-control") }}
+                    {% if notification_template_form.name.errors %}
+                        <div class="text-danger">
+                            {% for error in notification_template_form.name.errors %}
+                                <small>{{ error }}</small>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <div class="col-md-6 mb-3">
+                    {{ notification_template_form.category.label(class="form-label") }}
+                    {{ notification_template_form.category(class="form-control") }}
+                    {% if notification_template_form.category.errors %}
+                        <div class="text-danger">
+                            {% for error in notification_template_form.category.errors %}
+                                <small>{{ error }}</small>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="mb-3">
+                {{ notification_template_form.description.label(class="form-label") }}
+                {{ notification_template_form.description(class="form-control", rows="2") }}
+                {% if notification_template_form.description.errors %}
+                    <div class="text-danger">
+                        {% for error in notification_template_form.description.errors %}
+                            <small>{{ error }}</small>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+            
+            <div class="mb-3">
+                {{ notification_template_form.subject.label(class="form-label") }}
+                {{ notification_template_form.subject(class="form-control") }}
+                {% if notification_template_form.subject.errors %}
+                    <div class="text-danger">
+                        {% for error in notification_template_form.subject.errors %}
+                            <small>{{ error }}</small>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+                <small class="form-text text-muted">Use placeholders like {{ '{{ client.name }}' }}, {{ '{{ case.title }}' }}, etc.</small>
+            </div>
+            
+            <div class="mb-3">
+                {{ notification_template_form.message.label(class="form-label") }}
+                {{ notification_template_form.message(class="form-control", rows="6") }}
+                {% if notification_template_form.message.errors %}
+                    <div class="text-danger">
+                        {% for error in notification_template_form.message.errors %}
+                            <small>{{ error }}</small>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+                <small class="form-text text-muted">Use placeholders like {{ '{{ client.name }}' }}, {{ '{{ case.title }}' }}, etc.</small>
+            </div>
+            
+            <div class="card mb-3">
+                <div class="card-header py-2">
+                    <h6 class="m-0 font-weight-bold text-primary">Channel Settings</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <div class="form-check form-switch">
+                                {{ notification_template_form.enable_email(class="form-check-input") }}
+                                {{ notification_template_form.enable_email.label(class="form-check-label") }}
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <div class="form-check form-switch">
+                                {{ notification_template_form.enable_sms(class="form-check-input") }}
+                                {{ notification_template_form.enable_sms.label(class="form-check-label") }}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <div class="form-check form-switch">
+                                {{ notification_template_form.enable_push(class="form-check-input") }}
+                                {{ notification_template_form.enable_push.label(class="form-check-label") }}
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <div class="form-check form-switch">
+                                {{ notification_template_form.enable_in_app(class="form-check-input") }}
+                                {{ notification_template_form.enable_in_app.label(class="form-check-label") }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card mb-3">
+                <div class="card-header py-2">
+                    <h6 class="m-0 font-weight-bold text-primary">Available Placeholders</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <h6 class="text-primary">Client Placeholders</h6>
+                            <ul class="list-group">
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <code>{{ '{{ client.name }}' }}</code>
+                                    <span class="badge bg-primary rounded-pill">Client Name</span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <code>{{ '{{ client.email }}' }}</code>
+                                    <span class="badge bg-primary rounded-pill">Client Email</span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <code>{{ '{{ client.phone }}' }}</code>
+                                    <span class="badge bg-primary rounded-pill">Client Phone</span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <code>{{ '{{ client.address }}' }}</code>
+                                    <span class="badge bg-primary rounded-pill">Client Address</span>
+                                </li>
+                            </ul>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <h6 class="text-primary">Case Placeholders</h6>
+                            <ul class="list-group">
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <code>{{ '{{ case.title }}' }}</code>
+                                    <span class="badge bg-primary rounded-pill">Case Title</span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <code>{{ '{{ case.number }}' }}</code>
+                                    <span class="badge bg-primary rounded-pill">Case Number</span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <code>{{ '{{ case.status }}' }}</code>
+                                    <span class="badge bg-primary rounded-pill">Case Status</span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <code>{{ '{{ case.assigned_to }}' }}</code>
+                                    <span class="badge bg-primary rounded-pill">Assigned To</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <h6 class="text-primary">Appointment Placeholders</h6>
+                            <ul class="list-group">
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <code>{{ '{{ appointment.title }}' }}</code>
+                                    <span class="badge bg-primary rounded-pill">Appointment Title</span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <code>{{ '{{ appointment.date }}' }}</code>
+                                    <span class="badge bg-primary rounded-pill">Appointment Date</span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <code>{{ '{{ appointment.time }}' }}</code>
+                                    <span class="badge bg-primary rounded-pill">Appointment Time</span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <code>{{ '{{ appointment.location }}' }}</code>
+                                    <span class="badge bg-primary rounded-pill">Appointment Location</span>
+                                </li>
+                            </ul>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <h6 class="text-primary">System Placeholders</h6>
+                            <ul class="list-group">
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <code>{{ '{{ firm.name }}' }}</code>
+                                    <span class="badge bg-primary rounded-pill">Firm Name</span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <code>{{ '{{ user.name }}' }}</code>
+                                    <span class="badge bg-primary rounded-pill">User Name</span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <code>{{ '{{ current_date }}' }}</code>
+                                    <span class="badge bg-primary rounded-pill">Current Date</span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <code>{{ '{{ current_time }}' }}</code>
+                                    <span class="badge bg-primary rounded-pill">Current Time</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="d-flex justify-content-between">
+                <a href="{{ url_for('notifications_workflow', tab='templates') }}" class="btn btn-secondary">Cancel</a>
+                <div>
+                    <button type="button" class="btn btn-outline-primary me-2" id="testTemplateBtn">Test Template</button>
+                    <button type="submit" class="btn btn-primary">Create Template</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Test Template Modal -->
+<div class="modal fade" id="testTemplateModal" tabindex="-1" aria-labelledby="testTemplateModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="testTemplateModalLabel">Test Notification Template</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="testTemplateForm">
+                    <div class="mb-3">
+                        <label for="testChannel" class="form-label">Channel</label>
+                        <select class="form-select" id="testChannel" required>
+                            <option value="email">Email</option>
+                            <option value="sms">SMS</option>
+                            <option value="push">Push Notification</option>
+                            <option value="in_app">In-App</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="testRecipient" class="form-label">Recipient</label>
+                        <input type="text" class="form-control" id="testRecipient" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="testPlaceholders" class="form-label">Placeholder Values (JSON)</label>
+                        <textarea class="form-control" id="testPlaceholders" rows="5" placeholder='{"client": {"name": "John Doe"}, "case": {"title": "Sample Case"}}'></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="sendTestBtn">Send Test</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Test Results Modal -->
+<div class="modal fade" id="testResultsModal" tabindex="-1" aria-labelledby="testResultsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="testResultsModalLabel">Test Results</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div id="testResultsContent">
+                    <!-- Test results will be loaded here -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    $(document).ready(function() {
+        // Test template button
+        $('#testTemplateBtn').on('click', function() {
+            var testTemplateModal = new bootstrap.Modal(document.getElementById('testTemplateModal'));
+            testTemplateModal.show();
+        });
+        
+        // Send test button
+        $('#sendTestBtn').on('click', function() {
+            var channel = $('#testChannel').val();
+            var recipient = $('#testRecipient').val();
+            var placeholders = $('#testPlaceholders').val();
+            
+            // Get form data
+            var formData = $('form').serialize();
+            
+            $.ajax({
+                url: '/test_notification_template',
+                type: 'POST',
+                data: formData + '&channel=' + channel + '&recipient=' + recipient + '&placeholders=' + encodeURIComponent(placeholders),
+                success: function(response) {
+                    if (response.success) {
+                        // Display test results
+                        var resultsHtml = `
+                            <div class="alert alert-${response.results.success ? 'success' : 'danger'}">
+                                <h5 class="alert-heading">Test ${response.results.success ? 'Succeeded' : 'Failed'}</h5>
+                                <p>${response.results.message}</p>
+                            </div>
+                        `;
+                        
+                        if (response.results.processed_subject) {
+                            resultsHtml += `
+                                <div class="card mb-3">
+                                    <div class="card-header py-2">
+                                        <h6 class="m-0 font-weight-bold text-primary">Processed Subject</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <p>${response.results.processed_subject}</p>
+                                    </div>
+                                </div>
+                            `;
+                        }
+                        
+                        if (response.results.processed_message) {
+                            resultsHtml += `
+                                <div class="card mb-3">
+                                    <div class="card-header py-2">
+                                        <h6 class="m-0 font-weight-bold text-primary">Processed Message</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <p>${response.results.processed_message.replace(/\n/g, '<br>')}</p>
+                                    </div>
+                                </div>
+                            `;
+                        }
+                        
+                        if (response.results.notification_id) {
+                            resultsHtml += `
+                                <div class="card mb-3">
+                                    <div class="card-header py-2">
+                                        <h6 class="m-0 font-weight-bold text-primary">Notification Details</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <p><strong>Notification ID:</strong> ${response.results.notification_id}</p>
+                                        <p><strong>Channel:</strong> ${response.results.channel}</p>
+                                        <p><strong>Recipient:</strong> ${response.results.recipient}</p>
+                                        <p><strong>Status:</strong> ${response.results.status}</p>
+                                    </div>
+                                </div>
+                            `;
+                        }
+                        
+                        if (response.results.error) {
+                            resultsHtml += `
+                                <div class="card mb-3">
+                                    <div class="card-header py-2">
+                                        <h6 class="m-0 font-weight-bold text-danger">Error Details</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <p>${response.results.error}</p>
+                                    </div>
+                                </div>
+                            `;
+                        }
+                        
+                        $('#testResultsContent').html(resultsHtml);
+                        
+                        // Close test modal and show results
+                        bootstrap.Modal.getInstance(document.getElementById('testTemplateModal')).hide();
+                        
+                        var testResultsModal = new bootstrap.Modal(document.getElementById('testResultsModal'));
+                        testResultsModal.show();
+                    } else {
+                        alert('Error testing template: ' + response.message);
+                    }
+                },
+                error: function() {
+                    alert('Error testing template. Please try again.');
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,540 @@
+{% extends "base.html" %}
+
+{% block title %}Add Trust Account - Law Firm Management System{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Add Trust Account</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <div class="btn-group me-2">
+            <a href="{{ url_for('trust_accounts') }}" class="btn btn-sm btn-outline-secondary">
+                <i class="fas fa-arrow-left me-1"></i>Back to Trust Accounts
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">New Trust Account</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('add_trust_account') }}">
+                    {{ form.hidden_tag() }}
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            {{ form.account_name.label(class="form-label") }}
+                            {{ form.account_name(class="form-control") }}
+                            {% if form.account_name.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.account_name.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            {{ form.account_number.label(class="form-label") }}
+                            {{ form.account_number(class="form-control") }}
+                            {% if form.account_number.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.account_number.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            {{ form.client_id.label(class="form-label") }}
+                            {{ form.client_id(class="form-control", id="clientSelect") }}
+                            {% if form.client_id.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.client_id.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            {{ form.case_id.label(class="form-label") }}
+                            {{ form.case_id(class="form-control", id="caseSelect") }}
+                            {% if form.case_id.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.case_id.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            {{ form.account_type.label(class="form-label") }}
+                            {{ form.account_type(class="form-control") }}
+                            {% if form.account_type.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.account_type.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            {{ form.bank_name.label(class="form-label") }}
+                            {{ form.bank_name(class="form-control") }}
+                            {% if form.bank_name.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.bank_name.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            {{ form.branch_name.label(class="form-label") }}
+                            {{ form.branch_name(class="form-control") }}
+                            {% if form.branch_name.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.branch_name.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            {{ form.ifsc_code.label(class="form-label") }}
+                            {{ form.ifsc_code(class="form-control") }}
+                            {% if form.ifsc_code.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.ifsc_code.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            {{ form.opening_balance.label(class="form-label") }}
+                            {{ form.opening_balance(class="form-control") }}
+                            {% if form.opening_balance.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.opening_balance.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            {{ form.current_balance.label(class="form-label") }}
+                            {{ form.current_balance(class="form-control") }}
+                            {% if form.current_balance.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.current_balance.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            {{ form.opening_date.label(class="form-label") }}
+                            {{ form.opening_date(class="form-control", type="date") }}
+                            {% if form.opening_date.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.opening_date.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            {{ form.status.label(class="form-label") }}
+                            {{ form.status(class="form-control") }}
+                            {% if form.status.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.status.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        {{ form.description.label(class="form-label") }}
+                        {{ form.description(class="form-control", rows="3") }}
+                        {% if form.description.errors %}
+                            <div class="text-danger">
+                                {% for error in form.description.errors %}
+                                    <small>{{ error }}</small>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        {{ form.notes.label(class="form-label") }}
+                        {{ form.notes(class="form-control", rows="3") }}
+                        {% if form.notes.errors %}
+                            <div class="text-danger">
+                                {% for error in form.notes.errors %}
+                                    <small>{{ error }}</small>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <div class="form-check">
+                            {{ form.is_interest_bearing(class="form-check-input", id="isInterestBearingCheck") }}
+                            {{ form.is_interest_bearing.label(class="form-check-label", for="isInterestBearingCheck") }}
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3" id="interestRateField" style="display: none;">
+                        {{ form.interest_rate.label(class="form-label") }}
+                        {{ form.interest_rate(class="form-control") }}
+                        {% if form.interest_rate.errors %}
+                            <div class="text-danger">
+                                {% for error in form.interest_rate.errors %}
+                                    <small>{{ error }}</small>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <div class="form-check">
+                            {{ form.requires_three_way_reconciliation(class="form-check-input", id="requiresThreeWayCheck") }}
+                            {{ form.requires_three_way_reconciliation.label(class="form-check-label", for="requiresThreeWayCheck") }}
+                        </div>
+                        <small class="form-text text-muted">Check if this account requires three-way reconciliation (client ledger, bank statement, and internal records).</small>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <div class="form-check">
+                            {{ form.is_escrow(class="form-check-input", id="isEscrowCheck") }}
+                            {{ form.is_escrow.label(class="form-check-label", for="isEscrowCheck") }}
+                        </div>
+                        <small class="form-text text-muted">Check if this account is an escrow account for holding funds until specific conditions are met.</small>
+                    </div>
+                    
+                    <div class="mb-3" id="escrowConditionsField" style="display: none;">
+                        {{ form.escrow_conditions.label(class="form-label") }}
+                        {{ form.escrow_conditions(class="form-control", rows="2") }}
+                        {% if form.escrow_conditions.errors %}
+                            <div class="text-danger">
+                                {% for error in form.escrow_conditions.errors %}
+                                    <small>{{ error }}</small>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                        <small class="form-text text-muted">Enter the conditions that must be met before funds can be released from this escrow account.</small>
+                    </div>
+                    
+                    <div class="d-flex justify-content-end">
+                        <a href="{{ url_for('trust_accounts') }}" class="btn btn-secondary me-2">Cancel</a>
+                        <button type="submit" class="btn btn-primary">Add Trust Account</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Trust Account Guidelines</h5>
+            </div>
+            <div class="card-body">
+                <ul>
+                    <li>Each trust account must be associated with a client</li>
+                    <li>Use descriptive account names for easy identification</li>
+                    <li>Ensure accurate bank details are provided</li>
+                    <li>Set appropriate opening and current balances</li>
+                    <li>Mark accounts as interest-bearing if applicable</li>
+                    <li>Enable three-way reconciliation for better compliance</li>
+                    <li>Clearly define escrow conditions for escrow accounts</li>
+                    <li>Regularly reconcile trust accounts with bank statements</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="card mt-3">
+            <div class="card-header">
+                <h5 class="mb-0">Trust Account Types</h5>
+            </div>
+            <div class="card-body">
+                <div class="accordion" id="accountTypesAccordion">
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="clientTrustHeading">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#clientTrustCollapse" aria-expanded="false" aria-controls="clientTrustCollapse">
+                                Client Trust
+                            </button>
+                        </h2>
+                        <div id="clientTrustCollapse" class="accordion-collapse collapse" aria-labelledby="clientTrustHeading" data-bs-parent="#accountTypesAccordion">
+                            <div class="accordion-body">
+                                Accounts holding funds on behalf of individual clients for their legal matters.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="caseTrustHeading">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#caseTrustCollapse" aria-expanded="false" aria-controls="caseTrustCollapse">
+                                Case Trust
+                            </button>
+                        </h2>
+                        <div id="caseTrustCollapse" class="accordion-collapse collapse" aria-labelledby="caseTrustHeading" data-bs-parent="#accountTypesAccordion">
+                            <div class="accordion-body">
+                                Accounts dedicated to specific cases or matters, often with multiple clients.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="settlementTrustHeading">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#settlementTrustCollapse" aria-expanded="false" aria-controls="settlementTrustCollapse">
+                                Settlement Trust
+                            </button>
+                        </h2>
+                        <div id="settlementTrustCollapse" class="accordion-collapse collapse" aria-labelledby="settlementTrustHeading" data-bs-parent="#accountTypesAccordion">
+                            <div class="accordion-body">
+                                Accounts holding settlement funds until distribution conditions are met.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="retainerTrustHeading">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#retainerTrustCollapse" aria-expanded="false" aria-controls="retainerTrustCollapse">
+                                Retainer Trust
+                            </button>
+                        </h2>
+                        <div id="retainerTrustCollapse" class="accordion-collapse collapse" aria-labelledby="retainerTrustHeading" data-bs-parent="#accountTypesAccordion">
+                            <div class="accordion-body">
+                                Accounts holding client retainer fees to be drawn against as work is performed.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="operatingTrustHeading">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#operatingTrustCollapse" aria-expanded="false" aria-controls="operatingTrustCollapse">
+                                Operating Trust
+                            </button>
+                        </h2>
+                        <div id="operatingTrustCollapse" class="accordion-collapse collapse" aria-labelledby="operatingTrustHeading" data-bs-parent="#accountTypesAccordion">
+                            <div class="accordion-body">
+                                Accounts used for general firm operations that require strict accounting procedures.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card mt-3">
+            <div class="card-header">
+                <h5 class="mb-0">Trust Account Statuses</h5>
+            </div>
+            <div class="card-body">
+                <div class="accordion" id="accountStatusesAccordion">
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="activeStatusHeading">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#activeStatusCollapse" aria-expanded="false" aria-controls="activeStatusCollapse">
+                                Active
+                            </button>
+                        </h2>
+                        <div id="activeStatusCollapse" class="accordion-collapse collapse" aria-labelledby="activeStatusHeading" data-bs-parent="#accountStatusesAccordion">
+                            <div class="accordion-body">
+                                Account is active and can be used for transactions and reconciliations.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="inactiveStatusHeading">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#inactiveStatusCollapse" aria-expanded="false" aria-controls="inactiveStatusCollapse">
+                                Inactive
+                            </button>
+                        </h2>
+                        <div id="inactiveStatusCollapse" class="accordion-collapse collapse" aria-labelledby="inactiveStatusHeading" data-bs-parent="#accountStatusesAccordion">
+                            <div class="accordion-body">
+                                Account is temporarily inactive and cannot be used for transactions until reactivated.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="closedStatusHeading">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#closedStatusCollapse" aria-expanded="false" aria-controls="closedStatusCollapse">
+                                Closed
+                            </button>
+                        </h2>
+                        <div id="closedStatusCollapse" class="accordion-collapse collapse" aria-labelledby="closedStatusHeading" data-bs-parent="#accountStatusesAccordion">
+                            <div class="accordion-body">
+                                Account has been permanently closed and all funds have been transferred or distributed.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="pendingStatusHeading">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#pendingStatusCollapse" aria-expanded="false" aria-controls="pendingStatusCollapse">
+                                Pending
+                            </button>
+                        </h2>
+                        <div id="pendingStatusCollapse" class="accordion-collapse collapse" aria-labelledby="pendingStatusHeading" data-bs-parent="#accountStatusesAccordion">
+                            <div class="accordion-body">
+                                Account is pending activation, typically waiting for initial funding or approval.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card mt-3">
+            <div class="card-header">
+                <h5 class="mb-0">Recent Trust Accounts</h5>
+            </div>
+            <div class="card-body">
+                {% if recent_accounts %}
+                <div class="list-group list-group-flush">
+                    {% for account in recent_accounts %}
+                    <div class="list-group-item px-0">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h6 class="mb-1">{{ account.account_name }}</h6>
+                            <small>{{ account.created_at.strftime('%Y-%m-%d') }}</small>
+                        </div>
+                        <p class="mb-1">{{ account.account_number }} • ₹{{ account.current_balance|round(2) }}</p>
+                        <div>
+                            {% if account.status == 'active' %}
+                                <span class="badge bg-success">Active</span>
+                            {% elif account.status == 'inactive' %}
+                                <span class="badge bg-secondary">Inactive</span>
+                            {% elif account.status == 'closed' %}
+                                <span class="badge bg-danger">Closed</span>
+                            {% elif account.status == 'pending' %}
+                                <span class="badge bg-warning">Pending</span>
+                            {% else %}
+                                <span class="badge bg-light text-dark">{{ account.status }}</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p class="text-muted">No recent trust accounts found.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    $(document).ready(function() {
+        // Handle client selection to update case options
+        $('#clientSelect').on('change', function() {
+            var clientId = $(this).val();
+            var caseSelect = $('#caseSelect');
+            
+            // Clear current options
+            caseSelect.empty();
+            caseSelect.append($('<option>', { value: '', text: 'Select a case (optional)' }));
+            
+            if (clientId) {
+                // Fetch cases for the selected client
+                $.ajax({
+                    url: '/api/client_cases/' + clientId,
+                    type: 'GET',
+                    success: function(data) {
+                        $.each(data.cases, function(index, caseItem) {
+                            caseSelect.append($('<option>', { 
+                                value: caseItem.id, 
+                                text: caseItem.title + ' (' + caseItem.case_number + ')' 
+                            }));
+                        });
+                        
+                        // Pre-select case if passed in URL
+                        var urlParams = new URLSearchParams(window.location.search);
+                        var caseId = urlParams.get('case_id');
+                        if (caseId) {
+                            caseSelect.val(caseId);
+                        }
+                    }
+                });
+            }
+        });
+        
+        // Handle is interest bearing checkbox
+        $('#isInterestBearingCheck').on('change', function() {
+            var isChecked = $(this).is(':checked');
+            var interestRateField = $('#interestRateField');
+            
+            if (isChecked) {
+                interestRateField.show();
+                $('#interest_rate').prop('required', true);
+            } else {
+                interestRateField.hide();
+                $('#interest_rate').prop('required', false);
+            }
+        });
+        
+        // Handle is escrow checkbox
+        $('#isEscrowCheck').on('change', function() {
+            var isChecked = $(this).is(':checked');
+            var escrowConditionsField = $('#escrowConditionsField');
+            
+            if (isChecked) {
+                escrowConditionsField.show();
+                $('#escrow_conditions').prop('required', true);
+            } else {
+                escrowConditionsField.hide();
+                $('#escrow_conditions').prop('required', false);
+            }
+        });
+        
+        // Pre-select client if passed in URL
+        var urlParams = new URLSearchParams(window.location.search);
+        var clientId = urlParams.get('client_id');
+        if (clientId) {
+            $('#clientSelect').val(clientId).trigger('change');
+        }
+        
+        // Set default opening date to today
+        var openingDateField = $('#opening_date');
+        if (!openingDateField.val()) {
+            var today = new Date();
+            var year = today.getFullYear();
+            var month = String(today.getMonth() + 1).padStart(2, '0');
+            var day = String(today.getDate()).padStart(2, '0');
+            
+            openingDateField.val(`${year}-${month}-${day}`);
+        }
+        
+        // Set default status to active
+        var statusField = $('#status');
+        if (!statusField.val()) {
+            statusField.val('active');
+        }
+    });
+</script>
+{% endblock %}

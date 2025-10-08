@@ -1,0 +1,420 @@
+{% extends "base.html" %}
+
+{% block title %}Add Case - Law Firm Management System{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Add Case</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <div class="btn-group me-2">
+            <a href="{{ url_for('cases') }}" class="btn btn-sm btn-outline-secondary">
+                <i class="fas fa-arrow-left me-1"></i>Back to Cases
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">New Case Information</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('add_case') }}">
+                    {{ form.hidden_tag() }}
+                    
+                    <div class="mb-3">
+                        {{ form.title.label(class="form-label") }}
+                        {{ form.title(class="form-control") }}
+                        {% if form.title.errors %}
+                            <div class="text-danger">
+                                {% for error in form.title.errors %}
+                                    <small>{{ error }}</small>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        {{ form.description.label(class="form-label") }}
+                        {{ form.description(class="form-control", rows="3") }}
+                        {% if form.description.errors %}
+                            <div class="text-danger">
+                                {% for error in form.description.errors %}
+                                    <small>{{ error }}</small>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            {{ form.client_id.label(class="form-label") }}
+                            {{ form.client_id(class="form-control") }}
+                            {% if form.client_id.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.client_id.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            {{ form.assigned_lawyer_id.label(class="form-label") }}
+                            {{ form.assigned_lawyer_id(class="form-control") }}
+                            {% if form.assigned_lawyer_id.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.assigned_lawyer_id.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            {{ form.case_type.label(class="form-label") }}
+                            {{ form.case_type(class="form-control") }}
+                            {% if form.case_type.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.case_type.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            {{ form.status.label(class="form-label") }}
+                            {{ form.status(class="form-control") }}
+                            {% if form.status.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.status.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            {{ form.stage.label(class="form-label") }}
+                            {{ form.stage(class="form-control") }}
+                            {% if form.stage.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.stage.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            {{ form.priority.label(class="form-label") }}
+                            {{ form.priority(class="form-control") }}
+                            {% if form.priority.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.priority.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            {{ form.date_opened.label(class="form-label") }}
+                            {{ form.date_opened(class="form-control", type="date") }}
+                            {% if form.date_opened.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.date_opened.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            {{ form.estimated_completion.label(class="form-label") }}
+                            {{ form.estimated_completion(class="form-control", type="date") }}
+                            {% if form.estimated_completion.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.estimated_completion.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            {{ form.billing_method.label(class="form-label") }}
+                            {{ form.billing_method(class="form-control") }}
+                            {% if form.billing_method.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.billing_method.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            {{ form.hourly_rate.label(class="form-label") }}
+                            {{ form.hourly_rate(class="form-control") }}
+                            {% if form.hourly_rate.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.hourly_rate.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            {{ form.budget.label(class="form-label") }}
+                            {{ form.budget(class="form-control") }}
+                            {% if form.budget.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.budget.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            {{ form.court_number.label(class="form-label") }}
+                            {{ form.court_number(class="form-control") }}
+                            {% if form.court_number.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.court_number.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        {{ form.notes.label(class="form-label") }}
+                        {{ form.notes(class="form-control", rows="3") }}
+                        {% if form.notes.errors %}
+                            <div class="text-danger">
+                                {% for error in form.notes.errors %}
+                                    <small>{{ error }}</small>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="d-flex justify-content-end">
+                        <a href="{{ url_for('cases') }}" class="btn btn-secondary me-2">Cancel</a>
+                        <button type="submit" class="btn btn-primary">Add Case</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Case Types</h5>
+            </div>
+            <div class="card-body">
+                <div class="accordion" id="caseTypesAccordion">
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="civilHeading">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#civilCollapse" aria-expanded="false" aria-controls="civilCollapse">
+                                Civil
+                            </button>
+                        </h2>
+                        <div id="civilCollapse" class="accordion-collapse collapse" aria-labelledby="civilHeading" data-bs-parent="#caseTypesAccordion">
+                            <div class="accordion-body">
+                                Civil cases involve disputes between individuals or organizations, typically involving contracts, property, personal injury, or family law matters.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="criminalHeading">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#criminalCollapse" aria-expanded="false" aria-controls="criminalCollapse">
+                                Criminal
+                            </button>
+                        </h2>
+                        <div id="criminalCollapse" class="accordion-collapse collapse" aria-labelledby="criminalHeading" data-bs-parent="#caseTypesAccordion">
+                            <div class="accordion-body">
+                                Criminal cases involve prosecutions by the government against individuals or organizations accused of committing crimes.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="corporateHeading">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#corporateCollapse" aria-expanded="false" aria-controls="corporateCollapse">
+                                Corporate
+                            </button>
+                        </h2>
+                        <div id="corporateCollapse" class="accordion-collapse collapse" aria-labelledby="corporateHeading" data-bs-parent="#caseTypesAccordion">
+                            <div class="accordion-body">
+                                Corporate cases involve business-related matters such as mergers and acquisitions, corporate governance, securities, and compliance issues.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="familyHeading">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#familyCollapse" aria-expanded="false" aria-controls="familyCollapse">
+                                Family
+                            </button>
+                        </h2>
+                        <div id="familyCollapse" class="accordion-collapse collapse" aria-labelledby="familyHeading" data-bs-parent="#caseTypesAccordion">
+                            <div class="accordion-body">
+                                Family cases involve legal issues related to family relationships such as divorce, child custody, adoption, and domestic violence.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="employmentHeading">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#employmentCollapse" aria-expanded="false" aria-controls="employmentCollapse">
+                                Employment
+                            </button>
+                        </h2>
+                        <div id="employmentCollapse" class="accordion-collapse collapse" aria-labelledby="employmentHeading" data-bs-parent="#caseTypesAccordion">
+                            <div class="accordion-body">
+                                Employment cases involve workplace disputes such as wrongful termination, discrimination, harassment, and wage and hour violations.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card mt-3">
+            <div class="card-header">
+                <h5 class="mb-0">Case Statuses</h5>
+            </div>
+            <div class="card-body">
+                <div class="accordion" id="caseStatusesAccordion">
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="openHeading">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#openCollapse" aria-expanded="false" aria-controls="openCollapse">
+                                Open
+                            </button>
+                        </h2>
+                        <div id="openCollapse" class="accordion-collapse collapse" aria-labelledby="openHeading" data-bs-parent="#caseStatusesAccordion">
+                            <div class="accordion-body">
+                                The case has been opened but work has not yet begun. Initial assessment and planning are in progress.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="inProgressHeading">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#inProgressCollapse" aria-expanded="false" aria-controls="inProgressCollapse">
+                                In Progress
+                            </button>
+                        </h2>
+                        <div id="inProgressCollapse" class="accordion-collapse collapse" aria-labelledby="inProgressHeading" data-bs-parent="#caseStatusesAccordion">
+                            <div class="accordion-body">
+                                Active work is being done on the case. This includes research, document preparation, court appearances, negotiations, etc.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="onHoldHeading">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#onHoldCollapse" aria-expanded="false" aria-controls="onHoldCollapse">
+                                On Hold
+                            </button>
+                        </h2>
+                        <div id="onHoldCollapse" class="accordion-collapse collapse" aria-labelledby="onHoldHeading" data-bs-parent="#caseStatusesAccordion">
+                            <div class="accordion-body">
+                                Work on the case has been temporarily paused, often awaiting client input, court decisions, or other external factors.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="closedHeading">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#closedCollapse" aria-expanded="false" aria-controls="closedCollapse">
+                                Closed
+                            </button>
+                        </h2>
+                        <div id="closedCollapse" class="accordion-collapse collapse" aria-labelledby="closedHeading" data-bs-parent="#caseStatusesAccordion">
+                            <div class="accordion-body">
+                                The case has been completed and all necessary final actions have been taken. No further work is planned.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card mt-3">
+            <div class="card-header">
+                <h5 class="mb-0">Billing Methods</h5>
+            </div>
+            <div class="card-body">
+                <div class="accordion" id="billingMethodsAccordion">
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="hourlyHeading">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#hourlyCollapse" aria-expanded="false" aria-controls="hourlyCollapse">
+                                Hourly
+                            </button>
+                        </h2>
+                        <div id="hourlyCollapse" class="accordion-collapse collapse" aria-labelledby="hourlyHeading" data-bs-parent="#billingMethodsAccordion">
+                            <div class="accordion-body">
+                                The client is billed based on the number of hours worked on the case at an agreed-upon hourly rate. Time entries must be tracked accurately.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="flatFeeHeading">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flatFeeCollapse" aria-expanded="false" aria-controls="flatFeeCollapse">
+                                Flat Fee
+                            </button>
+                        </h2>
+                        <div id="flatFeeCollapse" class="accordion-collapse collapse" aria-labelledby="flatFeeHeading" data-bs-parent="#billingMethodsAccordion">
+                            <div class="accordion-body">
+                                A fixed fee is charged for the entire case, regardless of the actual time spent. This provides cost certainty for the client.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="contingencyHeading">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#contingencyCollapse" aria-expanded="false" aria-controls="contingencyCollapse">
+                                Contingency
+                            </button>
+                        </h2>
+                        <div id="contingencyCollapse" class="accordion-collapse collapse" aria-labelledby="contingencyHeading" data-bs-parent="#billingMethodsAccordion">
+                            <div class="accordion-body">
+                                The attorney's fee is a percentage of the amount recovered for the client. If the case is lost, no fee is charged.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="retainerHeading">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#retainerCollapse" aria-expanded="false" aria-controls="retainerCollapse">
+                                Retainer
+                            </button>
+                        </h2>
+                        <div id="retainerCollapse" class="accordion-collapse collapse" aria-labelledby="retainerHeading" data-bs-parent="#billingMethodsAccordion">
+                            <div class="accordion-body">
+                                The client pays a fixed amount upfront, which is held in a trust account and billed against as work is performed.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

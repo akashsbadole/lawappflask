@@ -1,0 +1,752 @@
+{% extends "base.html" %}
+
+{% block title %}Time & Expense Tracking - Law Firm Management System{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Time & Expense Tracking</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <div class="btn-group me-2">
+            <a href="{{ url_for('add_time_entry') }}" class="btn btn-sm btn-outline-secondary">
+                <i class="fas fa-plus me-1"></i>Add Time Entry
+            </a>
+            <a href="{{ url_for('add_expense') }}" class="btn btn-sm btn-outline-secondary">
+                <i class="fas fa-receipt me-1"></i>Add Expense
+            </a>
+        </div>
+        <div class="btn-group me-2">
+            <a href="{{ url_for('cases') }}" class="btn btn-sm btn-outline-secondary">
+                <i class="fas fa-briefcase me-1"></i>Cases
+            </a>
+            <a href="{{ url_for('clients') }}" class="btn btn-sm btn-outline-secondary">
+                <i class="fas fa-users me-1"></i>Clients
+            </a>
+        </div>
+        <div class="btn-group">
+            <a href="{{ url_for('export_time_entries') }}" class="btn btn-sm btn-outline-secondary">
+                <i class="fas fa-download me-1"></i>Export Time
+            </a>
+            <a href="{{ url_for('export_expenses') }}" class="btn btn-sm btn-outline-secondary">
+                <i class="fas fa-download me-1"></i>Export Expenses
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Tabs for Time/Expense Navigation -->
+<ul class="nav nav-tabs mb-4" id="timeExpenseTabs" role="tablist">
+    <li class="nav-item" role="presentation">
+        <button class="nav-link {% if active_tab == 'time' %}active{% endif %}" id="time-tab" data-bs-toggle="tab" data-bs-target="#time" type="button" role="tab" aria-controls="time" aria-selected="{% if active_tab == 'time' %}true{% else %}false{% endif %}">
+            <i class="fas fa-clock me-1"></i>Time Entries
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link {% if active_tab == 'expense' %}active{% endif %}" id="expense-tab" data-bs-toggle="tab" data-bs-target="#expense" type="button" role="tab" aria-controls="expense" aria-selected="{% if active_tab == 'expense' %}true{% else %}false{% endif %}">
+            <i class="fas fa-receipt me-1"></i>Expenses
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link {% if active_tab == 'reports' %}active{% endif %}" id="reports-tab" data-bs-toggle="tab" data-bs-target="#reports" type="button" role="tab" aria-controls="reports" aria-selected="{% if active_tab == 'reports' %}true{% else %}false{% endif %}">
+            <i class="fas fa-chart-bar me-1"></i>Reports
+        </button>
+    </li>
+</ul>
+
+<!-- Tab Content -->
+<div class="tab-content" id="timeExpenseTabsContent">
+    <!-- Time Entries Tab -->
+    <div class="tab-pane fade {% if active_tab == 'time' %}show active{% endif %}" id="time" role="tabpanel" aria-labelledby="time-tab">
+        <!-- Filters -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <div class="row align-items-center">
+                    <div class="col">
+                        <h5 class="mb-0">Filter Time Entries</h5>
+                    </div>
+                    <div class="col-auto">
+                        <button class="btn btn-sm btn-outline-secondary" id="toggleTimeFilters">
+                            <i class="fas fa-filter me-1"></i>Toggle Filters
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body" id="timeFiltersPanel">
+                <form method="GET" action="{{ url_for('time_entries') }}">
+                    <input type="hidden" name="tab" value="time">
+                    <div class="row">
+                        <div class="col-md-3 mb-3">
+                            <label for="case_id" class="form-label">Case</label>
+                            <select class="form-select" id="case_id" name="case_id">
+                                <option value="">All Cases</option>
+                                {% for case in cases %}
+                                <option value="{{ case.id }}" {% if case.id == current_case_id %}selected{% endif %}>{{ case.title }} ({{ case.case_number }})</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label for="client_id" class="form-label">Client</label>
+                            <select class="form-select" id="client_id" name="client_id">
+                                <option value="">All Clients</option>
+                                {% for client in clients %}
+                                <option value="{{ client.id }}" {% if client.id == current_client_id %}selected{% endif %}>{{ client.full_name }} ({{ client.client_number }})</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label for="lawyer_id" class="form-label">Lawyer</label>
+                            <select class="form-select" id="lawyer_id" name="lawyer_id">
+                                <option value="">All Lawyers</option>
+                                {% for lawyer in lawyers %}
+                                <option value="{{ lawyer.id }}" {% if lawyer.id == current_lawyer_id %}selected{% endif %}>{{ lawyer.full_name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label for="status" class="form-label">Status</label>
+                            <select class="form-select" id="status" name="status">
+                                <option value="">All Statuses</option>
+                                {% for status in time_entry_statuses %}
+                                <option value="{{ status }}" {% if status == current_status %}selected{% endif %}>{{ status|title }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="date_from" class="form-label">Date From</label>
+                            <input type="date" class="form-control" id="date_from" name="date_from" value="{{ current_date_from or '' }}">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="date_to" class="form-label">Date To</label>
+                            <input type="date" class="form-control" id="date_to" name="date_to" value="{{ current_date_to or '' }}">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12 d-flex justify-content-end">
+                            <a href="{{ url_for('time_entries', tab='time') }}" class="btn btn-outline-secondary me-2">Clear Filters</a>
+                            <button type="submit" class="btn btn-primary">Apply Filters</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Time Entry Statistics -->
+        <div class="row mb-4">
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="card border-left-primary shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Total Hours</div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800">{{ total_hours|round(2) }}</div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-clock fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="card border-left-success shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Billable Hours</div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800">{{ billable_hours|round(2) }}</div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-dollar-sign fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="card border-left-info shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Total Amount</div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800">₹{{ total_amount|round(2) }}</div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-money-bill-wave fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="card border-left-warning shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Unbilled Hours</div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800">{{ unbilled_hours|round(2) }}</div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-exclamation-triangle fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Time Entries Table -->
+        <div class="card">
+            <div class="card-header">
+                <div class="row align-items-center">
+                    <div class="col">
+                        <h5 class="mb-0">Time Entries</h5>
+                    </div>
+                    <div class="col-auto">
+                        <div class="input-group">
+                            <input type="text" class="form-control form-control-sm" placeholder="Search time entries..." id="timeEntrySearch">
+                            <button class="btn btn-sm btn-outline-secondary" type="button">
+                                <i class="fas fa-search"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover" id="timeEntriesTable">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Lawyer</th>
+                                <th>Case</th>
+                                <th>Client</th>
+                                <th>Description</th>
+                                <th>Duration</th>
+                                <th>Rate</th>
+                                <th>Amount</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for entry in time_entries %}
+                            <tr>
+                                <td>{{ entry.start_time.strftime('%Y-%m-%d') if entry.start_time else 'N/A' }}</td>
+                                <td>{{ entry.user.full_name if entry.user else 'N/A' }}</td>
+                                <td>
+                                    {% if entry.case %}
+                                        <a href="{{ url_for('view_case', case_id=entry.case.id) }}">
+                                            {{ entry.case.title }}
+                                        </a>
+                                    {% else %}
+                                        N/A
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if entry.case and entry.case.client %}
+                                        <a href="{{ url_for('view_client', client_id=entry.case.client.id) }}">
+                                            {{ entry.case.client.full_name }}
+                                        </a>
+                                    {% else %}
+                                        N/A
+                                    {% endif %}
+                                </td>
+                                <td>{{ entry.description }}</td>
+                                <td>{{ entry.duration_minutes }} minutes</td>
+                                <td>₹{{ entry.hourly_rate|round(2) }}</td>
+                                <td>₹{{ entry.amount|round(2) }}</td>
+                                <td>
+                                    {% if entry.status == 'draft' %}
+                                        <span class="badge bg-secondary">Draft</span>
+                                    {% elif entry.status == 'submitted' %}
+                                        <span class="badge bg-primary">Submitted</span>
+                                    {% elif entry.status == 'approved' %}
+                                        <span class="badge bg-success">Approved</span>
+                                    {% elif entry.status == 'billed' %}
+                                        <span class="badge bg-info">Billed</span>
+                                    {% elif entry.status == 'rejected' %}
+                                        <span class="badge bg-danger">Rejected</span>
+                                    {% else %}
+                                        <span class="badge bg-light text-dark">{{ entry.status }}</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div class="btn-group" role="group">
+                                        <a href="{{ url_for('view_time_entry', time_entry_id=entry.id) }}" class="btn btn-sm btn-primary" title="View">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <a href="{{ url_for('edit_time_entry', time_entry_id=entry.id) }}" class="btn btn-sm btn-info" title="Edit">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <button type="button" class="btn btn-sm btn-danger delete-time-entry" data-id="{{ entry.id }}" data-description="{{ entry.description }}" title="Delete">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="10" class="text-center">No time entries found matching your criteria.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Expenses Tab -->
+    <div class="tab-pane fade {% if active_tab == 'expense' %}show active{% endif %}" id="expense" role="tabpanel" aria-labelledby="expense-tab">
+        <!-- Filters -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <div class="row align-items-center">
+                    <div class="col">
+                        <h5 class="mb-0">Filter Expenses</h5>
+                    </div>
+                    <div class="col-auto">
+                        <button class="btn btn-sm btn-outline-secondary" id="toggleExpenseFilters">
+                            <i class="fas fa-filter me-1"></i>Toggle Filters
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body" id="expenseFiltersPanel">
+                <form method="GET" action="{{ url_for('time_entries') }}">
+                    <input type="hidden" name="tab" value="expense">
+                    <div class="row">
+                        <div class="col-md-3 mb-3">
+                            <label for="expense_case_id" class="form-label">Case</label>
+                            <select class="form-select" id="expense_case_id" name="expense_case_id">
+                                <option value="">All Cases</option>
+                                {% for case in cases %}
+                                <option value="{{ case.id }}" {% if case.id == current_expense_case_id %}selected{% endif %}>{{ case.title }} ({{ case.case_number }})</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label for="expense_client_id" class="form-label">Client</label>
+                            <select class="form-select" id="expense_client_id" name="expense_client_id">
+                                <option value="">All Clients</option>
+                                {% for client in clients %}
+                                <option value="{{ client.id }}" {% if client.id == current_expense_client_id %}selected{% endif %}>{{ client.full_name }} ({{ client.client_number }})</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label for="expense_lawyer_id" class="form-label">Lawyer</label>
+                            <select class="form-select" id="expense_lawyer_id" name="expense_lawyer_id">
+                                <option value="">All Lawyers</option>
+                                {% for lawyer in lawyers %}
+                                <option value="{{ lawyer.id }}" {% if lawyer.id == current_expense_lawyer_id %}selected{% endif %}>{{ lawyer.full_name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label for="expense_status" class="form-label">Status</label>
+                            <select class="form-select" id="expense_status" name="expense_status">
+                                <option value="">All Statuses</option>
+                                {% for status in expense_statuses %}
+                                <option value="{{ status }}" {% if status == current_expense_status %}selected{% endif %}>{{ status|title }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="expense_date_from" class="form-label">Date From</label>
+                            <input type="date" class="form-control" id="expense_date_from" name="expense_date_from" value="{{ current_expense_date_from or '' }}">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="expense_date_to" class="form-label">Date To</label>
+                            <input type="date" class="form-control" id="expense_date_to" name="expense_date_to" value="{{ current_expense_date_to or '' }}">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12 d-flex justify-content-end">
+                            <a href="{{ url_for('time_entries', tab='expense') }}" class="btn btn-outline-secondary me-2">Clear Filters</a>
+                            <button type="submit" class="btn btn-primary">Apply Filters</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Expense Statistics -->
+        <div class="row mb-4">
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="card border-left-primary shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Total Expenses</div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800">₹{{ total_expenses|round(2) }}</div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-receipt fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="card border-left-success shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Reimbursed</div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800">₹{{ reimbursed_expenses|round(2) }}</div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-check-circle fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="card border-left-info shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Pending Reimbursement</div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800">₹{{ pending_reimbursement|round(2) }}</div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-hourglass-half fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="card border-left-warning shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">This Month</div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800">₹{{ this_month_expenses|round(2) }}</div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-calendar-alt fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Expenses Table -->
+        <div class="card">
+            <div class="card-header">
+                <div class="row align-items-center">
+                    <div class="col">
+                        <h5 class="mb-0">Expenses</h5>
+                    </div>
+                    <div class="col-auto">
+                        <div class="input-group">
+                            <input type="text" class="form-control form-control-sm" placeholder="Search expenses..." id="expenseSearch">
+                            <button class="btn btn-sm btn-outline-secondary" type="button">
+                                <i class="fas fa-search"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover" id="expensesTable">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Lawyer</th>
+                                <th>Case</th>
+                                <th>Client</th>
+                                <th>Description</th>
+                                <th>Category</th>
+                                <th>Amount</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for expense in expenses %}
+                            <tr>
+                                <td>{{ expense.date_incurred.strftime('%Y-%m-%d') if expense.date_incurred else 'N/A' }}</td>
+                                <td>{{ expense.user.full_name if expense.user else 'N/A' }}</td>
+                                <td>
+                                    {% if expense.case %}
+                                        <a href="{{ url_for('view_case', case_id=expense.case.id) }}">
+                                            {{ expense.case.title }}
+                                        </a>
+                                    {% else %}
+                                        N/A
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if expense.case and expense.case.client %}
+                                        <a href="{{ url_for('view_client', client_id=expense.case.client.id) }}">
+                                            {{ expense.case.client.full_name }}
+                                        </a>
+                                    {% else %}
+                                        N/A
+                                    {% endif %}
+                                </td>
+                                <td>{{ expense.description }}</td>
+                                <td>{{ expense.expense_type }}</td>
+                                <td>₹{{ expense.amount|round(2) }}</td>
+                                <td>
+                                    {% if expense.status == 'draft' %}
+                                        <span class="badge bg-secondary">Draft</span>
+                                    {% elif expense.status == 'submitted' %}
+                                        <span class="badge bg-primary">Submitted</span>
+                                    {% elif expense.status == 'approved' %}
+                                        <span class="badge bg-success">Approved</span>
+                                    {% elif expense.status == 'reimbursed' %}
+                                        <span class="badge bg-info">Reimbursed</span>
+                                    {% elif expense.status == 'rejected' %}
+                                        <span class="badge bg-danger">Rejected</span>
+                                    {% else %}
+                                        <span class="badge bg-light text-dark">{{ expense.status }}</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div class="btn-group" role="group">
+                                        <a href="{{ url_for('view_expense', expense_id=expense.id) }}" class="btn btn-sm btn-primary" title="View">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <a href="{{ url_for('edit_expense', expense_id=expense.id) }}" class="btn btn-sm btn-info" title="Edit">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <button type="button" class="btn btn-sm btn-danger delete-expense" data-id="{{ expense.id }}" data-description="{{ expense.description }}" title="Delete">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="9" class="text-center">No expenses found matching your criteria.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Reports Tab -->
+    <div class="tab-pane fade {% if active_tab == 'reports' %}show active{% endif %}" id="reports" role="tabpanel" aria-labelledby="reports-tab">
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">Time Reports</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-grid gap-2">
+                            <a href="{{ url_for('time_report_by_lawyer') }}" class="btn btn-outline-primary">
+                                <i class="fas fa-user me-2"></i>Time by Lawyer
+                            </a>
+                            <a href="{{ url_for('time_report_by_client') }}" class="btn btn-outline-primary">
+                                <i class="fas fa-users me-2"></i>Time by Client
+                            </a>
+                            <a href="{{ url_for('time_report_by_case') }}" class="btn btn-outline-primary">
+                                <i class="fas fa-briefcase me-2"></i>Time by Case
+                            </a>
+                            <a href="{{ url_for('time_report_by_date') }}" class="btn btn-outline-primary">
+                                <i class="fas fa-calendar me-2"></i>Time by Date Range
+                            </a>
+                            <a href="{{ url_for('utilization_report') }}" class="btn btn-outline-primary">
+                                <i class="fas fa-chart-pie me-2"></i>Utilization Report
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">Expense Reports</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-grid gap-2">
+                            <a href="{{ url_for('expense_report_by_lawyer') }}" class="btn btn-outline-success">
+                                <i class="fas fa-user me-2"></i>Expenses by Lawyer
+                            </a>
+                            <a href="{{ url_for('expense_report_by_client') }}" class="btn btn-outline-success">
+                                <i class="fas fa-users me-2"></i>Expenses by Client
+                            </a>
+                            <a href="{{ url_for('expense_report_by_case') }}" class="btn btn-outline-success">
+                                <i class="fas fa-briefcase me-2"></i>Expenses by Case
+                            </a>
+                            <a href="{{ url_for('expense_report_by_category') }}" class="btn btn-outline-success">
+                                <i class="fas fa-tags me-2"></i>Expenses by Category
+                            </a>
+                            <a href="{{ url_for('expense_report_by_date') }}" class="btn btn-outline-success">
+                                <i class="fas fa-calendar me-2"></i>Expenses by Date Range
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Quick Statistics</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4 mb-4">
+                        <div class="card bg-primary text-white">
+                            <div class="card-body">
+                                <h5 class="card-title">Billable vs Non-Billable</h5>
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <p class="mb-0">Billable: {{ billable_percentage|round(1) }}%</p>
+                                        <p class="mb-0">Non-Billable: {{ non_billable_percentage|round(1) }}%</p>
+                                    </div>
+                                    <div class="align-self-center">
+                                        <i class="fas fa-chart-pie fa-2x"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-4">
+                        <div class="card bg-success text-white">
+                            <div class="card-body">
+                                <h5 class="card-title">Top 5 Clients by Hours</h5>
+                                <ul class="list-unstyled mb-0">
+                                    {% for client, hours in top_clients_by_hours %}
+                                    <li>{{ client.full_name }}: {{ hours|round(1) }} hrs</li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-4">
+                        <div class="card bg-info text-white">
+                            <div class="card-body">
+                                <h5 class="card-title">Top 5 Expense Categories</h5>
+                                <ul class="list-unstyled mb-0">
+                                    {% for category, amount in top_expense_categories %}
+                                    <li>{{ category }}: ₹{{ amount|round(2) }}</li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Time Entry Confirmation Modal -->
+<div class="modal fade" id="deleteTimeEntryModal" tabindex="-1" aria-labelledby="deleteTimeEntryModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteTimeEntryModalLabel">Confirm Delete</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to delete the time entry "<strong id="deleteTimeEntryDescription"></strong>"? This action cannot be undone.
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form id="deleteTimeEntryForm" method="POST">
+                    <button type="submit" class="btn btn-danger">Delete</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Expense Confirmation Modal -->
+<div class="modal fade" id="deleteExpenseModal" tabindex="-1" aria-labelledby="deleteExpenseModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteExpenseModalLabel">Confirm Delete</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to delete the expense "<strong id="deleteExpenseDescription"></strong>"? This action cannot be undone.
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form id="deleteExpenseForm" method="POST">
+                    <button type="submit" class="btn btn-danger">Delete</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    $(document).ready(function() {
+        // Toggle filters panels
+        $('#toggleTimeFilters').on('click', function() {
+            $('#timeFiltersPanel').slideToggle();
+        });
+        
+        $('#toggleExpenseFilters').on('click', function() {
+            $('#expenseFiltersPanel').slideToggle();
+        });
+        
+        // Time entry search functionality
+        $('#timeEntrySearch').on('keyup', function() {
+            var value = $(this).val().toLowerCase();
+            $('#timeEntriesTable tbody tr').filter(function() {
+                $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1);
+            });
+        });
+        
+        // Expense search functionality
+        $('#expenseSearch').on('keyup', function() {
+            var value = $(this).val().toLowerCase();
+            $('#expensesTable tbody tr').filter(function() {
+                $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1);
+            });
+        });
+        
+        // Delete time entry confirmation
+        $('.delete-time-entry').on('click', function() {
+            var timeEntryId = $(this).data('id');
+            var timeEntryDescription = $(this).data('description');
+            
+            $('#deleteTimeEntryDescription').text(timeEntryDescription);
+            $('#deleteTimeEntryForm').attr('action', '/delete_time_entry/' + timeEntryId);
+            
+            var deleteTimeEntryModal = new bootstrap.Modal(document.getElementById('deleteTimeEntryModal'));
+            deleteTimeEntryModal.show();
+        });
+        
+        // Delete expense confirmation
+        $('.delete-expense').on('click', function() {
+            var expenseId = $(this).data('id');
+            var expenseDescription = $(this).data('description');
+            
+            $('#deleteExpenseDescription').text(expenseDescription);
+            $('#deleteExpenseForm').attr('action', '/delete_expense/' + expenseId);
+            
+            var deleteExpenseModal = new bootstrap.Modal(document.getElementById('deleteExpenseModal'));
+            deleteExpenseModal.show();
+        });
+    });
+</script>
+{% endblock %}

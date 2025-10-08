@@ -1,0 +1,150 @@
+{% extends "base.html" %}
+
+{% block title %}Settings - Law Firm Management System{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">System Settings</h1>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">Firm Information</h5>
+            </div>
+            <div class="card-body">
+                <form>
+                    <div class="mb-3">
+                        <label for="firm_name" class="form-label">Firm Name</label>
+                        <input type="text" class="form-control" id="firm_name" value="LawEdge Legal Services">
+                    </div>
+                    <div class="mb-3">
+                        <label for="firm_address" class="form-label">Address</label>
+                        <textarea class="form-control" id="firm_address" rows="2">123 Legal Street, Mumbai, Maharashtra 400001, India</textarea>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="firm_phone" class="form-label">Phone</label>
+                            <input type="text" class="form-control" id="firm_phone" value="+91-22-12345678">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="firm_email" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="firm_email" value="info@lawedge.com">
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="firm_website" class="form-label">Website</label>
+                        <input type="text" class="form-control" id="firm_website" value="www.lawedge.com">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                </form>
+            </div>
+        </div>
+        
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">Billing Settings</h5>
+            </div>
+            <div class="card-body">
+                <form>
+                    <div class="mb-3">
+                        <label for="default_hourly_rate" class="form-label">Default Hourly Rate (₹)</label>
+                        <input type="number" class="form-control" id="default_hourly_rate" value="2000" step="100">
+                    </div>
+                    <div class="mb-3">
+                        <label for="tax_rate" class="form-label">Default Tax Rate (%)</label>
+                        <input type="number" class="form-control" id="tax_rate" value="18" step="0.1">
+                    </div>
+                    <div class="mb-3">
+                        <label for="invoice_prefix" class="form-label">Invoice Prefix</label>
+                        <input type="text" class="form-control" id="invoice_prefix" value="INV-">
+                    </div>
+                    <div class="mb-3">
+                        <label for="payment_terms" class="form-label">Payment Terms (days)</label>
+                        <input type="number" class="form-control" id="payment_terms" value="30">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                </form>
+            </div>
+        </div>
+        
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">Notification Settings</h5>
+            </div>
+            <div class="card-body">
+                <form>
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="email_notifications" checked>
+                        <label class="form-check-label" for="email_notifications">
+                            Email Notifications
+                        </label>
+                    </div>
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="sms_notifications">
+                        <label class="form-check-label" for="sms_notifications">
+                            SMS Notifications
+                        </label>
+                    </div>
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="appointment_reminders" checked>
+                        <label class="form-check-label" for="appointment_reminders">
+                            Appointment Reminders
+                        </label>
+                    </div>
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="invoice_reminders" checked>
+                        <label class="form-check-label" for="invoice_reminders">
+                            Invoice Due Reminders
+                        </label>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">System Information</h5>
+            </div>
+            <div class="card-body">
+                <ul class="list-unstyled">
+                    <li class="mb-2">
+                        <strong>Version:</strong> 1.0.0
+                    </li>
+                    <li class="mb-2">
+                        <strong>Database:</strong> SQLite
+                    </li>
+                    <li class="mb-2">
+                        <strong>Last Backup:</strong> 2023-12-01 10:30 PM
+                    </li>
+                    <li class="mb-2">
+                        <strong>Storage Used:</strong> 125 MB
+                    </li>
+                </ul>
+                <div class="d-grid gap-2">
+                    <button class="btn btn-outline-primary">Backup Database</button>
+                    <button class="btn btn-outline-secondary">System Logs</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">Quick Actions</h5>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <button class="btn btn-outline-success">Export Data</button>
+                    <button class="btn btn-outline-info">Import Data</button>
+                    <button class="btn btn-outline-warning">Clear Cache</button>
+                    <button class="btn btn-outline-danger">Reset Settings</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

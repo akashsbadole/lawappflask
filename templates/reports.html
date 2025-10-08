@@ -1,0 +1,452 @@
+{% extends "base.html" %}
+
+{% block title %}Reports - Law Firm Management System{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Reports</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <div class="btn-group me-2">
+            <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="fas fa-download me-1"></i>Export
+            </button>
+            <ul class="dropdown-menu">
+                <li><a class="dropdown-item" href="#">Export as PDF</a></li>
+                <li><a class="dropdown-item" href="#">Export as Excel</a></li>
+                <li><a class="dropdown-item" href="#">Export as CSV</a></li>
+            </ul>
+        </div>
+        <div class="btn-group">
+            <a href="{{ url_for('dashboard') }}" class="btn btn-sm btn-outline-secondary">
+                <i class="fas fa-tachometer-alt me-1"></i>Dashboard
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Report Categories -->
+<div class="row mb-4">
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-primary shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Financial Reports</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">Revenue, Expenses, Profit</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-money-bill-wave fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-success shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Case Reports</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">Status, Duration, Outcome</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-briefcase fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-info shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Time & Billing</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">Hours, Invoices, Collections</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-clock fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-warning shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Client Reports</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">Acquisition, Retention, Satisfaction</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-users fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Financial Reports Section -->
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Financial Reports</h6>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-lg-3 col-md-6 mb-4">
+                <div class="card bg-light h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">Revenue Report</h5>
+                        <p class="card-text">Detailed breakdown of revenue by client, case, and time period.</p>
+                        <a href="{{ url_for('revenue_report') }}" class="btn btn-sm btn-primary">Generate Report</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-4">
+                <div class="card bg-light h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">Expense Report</h5>
+                        <p class="card-text">Analysis of expenses by category, department, and time period.</p>
+                        <a href="{{ url_for('expense_report') }}" class="btn btn-sm btn-primary">Generate Report</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-4">
+                <div class="card bg-light h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">Profit & Loss</h5>
+                        <p class="card-text">Comprehensive profit and loss statement for any time period.</p>
+                        <a href="{{ url_for('profit_loss_report') }}" class="btn btn-sm btn-primary">Generate Report</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-4">
+                <div class="card bg-light h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">Aging Report</h5>
+                        <p class="card-text">Analysis of outstanding invoices by age and client.</p>
+                        <a href="{{ url_for('aging_report') }}" class="btn btn-sm btn-primary">Generate Report</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Case Reports Section -->
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Case Reports</h6>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-lg-3 col-md-6 mb-4">
+                <div class="card bg-light h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">Case Status Report</h5>
+                        <p class="card-text">Overview of all cases by status, priority, and assigned lawyer.</p>
+                        <a href="{{ url_for('case_status_report') }}" class="btn btn-sm btn-primary">Generate Report</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-4">
+                <div class="card bg-light h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">Case Duration Report</h5>
+                        <p class="card-text">Analysis of case resolution times by case type and lawyer.</p>
+                        <a href="{{ url_for('case_duration_report') }}" class="btn btn-sm btn-primary">Generate Report</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-4">
+                <div class="card bg-light h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">Case Outcome Report</h5>
+                        <p class="card-text">Summary of case outcomes by case type and lawyer.</p>
+                        <a href="{{ url_for('case_outcome_report') }}" class="btn btn-sm btn-primary">Generate Report</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-4">
+                <div class="card bg-light h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">Case Workload Report</h5>
+                        <p class="card-text">Distribution of cases among lawyers and departments.</p>
+                        <a href="{{ url_for('case_workload_report') }}" class="btn btn-sm btn-primary">Generate Report</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Time & Billing Reports Section -->
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Time & Billing Reports</h6>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-lg-3 col-md-6 mb-4">
+                <div class="card bg-light h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">Time Entry Report</h5>
+                        <p class="card-text">Detailed time entries by lawyer, client, case, and activity.</p>
+                        <a href="{{ url_for('time_entry_report') }}" class="btn btn-sm btn-primary">Generate Report</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-4">
+                <div class="card bg-light h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">Billable Hours Report</h5>
+                        <p class="card-text">Analysis of billable vs. non-billable hours by lawyer and client.</p>
+                        <a href="{{ url_for('billable_hours_report') }}" class="btn btn-sm btn-primary">Generate Report</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-4">
+                <div class="card bg-light h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">Invoice Report</h5>
+                        <p class="card-text">Summary of invoices by status, client, and time period.</p>
+                        <a href="{{ url_for('invoice_report') }}" class="btn btn-sm btn-primary">Generate Report</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-4">
+                <div class="card bg-light h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">Collection Report</h5>
+                        <p class="card-text">Analysis of invoice collection rates by client and time period.</p>
+                        <a href="{{ url_for('collection_report') }}" class="btn btn-sm btn-primary">Generate Report</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Client Reports Section -->
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Client Reports</h6>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-lg-3 col-md-6 mb-4">
+                <div class="card bg-light h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">Client Acquisition Report</h5>
+                        <p class="card-text">Analysis of new client acquisition by source and time period.</p>
+                        <a href="{{ url_for('client_acquisition_report') }}" class="btn btn-sm btn-primary">Generate Report</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-4">
+                <div class="card bg-light h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">Client Retention Report</h5>
+                        <p class="card-text">Analysis of client retention rates and reasons for attrition.</p>
+                        <a href="{{ url_for('client_retention_report') }}" class="btn btn-sm btn-primary">Generate Report</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-4">
+                <div class="card bg-light h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">Client Satisfaction Report</h5>
+                        <p class="card-text">Summary of client satisfaction surveys and feedback.</p>
+                        <a href="{{ url_for('client_satisfaction_report') }}" class="btn btn-sm btn-primary">Generate Report</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-4">
+                <div class="card bg-light h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">Client Profitability Report</h5>
+                        <p class="card-text">Analysis of profitability by client and case type.</p>
+                        <a href="{{ url_for('client_profitability_report') }}" class="btn btn-sm btn-primary">Generate Report</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Additional Reports Section -->
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Additional Reports</h6>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-lg-3 col-md-6 mb-4">
+                <div class="card bg-light h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">Document Report</h5>
+                        <p class="card-text">Summary of documents by type, client, and access frequency.</p>
+                        <a href="{{ url_for('document_report') }}" class="btn btn-sm btn-primary">Generate Report</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-4">
+                <div class="card bg-light h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">Appointment Report</h5>
+                        <p class="card-text">Analysis of appointments by type, status, and attendance.</p>
+                        <a href="{{ url_for('appointment_report') }}" class="btn btn-sm btn-primary">Generate Report</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-4">
+                <div class="card bg-light h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">Trust Account Report</h5>
+                        <p class="card-text">Summary of trust account balances, transactions, and reconciliation status.</p>
+                        <a href="{{ url_for('trust_account_report') }}" class="btn btn-sm btn-primary">Generate Report</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-4">
+                <div class="card bg-light h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">Activity Report</h5>
+                        <p class="card-text">Summary of user activities and system usage patterns.</p>
+                        <a href="{{ url_for('activity_report') }}" class="btn btn-sm btn-primary">Generate Report</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Custom Report Section -->
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Custom Reports</h6>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-lg-6 mb-4">
+                <div class="card bg-light h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">Create Custom Report</h5>
+                        <p class="card-text">Build your own custom report by selecting data sources, filters, and display options.</p>
+                        <a href="{{ url_for('create_custom_report') }}" class="btn btn-sm btn-primary">Create Report</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6 mb-4">
+                <div class="card bg-light h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">Saved Custom Reports</h5>
+                        <p class="card-text">Access your previously saved custom reports or modify them for new insights.</p>
+                        <a href="{{ url_for('saved_custom_reports') }}" class="btn btn-sm btn-primary">View Saved Reports</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Scheduled Reports Section -->
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Scheduled Reports</h6>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-bordered" width="100%" cellspacing="0">
+                <thead>
+                    <tr>
+                        <th>Report Name</th>
+                        <th>Type</th>
+                        <th>Frequency</th>
+                        <th>Last Run</th>
+                        <th>Next Run</th>
+                        <th>Recipients</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for report in scheduled_reports %}
+                    <tr>
+                        <td>{{ report.name }}</td>
+                        <td>{{ report.type }}</td>
+                        <td>{{ report.frequency }}</td>
+                        <td>{{ report.last_run.strftime('%Y-%m-%d %H:%M') if report.last_run else 'Never' }}</td>
+                        <td>{{ report.next_run.strftime('%Y-%m-%d %H:%M') if report.next_run else 'N/A' }}</td>
+                        <td>{{ report.recipients|length }} recipient(s)</td>
+                        <td>
+                            <div class="btn-group" role="group">
+                                <a href="{{ url_for('edit_scheduled_report', report_id=report.id) }}" class="btn btn-sm btn-info" title="Edit">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <a href="{{ url_for('run_scheduled_report', report_id=report.id) }}" class="btn btn-sm btn-success" title="Run Now">
+                                    <i class="fas fa-play"></i>
+                                </a>
+                                <button type="button" class="btn btn-sm btn-danger delete-scheduled-report" data-id="{{ report.id }}" data-name="{{ report.name }}" title="Delete">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="7" class="text-center">No scheduled reports found.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div class="text-center mt-3">
+            <a href="{{ url_for('add_scheduled_report') }}" class="btn btn-primary">Schedule New Report</a>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Scheduled Report Confirmation Modal -->
+<div class="modal fade" id="deleteScheduledReportModal" tabindex="-1" aria-labelledby="deleteScheduledReportModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteScheduledReportModalLabel">Confirm Delete</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to delete the scheduled report "<strong id="deleteScheduledReportName"></strong>"? This action cannot be undone.
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form id="deleteScheduledReportForm" method="POST">
+                    <button type="submit" class="btn btn-danger">Delete</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    $(document).ready(function() {
+        // Delete scheduled report confirmation
+        $('.delete-scheduled-report').on('click', function() {
+            var reportId = $(this).data('id');
+            var reportName = $(this).data('name');
+            
+            $('#deleteScheduledReportName').text(reportName);
+            $('#deleteScheduledReportForm').attr('action', '/delete_scheduled_report/' + reportId);
+            
+            var deleteScheduledReportModal = new bootstrap.Modal(document.getElementById('deleteScheduledReportModal'));
+            deleteScheduledReportModal.show();
+        });
+    });
+</script>
+{% endblock %}

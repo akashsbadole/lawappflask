@@ -1,0 +1,55 @@
+Flask==2.3.3
+Flask-SQLAlchemy==3.0.5
+Flask-WTF==1.1.1
+Flask-Migrate==4.0.5
+Werkzeug==2.3.7
+WTForms==3.0.1
+PyJWT==2.8.0
+python-dotenv==1.0.0
+# pytz==2023.3 (replaced with zoneinfo from standard library)
+Pillow==10.0.1
+email-validator==2.0.0
+bcrypt==4.0.1
+python-dateutil==2.8.2
+pandas==2.0.3
+numpy==1.24.3
+matplotlib==3.7.2
+seaborn==0.12.2
+plotly==5.15.0
+openpyxl==3.1.2
+xlrd==2.0.1
+PyPDF2==3.0.1
+python-docx==0.8.11
+reportlab==4.0.4
+requests==2.31.0
+beautifulsoup4==4.12.2
+selenium==4.10.0
+celery==5.3.1
+redis==4.6.0
+pymongo==4.4.1
+# psycopg2-binary==2.9.7 (may have issues on Windows, use psycopg2 instead if needed)
+psycopg2-binary==2.9.7
+mysql-connector-python==8.1.0
+SQLAlchemy==2.0.19
+alembic==1.11.2
+marshmallow==3.20.1
+flask-marshmallow==0.15.0
+marshmallow-sqlalchemy==0.29.0
+flask-jwt-extended==4.5.2
+flask-login==0.6.2
+flask-cors==4.0.0
+flask-limiter==3.3.1
+flask-mail==0.9.1
+flask-babel==4.0.0
+flask-moment==1.0.5
+flask-restful==0.3.10
+flask-api==3.1
+flask-httpauth==4.8.0
+flask-principal==0.4.0
+flask-cachebuster==1.0.0
+flask-compress==1.13
+flask-talisman==1.0.0
+gunicorn==21.2.0
+# uwsgi==2.0.22 (not compatible with Windows)
+# Use waitress or gunicorn for Windows instead
+waitress==2.1.2

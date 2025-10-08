@@ -1,0 +1,423 @@
+{% extends "base.html" %}
+
+{% block title %}{{ client.full_name }} - Law Firm Management System{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <div>
+        <h1 class="h2">{{ client.full_name }}</h1>
+        <p class="text-muted">{{ client.client_number }}</p>
+    </div>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <div class="btn-group me-2">
+            <a href="{{ url_for('clients') }}" class="btn btn-sm btn-outline-secondary">
+                <i class="fas fa-arrow-left me-1"></i>Back to Clients
+            </a>
+        </div>
+        <div class="btn-group">
+            <a href="{{ url_for('edit_client', client_id=client.id) }}" class="btn btn-sm btn-outline-secondary">
+                <i class="fas fa-edit me-1"></i>Edit Client
+            </a>
+            <a href="{{ url_for('add_case') }}?client_id={{ client.id }}" class="btn btn-sm btn-outline-secondary">
+                <i class="fas fa-briefcase me-1"></i>Add Case
+            </a>
+            <a href="{{ url_for('add_appointment') }}?client_id={{ client.id }}" class="btn btn-sm btn-outline-secondary">
+                <i class="fas fa-calendar me-1"></i>Add Appointment
+            </a>
+            <a href="{{ url_for('upload_document') }}?client_id={{ client.id }}" class="btn btn-sm btn-outline-secondary">
+                <i class="fas fa-file-upload me-1"></i>Upload Document
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Client Overview -->
+<div class="row mb-4">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Client Information</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <h6 class="text-muted">Full Name</h6>
+                        <p>{{ client.full_name }}</p>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <h6 class="text-muted">Client Number</h6>
+                        <p>{{ client.client_number }}</p>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <h6 class="text-muted">Email</h6>
+                        <p>{{ client.email or 'N/A' }}</p>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <h6 class="text-muted">Phone</h6>
+                        <p>{{ client.phone or 'N/A' }}</p>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <h6 class="text-muted">Company</h6>
+                        <p>{{ client.company or 'N/A' }}</p>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <h6 class="text-muted">Client Type</h6>
+                        <p>
+                            {% if client.client_type == 'individual' %}
+                                <span class="badge bg-info">Individual</span>
+                            {% elif client.client_type == 'corporate' %}
+                                <span class="badge bg-primary">Corporate</span>
+                            {% elif client.client_type == 'government' %}
+                                <span class="badge bg-secondary">Government</span>
+                            {% elif client.client_type == 'ngo' %}
+                                <span class="badge bg-success">NGO</span>
+                            {% else %}
+                                <span class="badge bg-light text-dark">{{ client.client_type }}</span>
+                            {% endif %}
+                        </p>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <h6 class="text-muted">Practice Area</h6>
+                        <p>{{ client.practice_area }}</p>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <h6 class="text-muted">Priority</h6>
+                        <p>
+                            {% if client.priority == 'low' %}
+                                <span class="badge bg-secondary">Low</span>
+                            {% elif client.priority == 'medium' %}
+                                <span class="badge bg-info">Medium</span>
+                            {% elif client.priority == 'high' %}
+                                <span class="badge bg-warning">High</span>
+                            {% elif client.priority == 'urgent' %}
+                                <span class="badge bg-danger">Urgent</span>
+                            {% endif %}
+                        </p>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <h6 class="text-muted">Assigned Lawyer</h6>
+                        <p>{{ client.assigned_lawyer.full_name if client.assigned_lawyer else 'Unassigned' }}</p>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <h6 class="text-muted">Created At</h6>
+                        <p>{{ client.created_at.strftime('%Y-%m-%d %H:%M') }}</p>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <h6 class="text-muted">Tags</h6>
+                        <p>
+                            {% if client.tags %}
+                                {% for tag in client.tags.split(',') %}
+                                <span class="badge bg-secondary">{{ tag.strip() }}</span>
+                                {% endfor %}
+                            {% else %}
+                                <span class="text-muted">No tags</span>
+                            {% endif %}
+                        </p>
+                    </div>
+                </div>
+                
+                {% if client.address %}
+                <div class="mb-3">
+                    <h6 class="text-muted">Address</h6>
+                    <p>{{ client.address }}</p>
+                    <p>{{ client.city }}, {{ client.state }} {{ client.postal_code }}</p>
+                </div>
+                {% endif %}
+                
+                {% if client.notes %}
+                <div class="mb-3">
+                    <h6 class="text-muted">Notes</h6>
+                    <p>{{ client.notes }}</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">Client Statistics</h5>
+            </div>
+            <div class="card-body">
+                <div class="d-flex justify-content-between mb-3">
+                    <span>Active Cases</span>
+                    <span class="badge bg-primary">{{ cases|selectattr('status', 'equalto', 'open')|list|length + cases|selectattr('status', 'equalto', 'in_progress')|list|length }}</span>
+                </div>
+                <div class="d-flex justify-content-between mb-3">
+                    <span>Total Cases</span>
+                    <span class="badge bg-secondary">{{ cases|length }}</span>
+                </div>
+                <div class="d-flex justify-content-between mb-3">
+                    <span>Upcoming Appointments</span>
+                    <span class="badge bg-info">{{ appointments|selectattr('status', 'equalto', 'scheduled')|list|length }}</span>
+                </div>
+                <div class="d-flex justify-content-between mb-3">
+                    <span>Total Documents</span>
+                    <span class="badge bg-warning">{{ documents|length }}</span>
+                </div>
+                <div class="d-flex justify-content-between">
+                    <span>Pending Invoices</span>
+                    <span class="badge bg-danger">{{ invoices|selectattr('status', 'equalto', 'sent')|list|length + invoices|selectattr('status', 'equalto', 'overdue')|list|length }}</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Quick Actions</h5>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a href="{{ url_for('add_communication') }}?client_id={{ client.id }}" class="btn btn-outline-primary">
+                        <i class="fas fa-comments me-2"></i>Add Communication
+                    </a>
+                    <a href="{{ url_for('add_invoice') }}?client_id={{ client.id }}" class="btn btn-outline-success">
+                        <i class="fas fa-file-invoice me-2"></i>Create Invoice
+                    </a>
+                    <a href="{{ url_for('client_communications', client_id=client.id) }}" class="btn btn-outline-info">
+                        <i class="fas fa-history me-2"></i>Communication History
+                    </a>
+                    <a href="{{ url_for('export_client_data', client_id=client.id) }}" class="btn btn-outline-secondary">
+                        <i class="fas fa-download me-2"></i>Export Client Data
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Client Cases -->
+<div class="card mb-4">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">Cases</h5>
+        <a href="{{ url_for('add_case') }}?client_id={{ client.id }}" class="btn btn-sm btn-primary">
+            <i class="fas fa-plus me-1"></i>Add Case
+        </a>
+    </div>
+    <div class="card-body">
+        {% if cases %}
+        <div class="table-responsive">
+            <table class="table table-striped table-hover">
+                <thead>
+                    <tr>
+                        <th>Case Number</th>
+                        <th>Title</th>
+                        <th>Type</th>
+                        <th>Status</th>
+                        <th>Stage</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for case in cases %}
+                    <tr>
+                        <td>{{ case.case_number }}</td>
+                        <td>{{ case.title }}</td>
+                        <td>{{ case.case_type }}</td>
+                        <td>
+                            {% if case.status == 'open' %}
+                                <span class="badge bg-success">Open</span>
+                            {% elif case.status == 'in_progress' %}
+                                <span class="badge bg-primary">In Progress</span>
+                            {% elif case.status == 'closed' %}
+                                <span class="badge bg-secondary">Closed</span>
+                            {% else %}
+                                <span class="badge bg-light text-dark">{{ case.status }}</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ case.stage }}</td>
+                        <td>
+                            <div class="btn-group" role="group">
+                                <a href="{{ url_for('view_case', case_id=case.id) }}" class="btn btn-sm btn-primary" title="View">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <a href="{{ url_for('edit_case', case_id=case.id) }}" class="btn btn-sm btn-info" title="Edit">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-4">
+            <p class="text-muted">No cases found for this client.</p>
+            <a href="{{ url_for('add_case') }}?client_id={{ client.id }}" class="btn btn-primary">
+                <i class="fas fa-plus me-1"></i>Add First Case
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Client Communications -->
+<div class="card mb-4">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">Recent Communications</h5>
+        <a href="{{ url_for('client_communications', client_id=client.id) }}" class="btn btn-sm btn-outline-secondary">
+            View All <i class="fas fa-arrow-right ms-1"></i>
+        </a>
+    </div>
+    <div class="card-body">
+        {% if communications %}
+        <div class="list-group list-group-flush">
+            {% for communication in communications %}
+            <div class="list-group-item px-0">
+                <div class="d-flex w-100 justify-content-between">
+                    <h6 class="mb-1">{{ communication.subject }}</h6>
+                    <small>{{ communication.created_at.strftime('%Y-%m-%d %H:%M') }}</small>
+                </div>
+                <p class="mb-1">{{ communication.message[:100] }}{% if communication.message|length > 100 %}...{% endif %}</p>
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        {% if communication.communication_type == 'email' %}
+                            <span class="badge bg-primary">Email</span>
+                        {% elif communication.communication_type == 'phone' %}
+                            <span class="badge bg-info">Phone</span>
+                        {% elif communication.communication_type == 'meeting' %}
+                            <span class="badge bg-success">Meeting</span>
+                        {% elif communication.communication_type == 'sms' %}
+                            <span class="badge bg-warning">SMS</span>
+                        {% elif communication.communication_type == 'whatsapp' %}
+                            <span class="badge bg-success">WhatsApp</span>
+                        {% else %}
+                            <span class="badge bg-secondary">{{ communication.communication_type }}</span>
+                        {% endif %}
+                        
+                        {% if communication.direction == 'inbound' %}
+                            <span class="badge bg-info">Inbound</span>
+                        {% else %}
+                            <span class="badge bg-primary">Outbound</span>
+                        {% endif %}
+                    </div>
+                    <a href="{{ url_for('view_communication', communication_id=communication.id) }}" class="btn btn-sm btn-outline-primary">
+                        View Details
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="text-center py-4">
+            <p class="text-muted">No communications found for this client.</p>
+            <a href="{{ url_for('add_communication') }}?client_id={{ client.id }}" class="btn btn-primary">
+                <i class="fas fa-plus me-1"></i>Add First Communication
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Client Documents -->
+<div class="card mb-4">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">Recent Documents</h5>
+        <a href="{{ url_for('client_documents', client_id=client.id) }}" class="btn btn-sm btn-outline-secondary">
+            View All <i class="fas fa-arrow-right ms-1"></i>
+        </a>
+    </div>
+    <div class="card-body">
+        {% if documents %}
+        <div class="row">
+            {% for document in documents %}
+            <div class="col-md-4 mb-3">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h6 class="card-title">{{ document.title }}</h6>
+                        <p class="card-text text-muted small">{{ document.description[:100] }}{% if document.description|length > 100 %}...{% endif %}</p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="badge bg-secondary">{{ document.category }}</span>
+                            <small>{{ document.created_at.strftime('%Y-%m-%d') }}</small>
+                        </div>
+                    </div>
+                    <div class="card-footer bg-transparent">
+                        <a href="{{ url_for('download_document', document_id=document.id) }}" class="btn btn-sm btn-outline-primary">
+                            <i class="fas fa-download me-1"></i>Download
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="text-center py-4">
+            <p class="text-muted">No documents found for this client.</p>
+            <a href="{{ url_for('upload_document') }}?client_id={{ client.id }}" class="btn btn-primary">
+                <i class="fas fa-upload me-1"></i>Upload First Document
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Client Invoices -->
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">Recent Invoices</h5>
+        <a href="{{ url_for('client_invoices', client_id=client.id) }}" class="btn btn-sm btn-outline-secondary">
+            View All <i class="fas fa-arrow-right ms-1"></i>
+        </a>
+    </div>
+    <div class="card-body">
+        {% if invoices %}
+        <div class="table-responsive">
+            <table class="table table-striped table-hover">
+                <thead>
+                    <tr>
+                        <th>Invoice Number</th>
+                        <th>Issue Date</th>
+                        <th>Due Date</th>
+                        <th>Amount</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for invoice in invoices %}
+                    <tr>
+                        <td>{{ invoice.invoice_number }}</td>
+                        <td>{{ invoice.issue_date.strftime('%Y-%m-%d') }}</td>
+                        <td>{{ invoice.due_date.strftime('%Y-%m-%d') }}</td>
+                        <td>₹{{ invoice.total|round(2) }}</td>
+                        <td>
+                            {% if invoice.status == 'draft' %}
+                                <span class="badge bg-secondary">Draft</span>
+                            {% elif invoice.status == 'sent' %}
+                                <span class="badge bg-primary">Sent</span>
+                            {% elif invoice.status == 'paid' %}
+                                <span class="badge bg-success">Paid</span>
+                            {% elif invoice.status == 'overdue' %}
+                                <span class="badge bg-danger">Overdue</span>
+                            {% else %}
+                                <span class="badge bg-light text-dark">{{ invoice.status }}</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="btn-group" role="group">
+                                <a href="{{ url_for('view_invoice', invoice_id=invoice.id) }}" class="btn btn-sm btn-primary" title="View">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <a href="{{ url_for('download_invoice', invoice_id=invoice.id) }}" class="btn btn-sm btn-info" title="Download">
+                                    <i class="fas fa-download"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-4">
+            <p class="text-muted">No invoices found for this client.</p>
+            <a href="{{ url_for('add_invoice') }}?client_id={{ client.id }}" class="btn btn-primary">
+                <i class="fas fa-plus me-1"></i>Create First Invoice
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

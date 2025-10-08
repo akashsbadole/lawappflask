@@ -1,0 +1,209 @@
+{% extends "base.html" %}
+
+{% block title %}Edit User - Law Firm Management System{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Edit User</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <div class="btn-group me-2">
+            <a href="{{ url_for('users') }}" class="btn btn-sm btn-outline-secondary">
+                <i class="fas fa-arrow-left me-1"></i>Back to Users
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Edit User Information</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('edit_user', user_id=user.id) }}">
+                    {{ form.hidden_tag() }}
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            {{ form.username.label(class="form-label") }}
+                            {{ form.username(class="form-control") }}
+                            {% if form.username.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.username.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            {{ form.email.label(class="form-label") }}
+                            {{ form.email(class="form-control") }}
+                            {% if form.email.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.email.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            {{ form.password.label(class="form-label") }}
+                            {{ form.password(class="form-control") }}
+                            <small class="form-text text-muted">Leave blank to keep current password.</small>
+                            {% if form.password.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.password.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            {{ form.confirm_password.label(class="form-label") }}
+                            {{ form.confirm_password(class="form-control") }}
+                            {% if form.confirm_password.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.confirm_password.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        {{ form.full_name.label(class="form-label") }}
+                        {{ form.full_name(class="form-control") }}
+                        {% if form.full_name.errors %}
+                            <div class="text-danger">
+                                {% for error in form.full_name.errors %}
+                                    <small>{{ error }}</small>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            {{ form.role.label(class="form-label") }}
+                            {{ form.role(class="form-control") }}
+                            {% if form.role.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.role.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            {{ form.phone.label(class="form-label") }}
+                            {{ form.phone(class="form-control") }}
+                            {% if form.phone.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.phone.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        {{ form.address.label(class="form-label") }}
+                        {{ form.address(class="form-control", rows="3") }}
+                        {% if form.address.errors %}
+                            <div class="text-danger">
+                                {% for error in form.address.errors %}
+                                    <small>{{ error }}</small>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3 form-check">
+                        {{ form.is_active(class="form-check-input") }}
+                        {{ form.is_active.label(class="form-check-label") }}
+                    </div>
+                    
+                    <div class="d-flex justify-content-end">
+                        <a href="{{ url_for('users') }}" class="btn btn-secondary me-2">Cancel</a>
+                        <button type="submit" class="btn btn-primary">Update User</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">User Information</h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <label class="form-label">Username</label>
+                    <p class="form-control-plaintext">{{ user.username }}</p>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Created At</label>
+                    <p class="form-control-plaintext">{{ user.created_at.strftime('%Y-%m-%d %H:%M') }}</p>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Last Login</label>
+                    <p class="form-control-plaintext">{{ user.last_login.strftime('%Y-%m-%d %H:%M') if user.last_login else 'Never' }}</p>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Current Role</label>
+                    <p class="form-control-plaintext">
+                        {% if user.role == 'admin' %}
+                            <span class="badge bg-danger">Administrator</span>
+                        {% elif user.role == 'lawyer' %}
+                            <span class="badge bg-primary">Lawyer</span>
+                        {% elif user.role == 'paralegal' %}
+                            <span class="badge bg-info">Paralegal</span>
+                        {% elif user.role == 'staff' %}
+                            <span class="badge bg-secondary">Staff</span>
+                        {% elif user.role == 'finance' %}
+                            <span class="badge bg-warning">Finance</span>
+                        {% else %}
+                            <span class="badge bg-light text-dark">{{ user.role }}</span>
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card mt-3">
+            <div class="card-header">
+                <h5 class="mb-0">User Activity</h5>
+            </div>
+            <div class="card-body">
+                {% set activities = user.activity_logs[:5] %}
+                {% if activities %}
+                    <div class="list-group list-group-flush">
+                        {% for activity in activities %}
+                            <div class="list-group-item px-0">
+                                <div class="d-flex w-100 justify-content-between">
+                                    <h6 class="mb-1">{{ activity.action }}</h6>
+                                    <small>{{ activity.timestamp.strftime('%Y-%m-%d %H:%M') }}</small>
+                                </div>
+                                <p class="mb-1">{{ activity.details or 'No details available' }}</p>
+                                <small>{{ activity.resource_type or 'N/A' }}</small>
+                            </div>
+                        {% endfor %}
+                    </div>
+                    <div class="mt-2">
+                        <a href="{{ url_for('activity_logs', user_id=user.id) }}" class="btn btn-sm btn-outline-primary">View All Activity</a>
+                    </div>
+                {% else %}
+                    <p class="text-muted">No activity recorded for this user.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

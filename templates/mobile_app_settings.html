@@ -1,0 +1,466 @@
+{% extends "base.html" %}
+
+{% block title %}Mobile App Settings - Law Firm Management System{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Mobile App Settings</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <div class="btn-group me-2">
+            <a href="{{ url_for('mobile_applications') }}" class="btn btn-sm btn-outline-secondary">
+                <i class="fas fa-arrow-left me-1"></i>Back to Mobile Apps
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">General Settings</h6>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('update_mobile_app_settings') }}">
+                    {{ mobile_app_settings_form.hidden_tag() }}
+                    
+                    <div class="mb-3">
+                        {{ mobile_app_settings_form.app_name.label(class="form-label") }}
+                        {{ mobile_app_settings_form.app_name(class="form-control") }}
+                        {% if mobile_app_settings_form.app_name.errors %}
+                            <div class="text-danger">
+                                {% for error in mobile_app_settings_form.app_name.errors %}
+                                    <small>{{ error }}</small>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        {{ mobile_app_settings_form.app_description.label(class="form-label") }}
+                        {{ mobile_app_settings_form.app_description(class="form-control", rows="3") }}
+                        {% if mobile_app_settings_form.app_description.errors %}
+                            <div class="text-danger">
+                                {% for error in mobile_app_settings_form.app_description.errors %}
+                                    <small>{{ error }}</small>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        {{ mobile_app_settings_form.support_email.label(class="form-label") }}
+                        {{ mobile_app_settings_form.support_email(class="form-control") }}
+                        {% if mobile_app_settings_form.support_email.errors %}
+                            <div class="text-danger">
+                                {% for error in mobile_app_settings_form.support_email.errors %}
+                                    <small>{{ error }}</small>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        {{ mobile_app_settings_form.terms_of_service_url.label(class="form-label") }}
+                        {{ mobile_app_settings_form.terms_of_service_url(class="form-control") }}
+                        {% if mobile_app_settings_form.terms_of_service_url.errors %}
+                            <div class="text-danger">
+                                {% for error in mobile_app_settings_form.terms_of_service_url.errors %}
+                                    <small>{{ error }}</small>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        {{ mobile_app_settings_form.privacy_policy_url.label(class="form-label") }}
+                        {{ mobile_app_settings_form.privacy_policy_url(class="form-control") }}
+                        {% if mobile_app_settings_form.privacy_policy_url.errors %}
+                            <div class="text-danger">
+                                {% for error in mobile_app_settings_form.privacy_policy_url.errors %}
+                                    <small>{{ error }}</small>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="d-flex justify-content-end">
+                        <button type="submit" class="btn btn-primary">Update Settings</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Push Notifications</h6>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('update_push_notification_settings') }}">
+                    {{ push_notification_form.hidden_tag() }}
+                    
+                    <div class="mb-3">
+                        <div class="form-check form-switch">
+                            {{ push_notification_form.enable_push_notifications(class="form-check-input") }}
+                            {{ push_notification_form.enable_push_notifications.label(class="form-check-label") }}
+                        </div>
+                        <small class="form-text text-muted">Enable push notifications for the mobile app.</small>
+                    </div>
+                    
+                    <div class="mb-3">
+                        {{ push_notification_form.firebase_api_key.label(class="form-label") }}
+                        {{ push_notification_form.firebase_api_key(class="form-control") }}
+                        {% if push_notification_form.firebase_api_key.errors %}
+                            <div class="text-danger">
+                                {% for error in push_notification_form.firebase_api_key.errors %}
+                                    <small>{{ error }}</small>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        {{ push_notification_form.firebase_auth_domain.label(class="form-label") }}
+                        {{ push_notification_form.firebase_auth_domain(class="form-control") }}
+                        {% if push_notification_form.firebase_auth_domain.errors %}
+                            <div class="text-danger">
+                                {% for error in push_notification_form.firebase_auth_domain.errors %}
+                                    <small>{{ error }}</small>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        {{ push_notification_form.firebase_project_id.label(class="form-label") }}
+                        {{ push_notification_form.firebase_project_id(class="form-control") }}
+                        {% if push_notification_form.firebase_project_id.errors %}
+                            <div class="text-danger">
+                                {% for error in push_notification_form.firebase_project_id.errors %}
+                                    <small>{{ error }}</small>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        {{ push_notification_form.firebase_storage_bucket.label(class="form-label") }}
+                        {{ push_notification_form.firebase_storage_bucket(class="form-control") }}
+                        {% if push_notification_form.firebase_storage_bucket.errors %}
+                            <div class="text-danger">
+                                {% for error in push_notification_form.firebase_storage_bucket.errors %}
+                                    <small>{{ error }}</small>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        {{ push_notification_form.firebase_messaging_sender_id.label(class="form-label") }}
+                        {{ push_notification_form.firebase_messaging_sender_id(class="form-control") }}
+                        {% if push_notification_form.firebase_messaging_sender_id.errors %}
+                            <div class="text-danger">
+                                {% for error in push_notification_form.firebase_messaging_sender_id.errors %}
+                                    <small>{{ error }}</small>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        {{ push_notification_form.firebase_app_id.label(class="form-label") }}
+                        {{ push_notification_form.firebase_app_id(class="form-control") }}
+                        {% if push_notification_form.firebase_app_id.errors %}
+                            <div class="text-danger">
+                                {% for error in push_notification_form.firebase_app_id.errors %}
+                                    <small>{{ error }}</small>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        {{ push_notification_form.apns_certificate.label(class="form-label") }}
+                        {{ push_notification_form.apns_certificate(class="form-control") }}
+                        {% if push_notification_form.apns_certificate.errors %}
+                            <div class="text-danger">
+                                {% for error in push_notification_form.apns_certificate.errors %}
+                                    <small>{{ error }}</small>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        {{ push_notification_form.apns_key_id.label(class="form-label") }}
+                        {{ push_notification_form.apns_key_id(class="form-control") }}
+                        {% if push_notification_form.apns_key_id.errors %}
+                            <div class="text-danger">
+                                {% for error in push_notification_form.apns_key_id.errors %}
+                                    <small>{{ error }}</small>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        {{ push_notification_form.apns_team_id.label(class="form-label") }}
+                        {{ push_notification_form.apns_team_id(class="form-control") }}
+                        {% if push_notification_form.apns_team_id.errors %}
+                            <div class="text-danger">
+                                {% for error in push_notification_form.apns_team_id.errors %}
+                                    <small>{{ error }}</small>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        {{ push_notification_form.apns_bundle_id.label(class="form-label") }}
+                        {{ push_notification_form.apns_bundle_id(class="form-control") }}
+                        {% if push_notification_form.apns_bundle_id.errors %}
+                            <div class="text-danger">
+                                {% for error in push_notification_form.apns_bundle_id.errors %}
+                                    <small>{{ error }}</small>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="d-flex justify-content-end">
+                        <button type="submit" class="btn btn-primary">Update Settings</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">App Store Settings</h6>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('update_app_store_settings') }}">
+                    {{ app_store_form.hidden_tag() }}
+                    
+                    <div class="mb-3">
+                        {{ app_store_form.ios_app_store_url.label(class="form-label") }}
+                        {{ app_store_form.ios_app_store_url(class="form-control") }}
+                        {% if app_store_form.ios_app_store_url.errors %}
+                            <div class="text-danger">
+                                {% for error in app_store_form.ios_app_store_url.errors %}
+                                    <small>{{ error }}</small>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        {{ app_store_form.android_play_store_url.label(class="form-label") }}
+                        {{ app_store_form.android_play_store_url(class="form-control") }}
+                        {% if app_store_form.android_play_store_url.errors %}
+                            <div class="text-danger">
+                                {% for error in app_store_form.android_play_store_url.errors %}
+                                    <small>{{ error }}</small>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        {{ app_store_form.web_app_url.label(class="form-label") }}
+                        {{ app_store_form.web_app_url(class="form-control") }}
+                        {% if app_store_form.web_app_url.errors %}
+                            <div class="text-danger">
+                                {% for error in app_store_form.web_app_url.errors %}
+                                    <small>{{ error }}</small>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="d-flex justify-content-end">
+                        <button type="submit" class="btn btn-primary">Update Settings</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Security Settings</h6>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('update_mobile_security_settings') }}">
+                    {{ security_form.hidden_tag() }}
+                    
+                    <div class="mb-3">
+                        <div class="form-check form-switch">
+                            {{ security_form.require_biometric_login(class="form-check-input") }}
+                            {{ security_form.require_biometric_login.label(class="form-check-label") }}
+                        </div>
+                        <small class="form-text text-muted">Require biometric authentication for mobile app login.</small>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <div class="form-check form-switch">
+                            {{ security_form.enable_remote_wipe(class="form-check-input") }}
+                            {{ security_form.enable_remote_wipe.label(class="form-check-label") }}
+                        </div>
+                        <small class="form-text text-muted">Allow administrators to remotely wipe app data from lost or stolen devices.</small>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <div class="form-check form-switch">
+                            {{ security_form.encrypt_local_data(class="form-check-input") }}
+                            {{ security_form.encrypt_local_data.label(class="form-check-label") }}
+                        </div>
+                        <small class="form-text text-muted">Encrypt all data stored locally on the device.</small>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <div class="form-check form-switch">
+                            {{ security_form.enable_session_timeout(class="form-check-input") }}
+                            {{ security_form.enable_session_timeout.label(class="form-check-label") }}
+                        </div>
+                        <small class="form-text text-muted">Automatically log out users after a period of inactivity.</small>
+                    </div>
+                    
+                    <div class="mb-3">
+                        {{ security_form.session_timeout_minutes.label(class="form-label") }}
+                        {{ security_form.session_timeout_minutes(class="form-control") }}
+                        {% if security_form.session_timeout_minutes.errors %}
+                            <div class="text-danger">
+                                {% for error in security_form.session_timeout_minutes.errors %}
+                                    <small>{{ error }}</small>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <div class="form-check form-switch">
+                            {{ security_form.enable_jailbreak_detection(class="form-check-input") }}
+                            {{ security_form.enable_jailbreak_detection.label(class="form-check-label") }}
+                        </div>
+                        <small class="form-text text-muted">Detect and prevent app usage on jailbroken or rooted devices.</small>
+                    </div>
+                    
+                    <div class="d-flex justify-content-end">
+                        <button type="submit" class="btn btn-primary">Update Settings</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Feature Flags</h6>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('update_feature_flags') }}">
+                    {{ feature_flags_form.hidden_tag() }}
+                    
+                    <div class="mb-3">
+                        <div class="form-check form-switch">
+                            {{ feature_flags_form.enable_offline_mode(class="form-check-input") }}
+                            {{ feature_flags_form.enable_offline_mode.label(class="form-check-label") }}
+                        </div>
+                        <small class="form-text text-muted">Allow users to access certain features while offline.</small>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <div class="form-check form-switch">
+                            {{ feature_flags_form.enable_dark_mode(class="form-check-input") }}
+                            {{ feature_flags_form.enable_dark_mode.label(class="form-check-label") }}
+                        </div>
+                        <small class="form-text text-muted">Enable dark mode in the mobile app.</small>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <div class="form-check form-switch">
+                            {{ feature_flags_form.enable_push_notifications(class="form-check-input") }}
+                            {{ feature_flags_form.enable_push_notifications.label(class="form-check-label") }}
+                        </div>
+                        <small class="form-text text-muted">Enable push notifications for the mobile app.</small>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <div class="form-check form-switch">
+                            {{ feature_flags_form.enable_document_scanning(class="form-check-input") }}
+                            {{ feature_flags_form.enable_document_scanning.label(class="form-check-label") }}
+                        </div>
+                        <small class="form-text text-muted">Enable document scanning using the device camera.</small>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <div class="form-check form-switch">
+                            {{ feature_flags_form.enable_voice_notes(class="form-check-input") }}
+                            {{ feature_flags_form.enable_voice_notes.label(class="form-check-label") }}
+                        </div>
+                        <small class="form-text text-muted">Enable voice notes for case and client records.</small>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <div class="form-check form-switch">
+                            {{ feature_flags_form.enable_ai_assistant(class="form-check-input") }}
+                            {{ feature_flags_form.enable_ai_assistant.label(class="form-check-label") }}
+                        </div>
+                        <small class="form-text text-muted">Enable AI assistant in the mobile app.</small>
+                    </div>
+                    
+                    <div class="d-flex justify-content-end">
+                        <button type="submit" class="btn btn-primary">Update Settings</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    $(document).ready(function() {
+        // Handle form submissions with AJAX
+        $('form').on('submit', function(e) {
+            e.preventDefault();
+            
+            var form = $(this);
+            var url = form.attr('action');
+            var method = form.attr('method');
+            var data = form.serialize();
+            
+            $.ajax({
+                url: url,
+                type: method,
+                data: data,
+                success: function(response) {
+                    if (response.success) {
+                        alert('Settings updated successfully!');
+                    } else {
+                        alert('Error updating settings: ' + response.message);
+                    }
+                },
+                error: function() {
+                    alert('Error updating settings. Please try again.');
+                }
+            });
+        });
+        
+        // Handle enable/disable of session timeout based on checkbox
+        $('#enable_session_timeout').on('change', function() {
+            var sessionTimeoutMinutes = $('#session_timeout_minutes');
+            if ($(this).is(':checked')) {
+                sessionTimeoutMinutes.prop('disabled', false);
+            } else {
+                sessionTimeoutMinutes.prop('disabled', true);
+            }
+        });
+        
+        // Initialize form based on current settings
+        $('#enable_session_timeout').trigger('change');
+    });
+</script>
+{% endblock %}

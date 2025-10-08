@@ -1,0 +1,500 @@
+{% extends "base.html" %}
+
+{% block title %}Add Client User - Law Firm Management System{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Add Client User</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <div class="btn-group me-2">
+            <a href="{{ url_for('client_portal') }}" class="btn btn-sm btn-outline-secondary">
+                <i class="fas fa-arrow-left me-1"></i>Back to Client Portal
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">New Client User</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('add_client_user') }}">
+                    {{ form.hidden_tag() }}
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            {{ form.client_id.label(class="form-label") }}
+                            {{ form.client_id(class="form-control", id="clientSelect") }}
+                            {% if form.client_id.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.client_id.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            {{ form.role.label(class="form-label") }}
+                            {{ form.role(class="form-control") }}
+                            {% if form.role.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.role.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            {{ form.first_name.label(class="form-label") }}
+                            {{ form.first_name(class="form-control") }}
+                            {% if form.first_name.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.first_name.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            {{ form.last_name.label(class="form-label") }}
+                            {{ form.last_name(class="form-control") }}
+                            {% if form.last_name.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.last_name.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            {{ form.email.label(class="form-label") }}
+                            {{ form.email(class="form-control") }}
+                            {% if form.email.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.email.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            {{ form.phone.label(class="form-label") }}
+                            {{ form.phone(class="form-control") }}
+                            {% if form.phone.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.phone.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        {{ form.status.label(class="form-label") }}
+                        {{ form.status(class="form-control") }}
+                        {% if form.status.errors %}
+                            <div class="text-danger">
+                                {% for error in form.status.errors %}
+                                    <small>{{ error }}</small>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        {{ form.access_permissions.label(class="form-label") }}
+                        <div class="form-check">
+                            {{ form.can_view_cases(class="form-check-input") }}
+                            {{ form.can_view_cases.label(class="form-check-label") }}
+                        </div>
+                        <div class="form-check">
+                            {{ form.can_view_documents(class="form-check-input") }}
+                            {{ form.can_view_documents.label(class="form-check-label") }}
+                        </div>
+                        <div class="form-check">
+                            {{ form.can_view_invoices(class="form-check-input") }}
+                            {{ form.can_view_invoices.label(class="form-check-label") }}
+                        </div>
+                        <div class="form-check">
+                            {{ form.can_view_calendar(class="form-check-input") }}
+                            {{ form.can_view_calendar.label(class="form-check-label") }}
+                        </div>
+                        <div class="form-check">
+                            {{ form.can_make_payments(class="form-check-input") }}
+                            {{ form.can_make_payments.label(class="form-check-label") }}
+                        </div>
+                        <div class="form-check">
+                            {{ form.can_download_documents(class="form-check-input") }}
+                            {{ form.can_download_documents.label(class="form-check-label") }}
+                        </div>
+                        {% if form.access_permissions.errors %}
+                            <div class="text-danger">
+                                {% for error in form.access_permissions.errors %}
+                                    <small>{{ error }}</small>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        {{ form.case_access.label(class="form-label") }}
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Case</th>
+                                        <th>Access</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for case in client_cases %}
+                                    <tr>
+                                        <td>{{ case.title }} ({{ case.case_number }})</td>
+                                        <td>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" name="case_access" id="case_{{ case.id }}" value="{{ case.id }}">
+                                                <label class="form-check-label" for="case_{{ case.id }}">
+                                                    Grant Access
+                                                </label>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        {% if form.case_access.errors %}
+                            <div class="text-danger">
+                                {% for error in form.case_access.errors %}
+                                    <small>{{ error }}</small>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        {{ form.notes.label(class="form-label") }}
+                        {{ form.notes(class="form-control", rows="3") }}
+                        {% if form.notes.errors %}
+                            <div class="text-danger">
+                                {% for error in form.notes.errors %}
+                                    <small>{{ error }}</small>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <div class="form-check">
+                            {{ form.send_invitation(class="form-check-input", id="sendInvitationCheck") }}
+                            {{ form.send_invitation.label(class="form-check-label", for="sendInvitationCheck") }}
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3" id="invitationMessageField" style="display: none;">
+                        {{ form.invitation_message.label(class="form-label") }}
+                        {{ form.invitation_message(class="form-control", rows="3") }}
+                        {% if form.invitation_message.errors %}
+                            <div class="text-danger">
+                                {% for error in form.invitation_message.errors %}
+                                    <small>{{ error }}</small>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                        <small class="form-text text-muted">Custom message to include in the invitation email. Leave blank to use the default message.</small>
+                    </div>
+                    
+                    <div class="d-flex justify-content-end">
+                        <a href="{{ url_for('client_portal') }}" class="btn btn-secondary me-2">Cancel</a>
+                        <button type="submit" class="btn btn-primary">Add Client User</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Client User Guidelines</h5>
+            </div>
+            <div class="card-body">
+                <ul>
+                    <li>Each client user must be associated with a client</li>
+                    <li>Use valid email addresses for all client users</li>
+                    <li>Assign appropriate roles based on the user's relationship to the client</li>
+                    <li>Set access permissions according to what the user needs to see</li>
+                    <li>Grant case access only to relevant cases</li>
+                    <li>Send invitations to activate user accounts</li>
+                    <li>Review all details before submitting</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="card mt-3">
+            <div class="card-header">
+                <h5 class="mb-0">Client User Roles</h5>
+            </div>
+            <div class="card-body">
+                <div class="accordion" id="userRolesAccordion">
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="primaryContactHeading">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#primaryContactCollapse" aria-expanded="false" aria-controls="primaryContactCollapse">
+                                Primary Contact
+                            </button>
+                        </h2>
+                        <div id="primaryContactCollapse" class="accordion-collapse collapse" aria-labelledby="primaryContactHeading" data-bs-parent="#userRolesAccordion">
+                            <div class="accordion-body">
+                                The main point of contact for the client. Has full access to all client information and can make decisions on behalf of the client.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="secondaryContactHeading">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#secondaryContactCollapse" aria-expanded="false" aria-controls="secondaryContactCollapse">
+                                Secondary Contact
+                            </button>
+                        </h2>
+                        <div id="secondaryContactCollapse" class="accordion-collapse collapse" aria-labelledby="secondaryContactHeading" data-bs-parent="#userRolesAccordion">
+                            <div class="accordion-body">
+                                An additional contact person for the client. Has access to most client information but may have limited decision-making authority.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="caseContactHeading">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#caseContactCollapse" aria-expanded="false" aria-controls="caseContactCollapse">
+                                Case Contact
+                            </button>
+                        </h2>
+                        <div id="caseContactCollapse" class="accordion-collapse collapse" aria-labelledby="caseContactHeading" data-bs-parent="#userRolesAccordion">
+                            <div class="accordion-body">
+                                A contact person for a specific case. Has access only to information related to that case and cannot view other cases or general client information.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="financialContactHeading">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#financialContactCollapse" aria-expanded="false" aria-controls="financialContactCollapse">
+                                Financial Contact
+                            </button>
+                        </h2>
+                        <div id="financialContactCollapse" class="accordion-collapse collapse" aria-labelledby="financialContactHeading" data-bs-parent="#userRolesAccordion">
+                            <div class="accordion-body">
+                                A contact person responsible for financial matters. Has access to invoices, payment information, and financial documents.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="otherContactHeading">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#otherContactCollapse" aria-expanded="false" aria-controls="otherContactCollapse">
+                                Other Contact
+                            </button>
+                        </h2>
+                        <div id="otherContactCollapse" class="accordion-collapse collapse" aria-labelledby="otherContactHeading" data-bs-parent="#userRolesAccordion">
+                            <div class="accordion-body">
+                                A contact person with a specific role not covered by other categories. Access permissions are customized based on the user's needs.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card mt-3">
+            <div class="card-header">
+                <h5 class="mb-0">Client User Statuses</h5>
+            </div>
+            <div class="card-body">
+                <div class="accordion" id="userStatusesAccordion">
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="activeStatusHeading">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#activeStatusCollapse" aria-expanded="false" aria-controls="activeStatusCollapse">
+                                Active
+                            </button>
+                        </h2>
+                        <div id="activeStatusCollapse" class="accordion-collapse collapse" aria-labelledby="activeStatusHeading" data-bs-parent="#userStatusesAccordion">
+                            <div class="accordion-body">
+                                User account is active and the user can access the client portal.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="pendingStatusHeading">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#pendingStatusCollapse" aria-expanded="false" aria-controls="pendingStatusCollapse">
+                                Pending
+                            </button>
+                        </h2>
+                        <div id="pendingStatusCollapse" class="accordion-collapse collapse" aria-labelledby="pendingStatusHeading" data-bs-parent="#userStatusesAccordion">
+                            <div class="accordion-body">
+                                User has been invited but has not yet activated their account.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="inactiveStatusHeading">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#inactiveStatusCollapse" aria-expanded="false" aria-controls="inactiveStatusCollapse">
+                                Inactive
+                            </button>
+                        </h2>
+                        <div id="inactiveStatusCollapse" class="accordion-collapse collapse" aria-labelledby="inactiveStatusHeading" data-bs-parent="#userStatusesAccordion">
+                            <div class="accordion-body">
+                                User account is inactive and the user cannot access the client portal.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="suspendedStatusHeading">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#suspendedStatusCollapse" aria-expanded="false" aria-controls="suspendedStatusCollapse">
+                                Suspended
+                            </button>
+                        </h2>
+                        <div id="suspendedStatusCollapse" class="accordion-collapse collapse" aria-labelledby="suspendedStatusHeading" data-bs-parent="#userStatusesAccordion">
+                            <div class="accordion-body">
+                                User account has been suspended due to policy violations or other issues.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card mt-3">
+            <div class="card-header">
+                <h5 class="mb-0">Recent Client Users</h5>
+            </div>
+            <div class="card-body">
+                {% if recent_users %}
+                <div class="list-group list-group-flush">
+                    {% for user in recent_users %}
+                    <div class="list-group-item px-0">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h6 class="mb-1">{{ user.full_name }}</h6>
+                            <small>{{ user.created_at.strftime('%Y-%m-%d') }}</small>
+                        </div>
+                        <p class="mb-1">{{ user.email }} • {{ user.role|title }}</p>
+                        <div>
+                            {% if user.status == 'active' %}
+                                <span class="badge bg-success">Active</span>
+                            {% elif user.status == 'pending' %}
+                                <span class="badge bg-warning">Pending</span>
+                            {% elif user.status == 'inactive' %}
+                                <span class="badge bg-secondary">Inactive</span>
+                            {% elif user.status == 'suspended' %}
+                                <span class="badge bg-danger">Suspended</span>
+                            {% else %}
+                                <span class="badge bg-light text-dark">{{ user.status }}</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p class="text-muted">No recent client users found.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    $(document).ready(function() {
+        // Handle client selection to update case options
+        $('#clientSelect').on('change', function() {
+            var clientId = $(this).val();
+            var caseAccessTable = $('#caseAccessTable');
+            
+            if (clientId) {
+                // Fetch cases for the selected client
+                $.ajax({
+                    url: '/api/client_cases/' + clientId,
+                    type: 'GET',
+                    success: function(data) {
+                        // Clear current case options
+                        $('#caseAccessTable tbody').empty();
+                        
+                        if (data.cases && data.cases.length > 0) {
+                            $.each(data.cases, function(index, caseItem) {
+                                var row = '<tr>' +
+                                    '<td>' + caseItem.title + ' (' + caseItem.case_number + ')</td>' +
+                                    '<td>' +
+                                    '<div class="form-check">' +
+                                    '<input class="form-check-input" type="checkbox" name="case_access" id="case_' + caseItem.id + '" value="' + caseItem.id + '">' +
+                                    '<label class="form-check-label" for="case_' + caseItem.id + '">' +
+                                    'Grant Access' +
+                                    '</label>' +
+                                    '</div>' +
+                                    '</td>' +
+                                    '</tr>';
+                                $('#caseAccessTable tbody').append(row);
+                            });
+                        } else {
+                            $('#caseAccessTable tbody').append('<tr><td colspan="2">No cases found for this client.</td></tr>');
+                        }
+                    }
+                });
+            } else {
+                // Clear current case options
+                $('#caseAccessTable tbody').empty();
+                $('#caseAccessTable tbody').append('<tr><td colspan="2">Select a client to view cases.</td></tr>');
+            }
+        });
+        
+        // Handle send invitation checkbox
+        $('#sendInvitationCheck').on('change', function() {
+            var isChecked = $(this).is(':checked');
+            var invitationMessageField = $('#invitationMessageField');
+            
+            if (isChecked) {
+                invitationMessageField.show();
+            } else {
+                invitationMessageField.hide();
+            }
+        });
+        
+        // Pre-select client if passed in URL
+        var urlParams = new URLSearchParams(window.location.search);
+        var clientId = urlParams.get('client_id');
+        if (clientId) {
+            $('#clientSelect').val(clientId).trigger('change');
+        }
+        
+        // Set default status to pending
+        var statusField = $('#status');
+        if (!statusField.val()) {
+            statusField.val('pending');
+        }
+        
+        // Set default role to primary contact
+        var roleField = $('#role');
+        if (!roleField.val()) {
+            roleField.val('primary_contact');
+        }
+        
+        // Check send invitation by default
+        var sendInvitationCheck = $('#sendInvitationCheck');
+        if (!sendInvitationCheck.is(':checked')) {
+            sendInvitationCheck.prop('checked', true).trigger('change');
+        }
+    });
+</script>
+{% endblock %}

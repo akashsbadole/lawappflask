@@ -1,0 +1,506 @@
+{% extends "base.html" %}
+
+{% block title %}Add Time Entry - Law Firm Management System{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Add Time Entry</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <div class="btn-group me-2">
+            <a href="{{ url_for('time_entries') }}" class="btn btn-sm btn-outline-secondary">
+                <i class="fas fa-arrow-left me-1"></i>Back to Time Entries
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">New Time Entry</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('add_time_entry') }}">
+                    {{ form.hidden_tag() }}
+                    
+                    <div class="mb-3">
+                        {{ form.description.label(class="form-label") }}
+                        {{ form.description(class="form-control", rows="3") }}
+                        {% if form.description.errors %}
+                            <div class="text-danger">
+                                {% for error in form.description.errors %}
+                                    <small>{{ error }}</small>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            {{ form.case_id.label(class="form-label") }}
+                            {{ form.case_id(class="form-control", id="caseSelect") }}
+                            {% if form.case_id.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.case_id.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            {{ form.client_id.label(class="form-label") }}
+                            {{ form.client_id(class="form-control", id="clientSelect") }}
+                            {% if form.client_id.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.client_id.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            {{ form.lawyer_id.label(class="form-label") }}
+                            {{ form.lawyer_id(class="form-control") }}
+                            {% if form.lawyer_id.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.lawyer_id.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            {{ form.hourly_rate.label(class="form-label") }}
+                            {{ form.hourly_rate(class="form-control") }}
+                            {% if form.hourly_rate.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.hourly_rate.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            {{ form.start_time.label(class="form-label") }}
+                            {{ form.start_time(class="form-control", type="datetime-local") }}
+                            {% if form.start_time.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.start_time.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            {{ form.end_time.label(class="form-label") }}
+                            {{ form.end_time(class="form-control", type="datetime-local") }}
+                            {% if form.end_time.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.end_time.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            {{ form.duration_minutes.label(class="form-label") }}
+                            {{ form.duration_minutes(class="form-control", id="durationMinutes") }}
+                            {% if form.duration_minutes.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.duration_minutes.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            {{ form.amount.label(class="form-label") }}
+                            {{ form.amount(class="form-control", id="amount", readonly=true) }}
+                            {% if form.amount.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.amount.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <div class="form-check">
+                                {{ form.is_billable(class="form-check-input", id="isBillableCheck") }}
+                                {{ form.is_billable.label(class="form-check-label", for="isBillableCheck") }}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            {{ form.status.label(class="form-label") }}
+                            {{ form.status(class="form-control") }}
+                            {% if form.status.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.status.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        {{ form.notes.label(class="form-label") }}
+                        {{ form.notes(class="form-control", rows="3") }}
+                        {% if form.notes.errors %}
+                            <div class="text-danger">
+                                {% for error in form.notes.errors %}
+                                    <small>{{ error }}</small>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="d-flex justify-content-end">
+                        <a href="{{ url_for('time_entries') }}" class="btn btn-secondary me-2">Cancel</a>
+                        <button type="submit" class="btn btn-primary">Add Time Entry</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Time Entry Guidelines</h5>
+            </div>
+            <div class="card-body">
+                <ul>
+                    <li>Enter detailed descriptions of work performed</li>
+                    <li>Always select the appropriate case and client</li>
+                    <li>Record time as soon as possible after work is completed</li>
+                    <li>Be accurate with start and end times</li>
+                    <li>Mark non-billable time appropriately</li>
+                    <li>Include relevant details in notes for future reference</li>
+                    <li>Review entries for accuracy before submission</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="card mt-3">
+            <div class="card-header">
+                <h5 class="mb-0">Time Entry Statuses</h5>
+            </div>
+            <div class="card-body">
+                <div class="accordion" id="timeEntryStatusesAccordion">
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="draftHeading">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#draftCollapse" aria-expanded="false" aria-controls="draftCollapse">
+                                Draft
+                            </button>
+                        </h2>
+                        <div id="draftCollapse" class="accordion-collapse collapse" aria-labelledby="draftHeading" data-bs-parent="#timeEntryStatusesAccordion">
+                            <div class="accordion-body">
+                                Time entry is saved but not yet submitted for approval. Can be edited or deleted.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="submittedHeading">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#submittedCollapse" aria-expanded="false" aria-controls="submittedCollapse">
+                                Submitted
+                            </button>
+                        </h2>
+                        <div id="submittedCollapse" class="accordion-collapse collapse" aria-labelledby="submittedHeading" data-bs-parent="#timeEntryStatusesAccordion">
+                            <div class="accordion-body">
+                                Time entry has been submitted for approval and is awaiting review by a supervisor or manager.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="approvedHeading">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#approvedCollapse" aria-expanded="false" aria-controls="approvedCollapse">
+                                Approved
+                            </button>
+                        </h2>
+                        <div id="approvedCollapse" class="accordion-collapse collapse" aria-labelledby="approvedHeading" data-bs-parent="#timeEntryStatusesAccordion">
+                            <div class="accordion-body">
+                                Time entry has been approved and can be included in client invoices.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="billedHeading">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#billedCollapse" aria-expanded="false" aria-controls="billedCollapse">
+                                Billed
+                            </button>
+                        </h2>
+                        <div id="billedCollapse" class="accordion-collapse collapse" aria-labelledby="billedHeading" data-bs-parent="#timeEntryStatusesAccordion">
+                            <div class="accordion-body">
+                                Time entry has been included in an invoice sent to the client.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="rejectedHeading">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#rejectedCollapse" aria-expanded="false" aria-controls="rejectedCollapse">
+                                Rejected
+                            </button>
+                        </h2>
+                        <div id="rejectedCollapse" class="accordion-collapse collapse" aria-labelledby="rejectedHeading" data-bs-parent="#timeEntryStatusesAccordion">
+                            <div class="accordion-body">
+                                Time entry has been rejected and requires correction or additional information.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card mt-3">
+            <div class="card-header">
+                <h5 class="mb-0">Time Calculator</h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <label for="calcStartTime" class="form-label">Start Time</label>
+                    <input type="time" class="form-control" id="calcStartTime">
+                </div>
+                <div class="mb-3">
+                    <label for="calcEndTime" class="form-label">End Time</label>
+                    <input type="time" class="form-control" id="calcEndTime">
+                </div>
+                <button type="button" class="btn btn-primary w-100" id="calculateTimeBtn">Calculate Duration</button>
+                <div class="mt-3 text-center">
+                    <h5 id="calcResult" class="text-primary"></h5>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card mt-3">
+            <div class="card-header">
+                <h5 class="mb-0">Recent Time Entries</h5>
+            </div>
+            <div class="card-body">
+                {% if recent_time_entries %}
+                <div class="list-group list-group-flush">
+                    {% for entry in recent_time_entries %}
+                    <div class="list-group-item px-0">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h6 class="mb-1">{{ entry.description[:50] }}{% if entry.description|length > 50 %}...{% endif %}</h6>
+                            <small>{{ entry.start_time.strftime('%Y-%m-%d') }}</small>
+                        </div>
+                        <p class="mb-1">{{ entry.duration_minutes }} minutes • ₹{{ entry.amount|round(2) }}</p>
+                        <div>
+                            {% if entry.status == 'draft' %}
+                                <span class="badge bg-secondary">Draft</span>
+                            {% elif entry.status == 'submitted' %}
+                                <span class="badge bg-primary">Submitted</span>
+                            {% elif entry.status == 'approved' %}
+                                <span class="badge bg-success">Approved</span>
+                            {% elif entry.status == 'billed' %}
+                                <span class="badge bg-info">Billed</span>
+                            {% elif entry.status == 'rejected' %}
+                                <span class="badge bg-danger">Rejected</span>
+                            {% else %}
+                                <span class="badge bg-light text-dark">{{ entry.status }}</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p class="text-muted">No recent time entries found.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    $(document).ready(function() {
+        // Handle case selection to update client options
+        $('#caseSelect').on('change', function() {
+            var caseId = $(this).val();
+            var clientSelect = $('#clientSelect');
+            
+            if (caseId) {
+                // Fetch client for the selected case
+                $.ajax({
+                    url: '/api/case_client/' + caseId,
+                    type: 'GET',
+                    success: function(data) {
+                        if (data.client) {
+                            clientSelect.val(data.client.id);
+                            // Disable client selection when case is selected
+                            clientSelect.prop('disabled', true);
+                        }
+                    }
+                });
+            } else {
+                // Enable client selection when no case is selected
+                clientSelect.prop('disabled', false);
+            }
+        });
+        
+        // Handle client selection to update case options
+        $('#clientSelect').on('change', function() {
+            var clientId = $(this).val();
+            var caseSelect = $('#caseSelect');
+            
+            if (clientId && !$('#caseSelect').val()) {
+                // Fetch cases for the selected client
+                $.ajax({
+                    url: '/api/client_cases/' + clientId,
+                    type: 'GET',
+                    success: function(data) {
+                        // Clear current options
+                        caseSelect.empty();
+                        caseSelect.append($('<option>', { value: '', text: 'Select a case (optional)' }));
+                        
+                        $.each(data.cases, function(index, caseItem) {
+                            caseSelect.append($('<option>', { 
+                                value: caseItem.id, 
+                                text: caseItem.title + ' (' + caseItem.case_number + ')' 
+                            }));
+                        });
+                    }
+                });
+            }
+        });
+        
+        // Handle start time and end time changes to calculate duration
+        $('#start_time, #end_time').on('change', function() {
+            calculateDuration();
+        });
+        
+        // Handle duration minutes and hourly rate changes to calculate amount
+        $('#duration_minutes, #hourly_rate').on('input', function() {
+            calculateAmount();
+        });
+        
+        // Handle is billable checkbox
+        $('#isBillableCheck').on('change', function() {
+            var isChecked = $(this).is(':checked');
+            if (!isChecked) {
+                $('#status').val('approved'); // Non-billable entries are typically auto-approved
+            } else {
+                $('#status').val('draft'); // Reset to draft if changed back to billable
+            }
+        });
+        
+        // Time calculator
+        $('#calculateTimeBtn').on('click', function() {
+            var startTime = $('#calcStartTime').val();
+            var endTime = $('#calcEndTime').val();
+            
+            if (startTime && endTime) {
+                var start = new Date('1970-01-01T' + startTime + ':00');
+                var end = new Date('1970-01-01T' + endTime + ':00');
+                
+                if (end < start) {
+                    // If end time is before start time, assume it's the next day
+                    end.setDate(end.getDate() + 1);
+                }
+                
+                var diffMs = end - start;
+                var diffMinutes = Math.floor(diffMs / 60000);
+                var hours = Math.floor(diffMinutes / 60);
+                var minutes = diffMinutes % 60;
+                
+                $('#calcResult').text(hours + ' hours ' + minutes + ' minutes (' + diffMinutes + ' minutes)');
+                
+                // Update the duration minutes field
+                $('#durationMinutes').val(diffMinutes);
+                calculateAmount();
+            }
+        });
+        
+        // Pre-select case if passed in URL
+        var urlParams = new URLSearchParams(window.location.search);
+        var caseId = urlParams.get('case_id');
+        if (caseId) {
+            $('#caseSelect').val(caseId).trigger('change');
+        }
+        
+        // Pre-select client if passed in URL
+        var clientId = urlParams.get('client_id');
+        if (clientId && !caseId) {
+            $('#clientSelect').val(clientId).trigger('change');
+        }
+        
+        // Set default date and time if not editing
+        var start_time = $('#start_time');
+        var end_time = $('#end_time');
+        
+        if (!start_time.val()) {
+            var now = new Date();
+            var year = now.getFullYear();
+            var month = String(now.getMonth() + 1).padStart(2, '0');
+            var day = String(now.getDate()).padStart(2, '0');
+            var hours = String(now.getHours()).padStart(2, '0');
+            var minutes = String(Math.floor(now.getMinutes() / 15) * 15)).padStart(2, '0');
+            
+            start_time.val(`${year}-${month}-${day}T${hours}:${minutes}`);
+            
+            // Set end time to 1 hour after start time
+            var endTime = new Date(now.getTime() + 60 * 60 * 1000);
+            var endHours = String(endTime.getHours()).padStart(2, '0');
+            var endMinutes = String(endTime.getMinutes()).padStart(2, '0');
+            
+            end_time.val(`${year}-${month}-${day}T${endHours}:${endMinutes}`);
+            
+            // Calculate duration
+            calculateDuration();
+        }
+        
+        // Set default lawyer to current user if available
+        var lawyerSelect = $('#lawyer_id');
+        if (!lawyerSelect.val() && lawyerSelect.find('option[value="' + current_user_id + '"]').length) {
+            lawyerSelect.val(current_user_id);
+        }
+    });
+    
+    function calculateDuration() {
+        var startTime = $('#start_time').val();
+        var endTime = $('#end_time').val();
+        var durationMinutesField = $('#durationMinutes');
+        
+        if (startTime && endTime) {
+            var start = new Date(startTime);
+            var end = new Date(endTime);
+            
+            if (end > start) {
+                var diffMs = end - start;
+                var diffMinutes = Math.floor(diffMs / 60000);
+                
+                durationMinutesField.val(diffMinutes);
+                calculateAmount();
+            }
+        }
+    }
+    
+    function calculateAmount() {
+        var durationMinutes = parseFloat($('#durationMinutes').val()) || 0;
+        var hourlyRate = parseFloat($('#hourly_rate').val()) || 0;
+        var amountField = $('#amount');
+        
+        var amount = (durationMinutes / 60) * hourlyRate;
+        amountField.val(amount.toFixed(2));
+    }
+</script>
+{% endblock %}

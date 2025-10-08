@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+
+{% block title %}Law Firm Management System - Home{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8 mx-auto">
+        <div class="jumbotron bg-primary text-white p-5 rounded mb-5">
+            <h1 class="display-4">Welcome to LawEdge</h1>
+            <p class="lead">Complete Law Firm Management System</p>
+            <hr class="my-4">
+            <p>A comprehensive solution for managing cases, clients, appointments, billing, and more.</p>
+            <a class="btn btn-light btn-lg" href="{{ url_for('login') }}" role="button">Get Started</a>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-4 mb-4">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <i class="fas fa-users fa-3x text-primary mb-3"></i>
+                <h5 class="card-title">Client Management</h5>
+                <p class="card-text">Complete client profiles with contact information, case history, and communication logs.</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 mb-4">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <i class="fas fa-briefcase fa-3x text-success mb-3"></i>
+                <h5 class="card-title">Case Management</h5>
+                <p class="card-text">Track cases from intake to closure with detailed notes and document management.</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 mb-4">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <i class="fas fa-calendar-alt fa-3x text-info mb-3"></i>
+                <h5 class="card-title">Appointment Scheduling</h5>
+                <p class="card-text">Schedule and manage appointments with automated reminders and calendar integration.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-4 mb-4">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <i class="fas fa-file-alt fa-3x text-warning mb-3"></i>
+                <h5 class="card-title">Document Management</h5>
+                <p class="card-text">Secure document storage with version control and AI-powered search capabilities.</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 mb-4">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <i class="fas fa-clock fa-3x text-danger mb-3"></i>
+                <h5 class="card-title">Time Tracking</h5>
+                <p class="card-text">Track billable hours and expenses with detailed reporting and analytics.</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 mb-4">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <i class="fas fa-rupee-sign fa-3x text-secondary mb-3"></i>
+                <h5 class="card-title">Billing & Invoicing</h5>
+                <p class="card-text">Automated invoice generation with payment tracking and financial reporting.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-5">
+    <div class="col-12 text-center">
+        <h2>Test Credentials</h2>
+        <p>Use the following credentials to test the system:</p>
+        <div class="row mt-4">
+            <div class="col-md-4 mb-3">
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <strong>Admin User</strong>
+                    </div>
+                    <div class="card-body">
+                        <p>Username: <code>admin</code></p>
+                        <p>Password: <code>admin123</code></p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-3">
+                <div class="card">
+                    <div class="card-header bg-success text-white">
+                        <strong>Lawyer User</strong>
+                    </div>
+                    <div class="card-body">
+                        <p>Username: <code>jdoe</code></p>
+                        <p>Password: <code>lawyer123</code></p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-3">
+                <div class="card">
+                    <div class="card-header bg-info text-white">
+                        <strong>Staff User</strong>
+                    </div>
+                    <div class="card-body">
+                        <p>Username: <code>msmith</code></p>
+                        <p>Password: <code>staff123</code></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

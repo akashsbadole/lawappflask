@@ -1,0 +1,816 @@
+{% extends "base.html" %}
+
+{% block title %}Trust/Escrow Management - Law Firm Management System{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Trust/Escrow Management</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <div class="btn-group me-2">
+            <a href="{{ url_for('add_trust_account') }}" class="btn btn-sm btn-outline-secondary">
+                <i class="fas fa-plus me-1"></i>Add Trust Account
+            </a>
+            <a href="{{ url_for('add_trust_transaction') }}" class="btn btn-sm btn-outline-secondary">
+                <i class="fas fa-exchange-alt me-1"></i>Add Transaction
+            </a>
+        </div>
+        <div class="btn-group me-2">
+            <a href="{{ url_for('clients') }}" class="btn btn-sm btn-outline-secondary">
+                <i class="fas fa-users me-1"></i>Clients
+            </a>
+            <a href="{{ url_for('cases') }}" class="btn btn-sm btn-outline-secondary">
+                <i class="fas fa-briefcase me-1"></i>Cases
+            </a>
+        </div>
+        <div class="btn-group">
+            <a href="{{ url_for('export_trust_accounts') }}" class="btn btn-sm btn-outline-secondary">
+                <i class="fas fa-download me-1"></i>Export Accounts
+            </a>
+            <a href="{{ url_for('export_trust_transactions') }}" class="btn btn-sm btn-outline-secondary">
+                <i class="fas fa-download me-1"></i>Export Transactions
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Tabs for Trust/Escrow Navigation -->
+<ul class="nav nav-tabs mb-4" id="trustEscrowTabs" role="tablist">
+    <li class="nav-item" role="presentation">
+        <button class="nav-link {% if active_tab == 'accounts' %}active{% endif %}" id="accounts-tab" data-bs-toggle="tab" data-bs-target="#accounts" type="button" role="tab" aria-controls="accounts" aria-selected="{% if active_tab == 'accounts' %}true{% else %}false{% endif %}">
+            <i class="fas fa-university me-1"></i>Trust Accounts
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link {% if active_tab == 'transactions' %}active{% endif %}" id="transactions-tab" data-bs-toggle="tab" data-bs-target="#transactions" type="button" role="tab" aria-controls="transactions" aria-selected="{% if active_tab == 'transactions' %}true{% else %}false{% endif %}">
+            <i class="fas fa-exchange-alt me-1"></i>Transactions
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link {% if active_tab == 'reconciliation' %}active{% endif %}" id="reconciliation-tab" data-bs-toggle="tab" data-bs-target="#reconciliation" type="button" role="tab" aria-controls="reconciliation" aria-selected="{% if active_tab == 'reconciliation' %}true{% else %}false{% endif %}">
+            <i class="fas fa-balance-scale me-1"></i>Reconciliation
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link {% if active_tab == 'reports' %}active{% endif %}" id="reports-tab" data-bs-toggle="tab" data-bs-target="#reports" type="button" role="tab" aria-controls="reports" aria-selected="{% if active_tab == 'reports' %}true{% else %}false{% endif %}">
+            <i class="fas fa-chart-bar me-1"></i>Reports
+        </button>
+    </li>
+</ul>
+
+<!-- Tab Content -->
+<div class="tab-content" id="trustEscrowTabsContent">
+    <!-- Trust Accounts Tab -->
+    <div class="tab-pane fade {% if active_tab == 'accounts' %}show active{% endif %}" id="accounts" role="tabpanel" aria-labelledby="accounts-tab">
+        <!-- Filters -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <div class="row align-items-center">
+                    <div class="col">
+                        <h5 class="mb-0">Filter Trust Accounts</h5>
+                    </div>
+                    <div class="col-auto">
+                        <button class="btn btn-sm btn-outline-secondary" id="toggleAccountFilters">
+                            <i class="fas fa-filter me-1"></i>Toggle Filters
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body" id="accountFiltersPanel">
+                <form method="GET" action="{{ url_for('trust_accounts') }}">
+                    <input type="hidden" name="tab" value="accounts">
+                    <div class="row">
+                        <div class="col-md-3 mb-3">
+                            <label for="client_id" class="form-label">Client</label>
+                            <select class="form-select" id="client_id" name="client_id">
+                                <option value="">All Clients</option>
+                                {% for client in clients %}
+                                <option value="{{ client.id }}" {% if client.id == current_client_id %}selected{% endif %}>{{ client.full_name }} ({{ client.client_number }})</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label for="case_id" class="form-label">Case</label>
+                            <select class="form-select" id="case_id" name="case_id">
+                                <option value="">All Cases</option>
+                                {% for case in cases %}
+                                <option value="{{ case.id }}" {% if case.id == current_case_id %}selected{% endif %}>{{ case.title }} ({{ case.case_number }})</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label for="account_type" class="form-label">Account Type</label>
+                            <select class="form-select" id="account_type" name="account_type">
+                                <option value="">All Types</option>
+                                {% for type in account_types %}
+                                <option value="{{ type }}" {% if type == current_account_type %}selected{% endif %}>{{ type|title }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label for="status" class="form-label">Status</label>
+                            <select class="form-select" id="status" name="status">
+                                <option value="">All Statuses</option>
+                                {% for status in account_statuses %}
+                                <option value="{{ status }}" {% if status == current_status %}selected{% endif %}>{{ status|title }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12 d-flex justify-content-end">
+                            <a href="{{ url_for('trust_accounts', tab='accounts') }}" class="btn btn-outline-secondary me-2">Clear Filters</a>
+                            <button type="submit" class="btn btn-primary">Apply Filters</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Trust Account Statistics -->
+        <div class="row mb-4">
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="card border-left-primary shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Total Accounts</div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800">{{ trust_accounts|length }}</div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-university fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="card border-left-success shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Total Balance</div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800">₹{{ total_balance|round(2) }}</div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-money-bill-wave fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="card border-left-info shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Active Accounts</div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800">{{ trust_accounts|selectattr('status', 'equalto', 'active')|list|length }}</div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-check-circle fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="card border-left-warning shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Pending Reconciliation</div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800">{{ pending_reconciliation|length }}</div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-clock fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Trust Accounts Table -->
+        <div class="card">
+            <div class="card-header">
+                <div class="row align-items-center">
+                    <div class="col">
+                        <h5 class="mb-0">Trust Accounts</h5>
+                    </div>
+                    <div class="col-auto">
+                        <div class="input-group">
+                            <input type="text" class="form-control form-control-sm" placeholder="Search accounts..." id="accountSearch">
+                            <button class="btn btn-sm btn-outline-secondary" type="button">
+                                <i class="fas fa-search"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover" id="accountsTable">
+                        <thead>
+                            <tr>
+                                <th>Account Number</th>
+                                <th>Account Name</th>
+                                <th>Client</th>
+                                <th>Case</th>
+                                <th>Account Type</th>
+                                <th>Balance</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for account in trust_accounts %}
+                            <tr>
+                                <td>{{ account.account_number }}</td>
+                                <td>{{ account.account_name }}</td>
+                                <td>
+                                    <a href="{{ url_for('view_client', client_id=account.client.id) }}">
+                                        {% if account.client.company %}
+                                            {{ account.client.company }} ({{ account.client.full_name }})
+                                        {% else %}
+                                            {{ account.client.full_name }}
+                                        {% endif %}
+                                    </a>
+                                </td>
+                                <td>
+                                    {% if account.case %}
+                                        <a href="{{ url_for('view_case', case_id=account.case.id) }}">
+                                            {{ account.case.title }}
+                                        </a>
+                                    {% else %}
+                                        N/A
+                                    {% endif %}
+                                </td>
+                                <td>{{ account.account_type }}</td>
+                                <td>₹{{ account.balance|round(2) }}</td>
+                                <td>
+                                    {% if account.status == 'active' %}
+                                        <span class="badge bg-success">Active</span>
+                                    {% elif account.status == 'inactive' %}
+                                        <span class="badge bg-secondary">Inactive</span>
+                                    {% elif account.status == 'closed' %}
+                                        <span class="badge bg-danger">Closed</span>
+                                    {% elif account.status == 'pending' %}
+                                        <span class="badge bg-warning">Pending</span>
+                                    {% else %}
+                                        <span class="badge bg-light text-dark">{{ account.status }}</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div class="btn-group" role="group">
+                                        <a href="{{ url_for('view_trust_account', account_id=account.id) }}" class="btn btn-sm btn-primary" title="View">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <a href="{{ url_for('edit_trust_account', account_id=account.id) }}" class="btn btn-sm btn-info" title="Edit">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <a href="{{ url_for('add_trust_transaction', account_id=account.id) }}" class="btn btn-sm btn-success" title="Add Transaction">
+                                            <i class="fas fa-plus"></i>
+                                        </a>
+                                        <button type="button" class="btn btn-sm btn-danger delete-account" data-id="{{ account.id }}" data-name="{{ account.account_name }}" title="Delete">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="8" class="text-center">No trust accounts found matching your criteria.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Transactions Tab -->
+    <div class="tab-pane fade {% if active_tab == 'transactions' %}show active{% endif %}" id="transactions" role="tabpanel" aria-labelledby="transactions-tab">
+        <!-- Filters -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <div class="row align-items-center">
+                    <div class="col">
+                        <h5 class="mb-0">Filter Transactions</h5>
+                    </div>
+                    <div class="col-auto">
+                        <button class="btn btn-sm btn-outline-secondary" id="toggleTransactionFilters">
+                            <i class="fas fa-filter me-1"></i>Toggle Filters
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body" id="transactionFiltersPanel">
+                <form method="GET" action="{{ url_for('trust_accounts') }}">
+                    <input type="hidden" name="tab" value="transactions">
+                    <div class="row">
+                        <div class="col-md-3 mb-3">
+                            <label for="transaction_account_id" class="form-label">Account</label>
+                            <select class="form-select" id="transaction_account_id" name="transaction_account_id">
+                                <option value="">All Accounts</option>
+                                {% for account in trust_accounts %}
+                                <option value="{{ account.id }}" {% if account.id == current_transaction_account_id %}selected{% endif %}>{{ account.account_name }} ({{ account.account_number }})</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label for="transaction_client_id" class="form-label">Client</label>
+                            <select class="form-select" id="transaction_client_id" name="transaction_client_id">
+                                <option value="">All Clients</option>
+                                {% for client in clients %}
+                                <option value="{{ client.id }}" {% if client.id == current_transaction_client_id %}selected{% endif %}>{{ client.full_name }} ({{ client.client_number }})</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label for="transaction_type" class="form-label">Transaction Type</label>
+                            <select class="form-select" id="transaction_type" name="transaction_type">
+                                <option value="">All Types</option>
+                                {% for type in transaction_types %}
+                                <option value="{{ type }}" {% if type == current_transaction_type %}selected{% endif %}>{{ type|title }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label for="transaction_status" class="form-label">Status</label>
+                            <select class="form-select" id="transaction_status" name="transaction_status">
+                                <option value="">All Statuses</option>
+                                {% for status in transaction_statuses %}
+                                <option value="{{ status }}" {% if status == current_transaction_status %}selected{% endif %}>{{ status|title }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="transaction_date_from" class="form-label">Date From</label>
+                            <input type="date" class="form-control" id="transaction_date_from" name="transaction_date_from" value="{{ current_transaction_date_from or '' }}">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="transaction_date_to" class="form-label">Date To</label>
+                            <input type="date" class="form-control" id="transaction_date_to" name="transaction_date_to" value="{{ current_transaction_date_to or '' }}">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12 d-flex justify-content-end">
+                            <a href="{{ url_for('trust_accounts', tab='transactions') }}" class="btn btn-outline-secondary me-2">Clear Filters</a>
+                            <button type="submit" class="btn btn-primary">Apply Filters</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Transaction Statistics -->
+        <div class="row mb-4">
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="card border-left-primary shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Total Transactions</div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800">{{ transactions|length }}</div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-exchange-alt fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="card border-left-success shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Deposits</div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800">₹{{ total_deposits|round(2) }}</div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-arrow-down fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="card border-left-danger shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">Withdrawals</div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800">₹{{ total_withdrawals|round(2) }}</div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-arrow-up fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="card border-left-info shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-info text-uppercase mb-1">This Month</div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800">₹{{ this_month_net|round(2) }}</div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-calendar-alt fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Transactions Table -->
+        <div class="card">
+            <div class="card-header">
+                <div class="row align-items-center">
+                    <div class="col">
+                        <h5 class="mb-0">Transactions</h5>
+                    </div>
+                    <div class="col-auto">
+                        <div class="input-group">
+                            <input type="text" class="form-control form-control-sm" placeholder="Search transactions..." id="transactionSearch">
+                            <button class="btn btn-sm btn-outline-secondary" type="button">
+                                <i class="fas fa-search"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover" id="transactionsTable">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Transaction ID</th>
+                                <th>Account</th>
+                                <th>Type</th>
+                                <th>Description</th>
+                                <th>Amount</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for transaction in transactions %}
+                            <tr>
+                                <td>{{ transaction.transaction_date.strftime('%Y-%m-%d') }}</td>
+                                <td>{{ transaction.transaction_id }}</td>
+                                <td>
+                                    <a href="{{ url_for('view_trust_account', account_id=transaction.trust_account.id) }}">
+                                        {{ transaction.trust_account.account_name }}
+                                    </a>
+                                </td>
+                                <td>
+                                    {% if transaction.transaction_type == 'deposit' %}
+                                        <span class="badge bg-success">Deposit</span>
+                                    {% elif transaction.transaction_type == 'withdrawal' %}
+                                        <span class="badge bg-danger">Withdrawal</span>
+                                    {% elif transaction.transaction_type == 'transfer' %}
+                                        <span class="badge bg-info">Transfer</span>
+                                    {% elif transaction.transaction_type == 'fee' %}
+                                        <span class="badge bg-warning">Fee</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">{{ transaction.transaction_type|title }}</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ transaction.description }}</td>
+                                <td>
+                                    {% if transaction.transaction_type in ['withdrawal', 'fee'] %}
+                                        -₹{{ transaction.amount|round(2) }}
+                                    {% else %}
+                                        +₹{{ transaction.amount|round(2) }}
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if transaction.status == 'completed' %}
+                                        <span class="badge bg-success">Completed</span>
+                                    {% elif transaction.status == 'pending' %}
+                                        <span class="badge bg-warning">Pending</span>
+                                    {% elif transaction.status == 'failed' %}
+                                        <span class="badge bg-danger">Failed</span>
+                                    {% elif transaction.status == 'reversed' %}
+                                        <span class="badge bg-info">Reversed</span>
+                                    {% else %}
+                                        <span class="badge bg-light text-dark">{{ transaction.status }}</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div class="btn-group" role="group">
+                                        <a href="{{ url_for('view_trust_transaction', transaction_id=transaction.id) }}" class="btn btn-sm btn-primary" title="View">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <a href="{{ url_for('edit_trust_transaction', transaction_id=transaction.id) }}" class="btn btn-sm btn-info" title="Edit">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <button type="button" class="btn btn-sm btn-danger delete-transaction" data-id="{{ transaction.id }}" data-description="{{ transaction.description }}" title="Delete">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="8" class="text-center">No transactions found matching your criteria.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Reconciliation Tab -->
+    <div class="tab-pane fade {% if active_tab == 'reconciliation' %}show active{% endif %}" id="reconciliation" role="tabpanel" aria-labelledby="reconciliation-tab">
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">Reconciliation Reports</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-grid gap-2">
+                            <a href="{{ url_for('reconciliation_report_by_account') }}" class="btn btn-outline-primary">
+                                <i class="fas fa-university me-2"></i>Reconciliation by Account
+                            </a>
+                            <a href="{{ url_for('reconciliation_report_by_client') }}" class="btn btn-outline-primary">
+                                <i class="fas fa-users me-2"></i>Reconciliation by Client
+                            </a>
+                            <a href="{{ url_for('three_way_reconciliation') }}" class="btn btn-outline-primary">
+                                <i class="fas fa-balance-scale me-2"></i>Three-Way Reconciliation
+                            </a>
+                            <a href="{{ url_for('outstanding_transactions_report') }}" class="btn btn-outline-primary">
+                                <i class="fas fa-clock me-2"></i>Outstanding Transactions
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">Account Reconciliation Status</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Account</th>
+                                        <th>Last Reconciled</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for account in reconciliation_status %}
+                                    <tr>
+                                        <td>{{ account.account_name }}</td>
+                                        <td>
+                                            {% if account.last_reconciled %}
+                                                {{ account.last_reconciled.strftime('%Y-%m-%d') }}
+                                            {% else %}
+                                                Never
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if account.reconciliation_status == 'reconciled' %}
+                                                <span class="badge bg-success">Reconciled</span>
+                                            {% elif account.reconciliation_status == 'pending' %}
+                                                <span class="badge bg-warning">Pending</span>
+                                            {% elif account.reconciliation_status == 'overdue' %}
+                                                <span class="badge bg-danger">Overdue</span>
+                                            {% else %}
+                                                <span class="badge bg-secondary">Not Started</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <a href="{{ url_for('reconcile_account', account_id=account.id) }}" class="btn btn-sm btn-outline-primary">
+                                                Reconcile
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Reports Tab -->
+    <div class="tab-pane fade {% if active_tab == 'reports' %}show active{% endif %}" id="reports" role="tabpanel" aria-labelledby="reports-tab">
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">Account Reports</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-grid gap-2">
+                            <a href="{{ url_for('account_balance_report') }}" class="btn btn-outline-primary">
+                                <i class="fas fa-money-bill-wave me-2"></i>Account Balances
+                            </a>
+                            <a href="{{ url_for('account_activity_report') }}" class="btn btn-outline-primary">
+                                <i class="fas fa-chart-line me-2"></i>Account Activity
+                            </a>
+                            <a href="{{ url_for='account_aged_analysis') }}" class="btn btn-outline-primary">
+                                <i class="fas fa-hourglass-half me-2"></i>Aged Analysis
+                            </a>
+                            <a href="{{ url_for='account_summary_report') }}" class="btn btn-outline-primary">
+                                <i class="fas fa-file-alt me-2"></i>Account Summary
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">Transaction Reports</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-grid gap-2">
+                            <a href="{{ url_for('transaction_history_report') }}" class="btn btn-outline-success">
+                                <i class="fas fa-history me-2"></i>Transaction History
+                            </a>
+                            <a href="{{ url_for('transaction_by_type_report') }}" class="btn btn-outline-success">
+                                <i class="fas fa-tags me-2"></i>Transactions by Type
+                            </a>
+                            <a href="{{ url_for('transaction_by_client_report') }}" class="btn btn-outline-success">
+                                <i class="fas fa-users me-2"></i>Transactions by Client
+                            </a>
+                            <a href="{{ url_for('transaction_trend_report') }}" class="btn btn-outline-success">
+                                <i class="fas fa-chart-area me-2"></i>Transaction Trends
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Quick Statistics</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4 mb-4">
+                        <div class="card bg-primary text-white">
+                            <div class="card-body">
+                                <h5 class="card-title">Top 5 Clients by Balance</h5>
+                                <ul class="list-unstyled mb-0">
+                                    {% for client, balance in top_clients_by_balance %}
+                                    <li>{{ client.full_name }}: ₹{{ balance|round(2) }}</li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-4">
+                        <div class="card bg-success text-white">
+                            <div class="card-body">
+                                <h5 class="card-title">Top 5 Accounts by Activity</h5>
+                                <ul class="list-unstyled mb-0">
+                                    {% for account, count in top_accounts_by_activity %}
+                                    <li>{{ account.account_name }}: {{ count }} transactions</li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-4">
+                        <div class="card bg-info text-white">
+                            <div class="card-body">
+                                <h5 class="card-title">Top 5 Transaction Types</h5>
+                                <ul class="list-unstyled mb-0">
+                                    {% for type, amount in top_transaction_types %}
+                                    <li>{{ type|title }}: ₹{{ amount|round(2) }}</li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Account Confirmation Modal -->
+<div class="modal fade" id="deleteAccountModal" tabindex="-1" aria-labelledby="deleteAccountModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteAccountModalLabel">Confirm Delete</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to delete the trust account "<strong id="deleteAccountName"></strong>"? This action cannot be undone and will also delete all associated transactions.
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form id="deleteAccountForm" method="POST">
+                    <button type="submit" class="btn btn-danger">Delete</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Transaction Confirmation Modal -->
+<div class="modal fade" id="deleteTransactionModal" tabindex="-1" aria-labelledby="deleteTransactionModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteTransactionModalLabel">Confirm Delete</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to delete the transaction "<strong id="deleteTransactionDescription"></strong>"? This action cannot be undone.
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form id="deleteTransactionForm" method="POST">
+                    <button type="submit" class="btn btn-danger">Delete</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    $(document).ready(function() {
+        // Toggle filters panels
+        $('#toggleAccountFilters').on('click', function() {
+            $('#accountFiltersPanel').slideToggle();
+        });
+        
+        $('#toggleTransactionFilters').on('click', function() {
+            $('#transactionFiltersPanel').slideToggle();
+        });
+        
+        // Account search functionality
+        $('#accountSearch').on('keyup', function() {
+            var value = $(this).val().toLowerCase();
+            $('#accountsTable tbody tr').filter(function() {
+                $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1);
+            });
+        });
+        
+        // Transaction search functionality
+        $('#transactionSearch').on('keyup', function() {
+            var value = $(this).val().toLowerCase();
+            $('#transactionsTable tbody tr').filter(function() {
+                $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1);
+            });
+        });
+        
+        // Delete account confirmation
+        $('.delete-account').on('click', function() {
+            var accountId = $(this).data('id');
+            var accountName = $(this).data('name');
+            
+            $('#deleteAccountName').text(accountName);
+            $('#deleteAccountForm').attr('action', '/delete_trust_account/' + accountId);
+            
+            var deleteAccountModal = new bootstrap.Modal(document.getElementById('deleteAccountModal'));
+            deleteAccountModal.show();
+        });
+        
+        // Delete transaction confirmation
+        $('.delete-transaction').on('click', function() {
+            var transactionId = $(this).data('id');
+            var transactionDescription = $(this).data('description');
+            
+            $('#deleteTransactionDescription').text(transactionDescription);
+            $('#deleteTransactionForm').attr('action', '/delete_trust_transaction/' + transactionId);
+            
+            var deleteTransactionModal = new bootstrap.Modal(document.getElementById('deleteTransactionModal'));
+            deleteTransactionModal.show();
+        });
+    });
+</script>
+{% endblock %}

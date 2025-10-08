@@ -1,0 +1,998 @@
+{% extends "base.html" %}
+
+{% block title %}Reports & Compliance - Law Firm Management System{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Reports & Compliance</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <div class="btn-group me-2">
+            <a href="{{ url_for('generate_custom_report') }}" class="btn btn-sm btn-outline-secondary">
+                <i class="fas fa-plus me-1"></i>Custom Report
+            </a>
+        </div>
+        <div class="btn-group">
+            <a href="{{ url_for='compliance_checklist') }}" class="btn btn-sm btn-outline-secondary">
+                <i class="fas fa-tasks me-1"></i>Compliance Checklist
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Tabs for Reports & Compliance Navigation -->
+<ul class="nav nav-tabs mb-4" id="reportsTabs" role="tablist">
+    <li class="nav-item" role="presentation">
+        <button class="nav-link {% if active_tab == 'reports' %}active{% endif %}" id="reports-tab" data-bs-toggle="tab" data-bs-target="#reports" type="button" role="tab" aria-controls="reports" aria-selected="{% if active_tab == 'reports' %}true{% else %}false{% endif %}">
+            <i class="fas fa-chart-bar me-1"></i>Reports
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link {% if active_tab == 'compliance' %}active{% endif %}" id="compliance-tab" data-bs-toggle="tab" data-bs-target="#compliance" type="button" role="tab" aria-controls="compliance" aria-selected="{% if active_tab == 'compliance' %}true{% else %}false{% endif %}">
+            <i class="fas fa-shield-alt me-1"></i>Compliance
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link {% if active_tab == 'audits' %}active{% endif %}" id="audits-tab" data-bs-toggle="tab" data-bs-target="#audits" type="button" role="tab" aria-controls="audits" aria-selected="{% if active_tab == 'audits' %}true{% else %}false{% endif %}">
+            <i class="fas fa-clipboard-check me-1"></i>Audits
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link {% if active_tab == 'document_retention' %}active{% endif %}" id="documentRetention-tab" data-bs-toggle="tab" data-bs-target="#documentRetention" type="button" role="tab" aria-controls="documentRetention" aria-selected="{% if active_tab == 'document_retention' %}true{% else %}false{% endif %}">
+            <i class="fas fa-file-archive me-1"></i>Document Retention
+        </button>
+    </li>
+</ul>
+
+<!-- Tab Content -->
+<div class="tab-content" id="reportsTabsContent">
+    <!-- Reports Tab -->
+    <div class="tab-pane fade {% if active_tab == 'reports' %}show active{% endif %}" id="reports" role="tabpanel" aria-labelledby="reports-tab">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                <h6 class="m-0 font-weight-bold text-primary">Standard Reports</h6>
+                <div class="dropdown no-arrow">
+                    <a class="dropdown-toggle" href="#" role="button" id="reportsDropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in" aria-labelledby="reportsDropdown">
+                        <div class="dropdown-header">Report Options:</div>
+                        <a class="dropdown-item" href="{{ url_for('generate_custom_report') }}">Create Custom Report</a>
+                        <a class="dropdown-item" href="{{ url_for('report_templates') }}">Report Templates</a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" href="{{ url_for('export_all_reports') }}">Export All Reports</a>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    {% for category, reports in standard_reports.items() %}
+                    <div class="col-md-4 mb-4">
+                        <h5 class="text-primary">{{ category }}</h5>
+                        <div class="list-group">
+                            {% for report in reports %}
+                            <a href="{{ url_for('generate_report', report_id=report.id) }}" class="list-group-item list-group-item-action">
+                                <div class="d-flex w-100 justify-content-between">
+                                    <h6 class="mb-1">{{ report.name }}</h6>
+                                    <small>{{ report.frequency }}</small>
+                                </div>
+                                <p class="mb-1">{{ report.description }}</p>
+                            </a>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        
+        <div class="card shadow mb-4">
+            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                <h6 class="m-0 font-weight-bold text-primary">Scheduled Reports</h6>
+                <div class="dropdown no-arrow">
+                    <a class="dropdown-toggle" href="#" role="button" id="scheduledReportsDropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in" aria-labelledby="scheduledReportsDropdown">
+                        <div class="dropdown-header">Scheduled Report Options:</div>
+                        <a class="dropdown-item" href="{{ url_for('add_scheduled_report') }}">Add Scheduled Report</a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" href="{{ url_for('export_scheduled_reports') }}">Export Scheduled Reports</a>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered" width="100%" cellspacing="0">
+                        <thead>
+                            <tr>
+                                <th>Report Name</th>
+                                <th>Type</th>
+                                <th>Recipients</th>
+                                <th>Schedule</th>
+                                <th>Last Sent</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for report in scheduled_reports %}
+                            <tr>
+                                <td>{{ report.name }}</td>
+                                <td>{{ report.type }}</td>
+                                <td>{{ report.recipients|length }} recipient(s)</td>
+                                <td>{{ report.schedule }}</td>
+                                <td>{{ report.last_sent.strftime('%Y-%m-%d %H:%M') if report.last_sent else 'Never' }}</td>
+                                <td>
+                                    {% if report.status == 'active' %}
+                                        <span class="badge bg-success">Active</span>
+                                    {% elif report.status == 'paused' %}
+                                        <span class="badge bg-warning">Paused</span>
+                                    {% elif report.status == 'error' %}
+                                        <span class="badge bg-danger">Error</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">{{ report.status }}</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div class="btn-group" role="group">
+                                        <a href="{{ url_for('view_scheduled_report', report_id=report.id) }}" class="btn btn-sm btn-info" title="View">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <button type="button" class="btn btn-sm btn-success toggle-scheduled-report" data-id="{{ report.id }}" data-status="{{ report.status }}" title="Toggle">
+                                            {% if report.status == 'active' %}
+                                                <i class="fas fa-pause"></i>
+                                            {% else %}
+                                                <i class="fas fa-play"></i>
+                                            {% endif %}
+                                        </button>
+                                        <button type="button" class="btn btn-sm btn-primary run-scheduled-report" data-id="{{ report.id }}" title="Run Now">
+                                            <i class="fas fa-play-circle"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-sm btn-danger delete-scheduled-report" data-id="{{ report.id }}" data-name="{{ report.name }}" title="Delete">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="7" class="text-center">No scheduled reports found.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <div class="text-center mt-3">
+                    <a href="{{ url_for('add_scheduled_report') }}" class="btn btn-primary">Add Scheduled Report</a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Report History</h6>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered" width="100%" cellspacing="0">
+                        <thead>
+                            <tr>
+                                <th>Report Name</th>
+                                <th>Generated By</th>
+                                <th>Generated Date</th>
+                                <th>Format</th>
+                                <th>Size</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for report in report_history %}
+                            <tr>
+                                <td>{{ report.name }}</td>
+                                <td>{{ report.generated_by }}</td>
+                                <td>{{ report.generated_date.strftime('%Y-%m-%d %H:%M') }}</td>
+                                <td>{{ report.format }}</td>
+                                <td>{{ report.size }}</td>
+                                <td>
+                                    <div class="btn-group" role="group">
+                                        <a href="{{ url_for('download_report', report_id=report.id) }}" class="btn btn-sm btn-primary" title="Download">
+                                            <i class="fas fa-download"></i>
+                                        </a>
+                                        <a href="{{ url_for('view_report', report_id=report.id) }}" class="btn btn-sm btn-info" title="View">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <button type="button" class="btn btn-sm btn-danger delete-report" data-id="{{ report.id }}" data-name="{{ report.name }}" title="Delete">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="6" class="text-center">No report history found.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Compliance Tab -->
+    <div class="tab-pane fade {% if active_tab == 'compliance' %}show active{% endif %}" id="compliance" role="tabpanel" aria-labelledby="compliance-tab">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Compliance Overview</h6>
+            </div>
+            <div class="card-body">
+                <div class="row mb-4">
+                    <div class="col-xl-3 col-md-6 mb-4">
+                        <div class="card border-left-success shadow h-100 py-2">
+                            <div class="card-body">
+                                <div class="row no-gutters align-items-center">
+                                    <div class="col mr-2">
+                                        <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Overall Compliance</div>
+                                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ compliance_stats.overall_compliance|round(1) }}%</div>
+                                    </div>
+                                    <div class="col-auto">
+                                        <i class="fas fa-shield-alt fa-2x text-gray-300"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-xl-3 col-md-6 mb-4">
+                        <div class="card border-left-info shadow h-100 py-2">
+                            <div class="card-body">
+                                <div class="row no-gutters align-items-center">
+                                    <div class="col mr-2">
+                                        <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Completed Tasks</div>
+                                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ compliance_stats.completed_tasks }}/{{ compliance_stats.total_tasks }}</div>
+                                    </div>
+                                    <div class="col-auto">
+                                        <i class="fas fa-tasks fa-2x text-gray-300"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-xl-3 col-md-6 mb-4">
+                        <div class="card border-left-warning shadow h-100 py-2">
+                            <div class="card-body">
+                                <div class="row no-gutters align-items-center">
+                                    <div class="col mr-2">
+                                        <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Pending Reviews</div>
+                                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ compliance_stats.pending_reviews }}</div>
+                                    </div>
+                                    <div class="col-auto">
+                                        <i class="fas fa-exclamation-triangle fa-2x text-gray-300"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-xl-3 col-md-6 mb-4">
+                        <div class="card border-left-danger shadow h-100 py-2">
+                            <div class="card-body">
+                                <div class="row no-gutters align-items-center">
+                                    <div class="col mr-2">
+                                        <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">Violations</div>
+                                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ compliance_stats.violations }}</div>
+                                    </div>
+                                    <div class="col-auto">
+                                        <i class="fas fa-ban fa-2x text-gray-300"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-lg-8">
+                        <div class="card shadow mb-4">
+                            <div class="card-header py-3">
+                                <h6 class="m-0 font-weight-bold text-primary">Compliance Trend</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="chart-area">
+                                    <canvas id="complianceTrendChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-lg-4">
+                        <div class="card shadow mb-4">
+                            <div class="card-header py-3">
+                                <h6 class="m-0 font-weight-bold text-primary">Compliance by Category</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="chart-pie pt-4 pb-2">
+                                    <canvas id="complianceByCategoryChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card shadow mb-4">
+            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                <h6 class="m-0 font-weight-bold text-primary">Compliance Requirements</h6>
+                <div class="dropdown no-arrow">
+                    <a class="dropdown-toggle" href="#" role="button" id="complianceRequirementsDropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in" aria-labelledby="complianceRequirementsDropdown">
+                        <div class="dropdown-header">Compliance Options:</div>
+                        <a class="dropdown-item" href="{{ url_for('add_compliance_requirement') }}">Add Requirement</a>
+                        <a class="dropdown-item" href="{{ url_for('import_compliance_requirements') }}">Import Requirements</a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" href="{{ url_for('export_compliance_requirements') }}">Export Requirements</a>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered" width="100%" cellspacing="0">
+                        <thead>
+                            <tr>
+                                <th>Requirement</th>
+                                <th>Category</th>
+                                <th>Regulation</th>
+                                <th>Status</th>
+                                <th>Last Reviewed</th>
+                                <th>Next Review</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for requirement in compliance_requirements %}
+                            <tr>
+                                <td>{{ requirement.name }}</td>
+                                <td>{{ requirement.category }}</td>
+                                <td>{{ requirement.regulation }}</td>
+                                <td>
+                                    {% if requirement.status == 'compliant' %}
+                                        <span class="badge bg-success">Compliant</span>
+                                    {% elif requirement.status == 'non_compliant' %}
+                                        <span class="badge bg-danger">Non-Compliant</span>
+                                    {% elif requirement.status == 'in_progress' %}
+                                        <span class="badge bg-warning">In Progress</span>
+                                    {% elif requirement.status == 'not_applicable' %}
+                                        <span class="badge bg-secondary">Not Applicable</span>
+                                    {% else %}
+                                        <span class="badge bg-light text-dark">{{ requirement.status }}</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ requirement.last_reviewed.strftime('%Y-%m-%d') if requirement.last_reviewed else 'Never' }}</td>
+                                <td>{{ requirement.next_review.strftime('%Y-%m-%d') if requirement.next_review else 'N/A' }}</td>
+                                <td>
+                                    <div class="btn-group" role="group">
+                                        <a href="{{ url_for('view_compliance_requirement', requirement_id=requirement.id) }}" class="btn btn-sm btn-info" title="View">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <a href="{{ url_for('edit_compliance_requirement', requirement_id=requirement.id) }}" class="btn btn-sm btn-primary" title="Edit">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <button type="button" class="btn btn-sm btn-success review-requirement" data-id="{{ requirement.id }}" title="Review">
+                                            <i class="fas fa-check"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="7" class="text-center">No compliance requirements found.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <div class="text-center mt-3">
+                    <a href="{{ url_for('add_compliance_requirement') }}" class="btn btn-primary">Add Requirement</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Audits Tab -->
+    <div class="tab-pane fade {% if active_tab == 'audits' %}show active{% endif %}" id="audits" role="tabpanel" aria-labelledby="audits-tab">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                <h6 class="m-0 font-weight-bold text-primary">Audit Logs</h6>
+                <div class="dropdown no-arrow">
+                    <a class="dropdown-toggle" href="#" role="button" id="auditLogsDropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in" aria-labelledby="auditLogsDropdown">
+                        <div class="dropdown-header">Audit Options:</div>
+                        <a class="dropdown-item" href="{{ url_for('run_audit') }}">Run New Audit</a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" href="{{ url_for('export_audit_logs') }}">Export Audit Logs</a>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered" width="100%" cellspacing="0">
+                        <thead>
+                            <tr>
+                                <th>Audit ID</th>
+                                <th>Type</th>
+                                <th>Performed By</th>
+                                <th>Date</th>
+                                <th>Status</th>
+                                <th>Findings</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for audit in audit_logs %}
+                            <tr>
+                                <td>{{ audit.id }}</td>
+                                <td>{{ audit.type }}</td>
+                                <td>{{ audit.performed_by }}</td>
+                                <td>{{ audit.date.strftime('%Y-%m-%d') }}</td>
+                                <td>
+                                    {% if audit.status == 'completed' %}
+                                        <span class="badge bg-success">Completed</span>
+                                    {% elif audit.status == 'in_progress' %}
+                                        <span class="badge bg-warning">In Progress</span>
+                                    {% elif audit.status == 'failed' %}
+                                        <span class="badge bg-danger">Failed</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">{{ audit.status }}</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ audit.findings_count }}</td>
+                                <td>
+                                    <div class="btn-group" role="group">
+                                        <a href="{{ url_for('view_audit', audit_id=audit.id) }}" class="btn btn-sm btn-info" title="View">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        {% if audit.status == 'in_progress' %}
+                                        <button type="button" class="btn btn-sm btn-success complete-audit" data-id="{{ audit.id }}" title="Complete">
+                                            <i class="fas fa-check"></i>
+                                        </button>
+                                        {% endif %}
+                                        <button type="button" class="btn btn-sm btn-danger delete-audit" data-id="{{ audit.id }}" data-name="{{ audit.type }}" title="Delete">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="7" class="text-center">No audit logs found.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <div class="text-center mt-3">
+                    <a href="{{ url_for('run_audit') }}" class="btn btn-primary">Run New Audit</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Document Retention Tab -->
+    <div class="tab-pane fade {% if active_tab == 'document_retention' %}show active{% endif %}" id="documentRetention" role="tabpanel" aria-labelledby="documentRetention-tab">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                <h6 class="m-0 font-weight-bold text-primary">Document Retention Policies</h6>
+                <div class="dropdown no-arrow">
+                    <a class="dropdown-toggle" href="#" role="button" id="documentRetentionDropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in" aria-labelledby="documentRetentionDropdown">
+                        <div class="dropdown-header">Retention Options:</div>
+                        <a class="dropdown-item" href="{{ url_for('add_retention_policy') }}">Add Policy</a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" href="{{ url_for('export_retention_policies') }}">Export Policies</a>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered" width="100%" cellspacing="0">
+                        <thead>
+                            <tr>
+                                <th>Policy Name</th>
+                                <th>Document Type</th>
+                                <th>Retention Period</th>
+                                <th>Action</th>
+                                <th>Status</th>
+                                <th>Last Applied</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for policy in retention_policies %}
+                            <tr>
+                                <td>{{ policy.name }}</td>
+                                <td>{{ policy.document_type }}</td>
+                                <td>{{ policy.retention_period }}</td>
+                                <td>{{ policy.action }}</td>
+                                <td>
+                                    {% if policy.status == 'active' %}
+                                        <span class="badge bg-success">Active</span>
+                                    {% elif policy.status == 'inactive' %}
+                                        <span class="badge bg-secondary">Inactive</span>
+                                    {% else %}
+                                        <span class="badge bg-light text-dark">{{ policy.status }}</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ policy.last_applied.strftime('%Y-%m-%d') if policy.last_applied else 'Never' }}</td>
+                                <td>
+                                    <div class="btn-group" role="group">
+                                        <a href="{{ url_for('view_retention_policy', policy_id=policy.id) }}" class="btn btn-sm btn-info" title="View">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <a href="{{ url_for('edit_retention_policy', policy_id=policy.id) }}" class="btn btn-sm btn-primary" title="Edit">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <button type="button" class="btn btn-sm btn-success apply-policy" data-id="{{ policy.id }}" title="Apply Now">
+                                            <i class="fas fa-check"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-sm btn-danger delete-policy" data-id="{{ policy.id }}" data-name="{{ policy.name }}" title="Delete">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="7" class="text-center">No retention policies found.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <div class="text-center mt-3">
+                    <a href="{{ url_for('add_retention_policy') }}" class="btn btn-primary">Add Policy</a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Upcoming Retention Actions</h6>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered" width="100%" cellspacing="0">
+                        <thead>
+                            <tr>
+                                <th>Document</th>
+                                <th>Type</th>
+                                <th>Retention End Date</th>
+                                <th>Action</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for action in upcoming_retention_actions %}
+                            <tr>
+                                <td>{{ action.document_name }}</td>
+                                <td>{{ action.document_type }}</td>
+                                <td>{{ action.retention_end_date.strftime('%Y-%m-%d') }}</td>
+                                <td>{{ action.action }}</td>
+                                <td>
+                                    {% if action.status == 'pending' %}
+                                        <span class="badge bg-warning">Pending</span>
+                                    {% elif action.status == 'completed' %}
+                                        <span class="badge bg-success">Completed</span>
+                                    {% elif action.status == 'failed' %}
+                                        <span class="badge bg-danger">Failed</span>
+                                    {% else %}
+                                        <span class="badge bg-light text-dark">{{ action.status }}</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div class="btn-group" role="group">
+                                        <a href="{{ url_for('view_document', document_id=action.document_id) }}" class="btn btn-sm btn-info" title="View Document">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        {% if action.status == 'pending' %}
+                                        <button type="button" class="btn btn-sm btn-success execute-action" data-id="{{ action.id }}" title="Execute Now">
+                                            <i class="fas fa-check"></i>
+                                        </button>
+                                        {% endif %}
+                                        <button type="button" class="btn btn-sm btn-danger delete-action" data-id="{{ action.id }}" data-name="{{ action.document_name }}" title="Delete">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="6" class="text-center">No upcoming retention actions found.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Report Confirmation Modal -->
+<div class="modal fade" id="deleteReportModal" tabindex="-1" aria-labelledby="deleteReportModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteReportModalLabel">Confirm Delete</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to delete the report "<strong id="deleteReportName"></strong>"? This action cannot be undone.
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form id="deleteReportForm" method="POST">
+                    <button type="submit" class="btn btn-danger">Delete</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Scheduled Report Confirmation Modal -->
+<div class="modal fade" id="deleteScheduledReportModal" tabindex="-1" aria-labelledby="deleteScheduledReportModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteScheduledReportModalLabel">Confirm Delete</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to delete the scheduled report "<strong id="deleteScheduledReportName"></strong>"? This action cannot be undone.
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form id="deleteScheduledReportForm" method="POST">
+                    <button type="submit" class="btn btn-danger">Delete</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Retention Policy Confirmation Modal -->
+<div class="modal fade" id="deleteRetentionPolicyModal" tabindex="-1" aria-labelledby="deleteRetentionPolicyModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteRetentionPolicyModalLabel">Confirm Delete</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to delete the retention policy "<strong id="deleteRetentionPolicyName"></strong>"? This action cannot be undone.
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form id="deleteRetentionPolicyForm" method="POST">
+                    <button type="submit" class="btn btn-danger">Delete</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Audit Confirmation Modal -->
+<div class="modal fade" id="deleteAuditModal" tabindex="-1" aria-labelledby="deleteAuditModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteAuditModalLabel">Confirm Delete</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to delete the audit "<strong id="deleteAuditName"></strong>"? This action cannot be undone.
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form id="deleteAuditForm" method="POST">
+                    <button type="submit" class="btn btn-danger">Delete</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Retention Action Confirmation Modal -->
+<div class="modal fade" id="deleteRetentionPolicyActionModal" tabindex="-1" aria-labelledby="deleteRetentionPolicyActionModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteRetentionPolicyActionModalLabel">Confirm Delete</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to delete the retention action for "<strong id="deleteRetentionPolicyActionName"></strong>"? This action cannot be undone.
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form id="deleteRetentionPolicyActionForm" method="POST">
+                    <button type="submit" class="btn btn-danger">Delete</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    $(document).ready(function() {
+        // Compliance Trend Chart
+        var complianceTrendCtx = document.getElementById('complianceTrendChart').getContext('2d');
+        var complianceTrendChart = new Chart(complianceTrendCtx, {
+            type: 'line',
+            data: {
+                labels: {{ compliance_trend_chart.labels|tojson }},
+                datasets: [{
+                    label: 'Compliance Score',
+                    data: {{ compliance_trend_chart.data|tojson }},
+                    backgroundColor: 'rgba(28, 200, 138, 0.2)',
+                    borderColor: 'rgba(28, 200, 138, 1)',
+                    pointBackgroundColor: 'rgba(28, 200, 138, 1)',
+                    pointBorderColor: '#fff',
+                    pointHoverBackgroundColor: '#fff',
+                    pointHoverBorderColor: 'rgba(28, 200, 138, 1)',
+                    tension: 0.3,
+                    fill: true
+                }]
+            },
+            options: {
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100,
+                        ticks: {
+                            callback: function(value) {
+                                return value + '%';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+        
+        // Compliance by Category Chart
+        var complianceByCategoryCtx = document.getElementById('complianceByCategoryChart').getContext('2d');
+        var complianceByCategoryChart = new Chart(complianceByCategoryCtx, {
+            type: 'doughnut',
+            data: {
+                labels: {{ compliance_by_category_chart.labels|tojson }},
+                datasets: [{
+                    data: {{ compliance_by_category_chart.data|tojson }},
+                    backgroundColor: [
+                        'rgba(28, 200, 138, 0.8)',
+                        'rgba(54, 185, 204, 0.8)',
+                        'rgba(246, 194, 62, 0.8)',
+                        'rgba(231, 74, 59, 0.8)'
+                    ],
+                    hoverBackgroundColor: [
+                        'rgba(28, 200, 138, 1)',
+                        'rgba(54, 185, 204, 1)',
+                        'rgba(246, 194, 62, 1)',
+                        'rgba(231, 74, 59, 1)'
+                    ],
+                    hoverBorderColor: "rgba(234, 236, 244, 1)",
+                }]
+            },
+            options: {
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
+                }
+            }
+        });
+        
+        // Toggle scheduled report status
+        $('.toggle-scheduled-report').on('click', function() {
+            var reportId = $(this).data('id');
+            var currentStatus = $(this).data('status');
+            var newStatus = currentStatus === 'active' ? 'paused' : 'active';
+            
+            $.ajax({
+                url: '/toggle_scheduled_report/' + reportId,
+                type: 'POST',
+                data: {
+                    status: newStatus
+                },
+                success: function(response) {
+                    if (response.success) {
+                        location.reload();
+                    } else {
+                        alert('Error updating report status: ' + response.message);
+                    }
+                },
+                error: function() {
+                    alert('Error updating report status. Please try again.');
+                }
+            });
+        });
+        
+        // Run scheduled report now
+        $('.run-scheduled-report').on('click', function() {
+            var reportId = $(this).data('id');
+            
+            $.ajax({
+                url: '/run_scheduled_report/' + reportId,
+                type: 'POST',
+                success: function(response) {
+                    if (response.success) {
+                        alert('Report executed successfully!');
+                        location.reload();
+                    } else {
+                        alert('Error executing report: ' + response.message);
+                    }
+                },
+                error: function() {
+                    alert('Error executing report. Please try again.');
+                }
+            });
+        });
+        
+        // Delete scheduled report confirmation
+        $('.delete-scheduled-report').on('click', function() {
+            var reportId = $(this).data('id');
+            var reportName = $(this).data('name');
+            
+            $('#deleteScheduledReportName').text(reportName);
+            $('#deleteScheduledReportForm').attr('action', '/delete_scheduled_report/' + reportId);
+            
+            var deleteScheduledReportModal = new bootstrap.Modal(document.getElementById('deleteScheduledReportModal'));
+            deleteScheduledReportModal.show();
+        });
+        
+        // Delete report confirmation
+        $('.delete-report').on('click', function() {
+            var reportId = $(this).data('id');
+            var reportName = $(this).data('name');
+            
+            $('#deleteReportName').text(reportName);
+            $('#deleteReportForm').attr('action', '/delete_report/' + reportId);
+            
+            var deleteReportModal = new bootstrap.Modal(document.getElementById('deleteReportModal'));
+            deleteReportModal.show();
+        });
+        
+        // Review compliance requirement
+        $('.review-requirement').on('click', function() {
+            var requirementId = $(this).data('id');
+            
+            $.ajax({
+                url: '/review_compliance_requirement/' + requirementId,
+                type: 'POST',
+                success: function(response) {
+                    if (response.success) {
+                        alert('Requirement marked for review!');
+                        location.reload();
+                    } else {
+                        alert('Error marking requirement for review: ' + response.message);
+                    }
+                },
+                error: function() {
+                    alert('Error marking requirement for review. Please try again.');
+                }
+            });
+        });
+        
+        // Complete audit
+        $('.complete-audit').on('click', function() {
+            var auditId = $(this).data('id');
+            
+            $.ajax({
+                url: '/complete_audit/' + auditId,
+                type: 'POST',
+                success: function(response) {
+                    if (response.success) {
+                        alert('Audit marked as completed!');
+                        location.reload();
+                    } else {
+                        alert('Error completing audit: ' + response.message);
+                    }
+                },
+                error: function() {
+                    alert('Error completing audit. Please try again.');
+                }
+            });
+        });
+        
+        // Delete audit confirmation
+        $('.delete-audit').on('click', function() {
+            var auditId = $(this).data('id');
+            var auditName = $(this).data('name');
+            
+            $('#deleteAuditName').text(auditName);
+            $('#deleteAuditForm').attr('action', '/delete_audit/' + auditId);
+            
+            var deleteAuditModal = new bootstrap.Modal(document.getElementById('deleteAuditModal'));
+            deleteAuditModal.show();
+        });
+        
+        // Apply retention policy
+        $('.apply-policy').on('click', function() {
+            var policyId = $(this).data('id');
+            
+            $.ajax({
+                url: '/apply_retention_policy/' + policyId,
+                type: 'POST',
+                success: function(response) {
+                    if (response.success) {
+                        alert('Policy applied successfully!');
+                        location.reload();
+                    } else {
+                        alert('Error applying policy: ' + response.message);
+                    }
+                },
+                error: function() {
+                    alert('Error applying policy. Please try again.');
+                }
+            });
+        });
+        
+        // Delete retention policy confirmation
+        $('.delete-policy').on('click', function() {
+            var policyId = $(this).data('id');
+            var policyName = $(this).data('name');
+            
+            $('#deleteRetentionPolicyName').text(policyName);
+            $('#deleteRetentionPolicyForm').attr('action', '/delete_retention_policy/' + policyId);
+            
+            var deleteRetentionPolicyModal = new bootstrap.Modal(document.getElementById('deleteRetentionPolicyModal'));
+            deleteRetentionPolicyModal.show();
+        });
+        
+        // Execute retention action
+        $('.execute-action').on('click', function() {
+            var actionId = $(this).data('id');
+            
+            $.ajax({
+                url: '/execute_retention_action/' + actionId,
+                type: 'POST',
+                success: function(response) {
+                    if (response.success) {
+                        alert('Action executed successfully!');
+                        location.reload();
+                    } else {
+                        alert('Error executing action: ' + response.message);
+                    }
+                },
+                error: function() {
+                    alert('Error executing action. Please try again.');
+                }
+            });
+        });
+        
+        // Delete retention action confirmation
+        $('.delete-action').on('click', function() {
+            var actionId = $(this).data('id');
+            var actionName = $(this).data('name');
+            
+            $('#deleteRetentionPolicyActionName').text(actionName);
+            $('#deleteRetentionPolicyActionForm').attr('action', '/delete_retention_action/' + actionId);
+            
+            var deleteRetentionPolicyActionModal = new bootstrap.Modal(document.getElementById('deleteRetentionPolicyActionModal'));
+            deleteRetentionPolicyActionModal.show();
+        });
+    });
+</script>
+{% endblock %}

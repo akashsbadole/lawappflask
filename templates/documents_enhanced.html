@@ -1,0 +1,385 @@
+{% extends "base.html" %}
+
+{% block title %}Document Management - Law Firm Management System{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Document Management</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <div class="btn-group me-2">
+            <a href="{{ url_for('upload_document') }}" class="btn btn-sm btn-outline-secondary">
+                <i class="fas fa-upload me-1"></i>Upload Document
+            </a>
+        </div>
+        <div class="btn-group me-2">
+            <a href="{{ url_for('clients') }}" class="btn btn-sm btn-outline-secondary">
+                <i class="fas fa-users me-1"></i>Clients
+            </a>
+            <a href="{{ url_for('cases') }}" class="btn btn-sm btn-outline-secondary">
+                <i class="fas fa-briefcase me-1"></i>Cases
+            </a>
+        </div>
+        <div class="btn-group">
+            <a href="{{ url_for('export_documents') }}" class="btn btn-sm btn-outline-secondary">
+                <i class="fas fa-download me-1"></i>Export
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Filters -->
+<div class="card mb-4">
+    <div class="card-header">
+        <div class="row align-items-center">
+            <div class="col">
+                <h5 class="mb-0">Filter Documents</h5>
+            </div>
+            <div class="col-auto">
+                <button class="btn btn-sm btn-outline-secondary" id="toggleFilters">
+                    <i class="fas fa-filter me-1"></i>Toggle Filters
+                </button>
+            </div>
+        </div>
+    </div>
+    <div class="card-body" id="filtersPanel">
+        <form method="GET" action="{{ url_for('documents') }}">
+            <div class="row">
+                <div class="col-md-3 mb-3">
+                    <label for="client_id" class="form-label">Client</label>
+                    <select class="form-select" id="client_id" name="client_id">
+                        <option value="">All Clients</option>
+                        {% for client in clients %}
+                        <option value="{{ client.id }}" {% if client.id == current_client_id %}selected{% endif %}>{{ client.full_name }} ({{ client.client_number }})</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label for="case_id" class="form-label">Case</label>
+                    <select class="form-select" id="case_id" name="case_id">
+                        <option value="">All Cases</option>
+                        {% for case in cases %}
+                        <option value="{{ case.id }}" {% if case.id == current_case_id %}selected{% endif %}>{{ case.title }} ({{ case.case_number }})</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label for="category" class="form-label">Category</label>
+                    <select class="form-select" id="category" name="category">
+                        <option value="">All Categories</option>
+                        {% for category in categories %}
+                        <option value="{{ category }}" {% if category == current_category %}selected{% endif %}>{{ category|title }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label for="document_type" class="form-label">Document Type</label>
+                    <select class="form-select" id="document_type" name="document_type">
+                        <option value="">All Types</option>
+                        {% for type in document_types %}
+                        <option value="{{ type }}" {% if type == current_document_type %}selected{% endif %}>{{ type|title }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-9 mb-3">
+                    <label for="search" class="form-label">Search</label>
+                    <input type="text" class="form-control" id="search" name="search" placeholder="Search by title, description, or tags..." value="{{ current_search or '' }}">
+                </div>
+                <div class="col-md-3 mb-3 d-flex align-items-end">
+                    <a href="{{ url_for('documents') }}" class="btn btn-outline-secondary w-100">Clear Filters</a>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12 d-flex justify-content-end">
+                    <button type="submit" class="btn btn-primary">Apply Filters</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Document Statistics -->
+<div class="row mb-4">
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-primary shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Total Documents</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ documents|length }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-file-alt fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-success shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Client Documents</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ documents|selectattr('client_id', 'ne', None)|list|length }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-users fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-info shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Case Documents</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ documents|selectattr('case_id', 'ne', None)|list|length }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-briefcase fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-warning shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Recent Uploads</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ documents|selectattr('created_at', 'greaterthan', (now - timedelta(days=7)))|list|length }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-calendar-week fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- View Toggle -->
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div class="btn-group" role="group">
+        <a href="{{ url_for('documents', view='list') }}" class="btn btn-sm {% if view == 'list' %}btn-primary{% else %}btn-outline-secondary{% endif %}">
+            <i class="fas fa-list me-1"></i>List View
+        </a>
+        <a href="{{ url_for('documents', view='grid') }}" class="btn btn-sm {% if view == 'grid' %}btn-primary{% else %}btn-outline-secondary{% endif %}">
+            <i class="fas fa-th me-1"></i>Grid View
+        </a>
+    </div>
+    <div class="input-group" style="width: 300px;">
+        <input type="text" class="form-control form-control-sm" placeholder="Search documents..." id="documentSearch">
+        <button class="btn btn-sm btn-outline-secondary" type="button">
+            <i class="fas fa-search"></i>
+        </button>
+    </div>
+</div>
+
+<!-- Documents List/Grid -->
+<div class="card">
+    <div class="card-header">
+        <h5 class="mb-0">Documents</h5>
+    </div>
+    <div class="card-body">
+        {% if view == 'list' %}
+        <div class="table-responsive">
+            <table class="table table-striped table-hover" id="documentsTable">
+                <thead>
+                    <tr>
+                        <th>Title</th>
+                        <th>Client</th>
+                        <th>Case</th>
+                        <th>Category</th>
+                        <th>Type</th>
+                        <th>Size</th>
+                        <th>Uploaded By</th>
+                        <th>Date</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for document in documents %}
+                    <tr>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <div class="me-2">
+                                    {% if document.file_type == 'pdf' %}
+                                        <i class="fas fa-file-pdf text-danger fa-lg"></i>
+                                    {% elif document.file_type == 'doc' or document.file_type == 'docx' %}
+                                        <i class="fas fa-file-word text-primary fa-lg"></i>
+                                    {% elif document.file_type == 'xls' or document.file_type == 'xlsx' %}
+                                        <i class="fas fa-file-excel text-success fa-lg"></i>
+                                    {% elif document.file_type == 'ppt' or document.file_type == 'pptx' %}
+                                        <i class="fas fa-file-powerpoint text-warning fa-lg"></i>
+                                    {% elif document.file_type == 'jpg' or document.file_type == 'jpeg' or document.file_type == 'png' or document.file_type == 'gif' %}
+                                        <i class="fas fa-file-image text-info fa-lg"></i>
+                                    {% else %}
+                                        <i class="fas fa-file text-secondary fa-lg"></i>
+                                    {% endif %}
+                                </div>
+                                <div>
+                                    <div class="font-weight-bold">{{ document.title }}</div>
+                                    <div class="text-muted small">{{ document.description[:50] }}{% if document.description|length > 50 %}...{% endif %}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>{{ document.client.full_name if document.client else 'N/A' }}</td>
+                        <td>{{ document.case.title if document.case else 'N/A' }}</td>
+                        <td>{{ document.category }}</td>
+                        <td>{{ document.document_type }}</td>
+                        <td>{{ document.file_size|filesizeformat }}</td>
+                        <td>{{ document.uploaded_by.full_name if document.uploaded_by else 'N/A' }}</td>
+                        <td>{{ document.created_at.strftime('%Y-%m-%d') }}</td>
+                        <td>
+                            <div class="btn-group" role="group">
+                                <a href="{{ url_for('view_document', document_id=document.id) }}" class="btn btn-sm btn-primary" title="View">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <a href="{{ url_for('download_document', document_id=document.id) }}" class="btn btn-sm btn-info" title="Download">
+                                    <i class="fas fa-download"></i>
+                                </a>
+                                <a href="{{ url_for('edit_document', document_id=document.id) }}" class="btn btn-sm btn-secondary" title="Edit">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <button type="button" class="btn btn-sm btn-danger delete-document" data-id="{{ document.id }}" data-title="{{ document.title }}" title="Delete">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="9" class="text-center">No documents found matching your criteria.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <!-- Grid View -->
+        <div class="row">
+            {% for document in documents %}
+            <div class="col-md-4 col-lg-3 mb-4">
+                <div class="card h-100 document-card">
+                    <div class="card-body text-center">
+                        <div class="mb-3">
+                            {% if document.file_type == 'pdf' %}
+                                <i class="fas fa-file-pdf text-danger fa-3x"></i>
+                            {% elif document.file_type == 'doc' or document.file_type == 'docx' %}
+                                <i class="fas fa-file-word text-primary fa-3x"></i>
+                            {% elif document.file_type == 'xls' or document.file_type == 'xlsx' %}
+                                <i class="fas fa-file-excel text-success fa-3x"></i>
+                            {% elif document.file_type == 'ppt' or document.file_type == 'pptx' %}
+                                <i class="fas fa-file-powerpoint text-warning fa-3x"></i>
+                            {% elif document.file_type == 'jpg' or document.file_type == 'jpeg' or document.file_type == 'png' or document.file_type == 'gif' %}
+                                <i class="fas fa-file-image text-info fa-3x"></i>
+                            {% else %}
+                                <i class="fas fa-file text-secondary fa-3x"></i>
+                            {% endif %}
+                        </div>
+                        <h6 class="card-title">{{ document.title }}</h6>
+                        <p class="card-text text-muted small">{{ document.description[:50] }}{% if document.description|length > 50 %}...{% endif %}</p>
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="badge bg-secondary">{{ document.category }}</span>
+                            <small>{{ document.file_size|filesizeformat }}</small>
+                        </div>
+                        <small class="text-muted">{{ document.created_at.strftime('%Y-%m-%d') }}</small>
+                    </div>
+                    <div class="card-footer bg-transparent">
+                        <div class="btn-group w-100" role="group">
+                            <a href="{{ url_for('view_document', document_id=document.id) }}" class="btn btn-sm btn-outline-primary" title="View">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                            <a href="{{ url_for('download_document', document_id=document.id) }}" class="btn btn-sm btn-outline-info" title="Download">
+                                <i class="fas fa-download"></i>
+                            </a>
+                            <a href="{{ url_for('edit_document', document_id=document.id) }}" class="btn btn-sm btn-outline-secondary" title="Edit">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            <button type="button" class="btn btn-sm btn-outline-danger delete-document" data-id="{{ document.id }}" data-title="{{ document.title }}" title="Delete">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% else %}
+            <div class="col-12 text-center py-4">
+                <p class="text-muted">No documents found matching your criteria.</p>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Delete Document Confirmation Modal -->
+<div class="modal fade" id="deleteDocumentModal" tabindex="-1" aria-labelledby="deleteDocumentModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteDocumentModalLabel">Confirm Delete</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to delete the document "<strong id="deleteDocumentTitle"></strong>"? This action cannot be undone.
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form id="deleteDocumentForm" method="POST">
+                    <button type="submit" class="btn btn-danger">Delete</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    $(document).ready(function() {
+        // Toggle filters panel
+        $('#toggleFilters').on('click', function() {
+            $('#filtersPanel').slideToggle();
+        });
+        
+        // Document search functionality
+        $('#documentSearch').on('keyup', function() {
+            var value = $(this).val().toLowerCase();
+            
+            if ($('#documentsTable').length) {
+                // List view
+                $('#documentsTable tbody tr').filter(function() {
+                    $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1);
+                });
+            } else {
+                // Grid view
+                $('.document-card').filter(function() {
+                    $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1);
+                });
+            }
+        });
+        
+        // Delete document confirmation
+        $('.delete-document').on('click', function() {
+            var documentId = $(this).data('id');
+            var documentTitle = $(this).data('title');
+            
+            $('#deleteDocumentTitle').text(documentTitle);
+            $('#deleteDocumentForm').attr('action', '/delete_document/' + documentId);
+            
+            var deleteDocumentModal = new bootstrap.Modal(document.getElementById('deleteDocumentModal'));
+            deleteDocumentModal.show();
+        });
+    });
+</script>
+{% endblock %}

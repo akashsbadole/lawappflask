@@ -1,0 +1,406 @@
+{% extends "base.html" %}
+
+{% block title %}Schedule Appointment - Law Firm Management System{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Schedule Appointment</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <div class="btn-group me-2">
+            <a href="{{ url_for('appointments') }}" class="btn btn-sm btn-outline-secondary">
+                <i class="fas fa-arrow-left me-1"></i>Back to Appointments
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">New Appointment Details</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('add_appointment') }}">
+                    {{ form.hidden_tag() }}
+                    
+                    <div class="mb-3">
+                        {{ form.title.label(class="form-label") }}
+                        {{ form.title(class="form-control") }}
+                        {% if form.title.errors %}
+                            <div class="text-danger">
+                                {% for error in form.title.errors %}
+                                    <small>{{ error }}</small>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        {{ form.description.label(class="form-label") }}
+                        {{ form.description(class="form-control", rows="3") }}
+                        {% if form.description.errors %}
+                            <div class="text-danger">
+                                {% for error in form.description.errors %}
+                                    <small>{{ error }}</small>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            {{ form.client_id.label(class="form-label") }}
+                            {{ form.client_id(class="form-control", id="clientSelect") }}
+                            {% if form.client_id.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.client_id.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            {{ form.case_id.label(class="form-label") }}
+                            {{ form.case_id(class="form-control", id="caseSelect") }}
+                            {% if form.case_id.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.case_id.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            {{ form.lawyer_id.label(class="form-label") }}
+                            {{ form.lawyer_id(class="form-control") }}
+                            {% if form.lawyer_id.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.lawyer_id.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            {{ form.appointment_type.label(class="form-label") }}
+                            {{ form.appointment_type(class="form-control") }}
+                            {% if form.appointment_type.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.appointment_type.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            {{ form.start_time.label(class="form-label") }}
+                            {{ form.start_time(class="form-control", type="datetime-local") }}
+                            {% if form.start_time.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.start_time.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            {{ form.end_time.label(class="form-label") }}
+                            {{ form.end_time(class="form-control", type="datetime-local") }}
+                            {% if form.end_time.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.end_time.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <div class="form-check">
+                                {{ form.is_virtual(class="form-check-input", id="isVirtualCheck") }}
+                                {{ form.is_virtual.label(class="form-check-label", for="isVirtualCheck") }}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            {{ form.location.label(class="form-label") }}
+                            {{ form.location(class="form-control", id="locationField") }}
+                            {% if form.location.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.location.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3" id="meetingLinkField" style="display: none;">
+                        {{ form.meeting_link.label(class="form-label") }}
+                        {{ form.meeting_link(class="form-control") }}
+                        {% if form.meeting_link.errors %}
+                            <div class="text-danger">
+                                {% for error in form.meeting_link.errors %}
+                                    <small>{{ error }}</small>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                        <small class="form-text text-muted">Enter the video conference link for virtual appointments.</small>
+                    </div>
+                    
+                    <div class="mb-3">
+                        {{ form.reminder_minutes.label(class="form-label") }}
+                        {{ form.reminder_minutes(class="form-control") }}
+                        {% if form.reminder_minutes.errors %}
+                            <div class="text-danger">
+                                {% for error in form.reminder_minutes.errors %}
+                                    <small>{{ error }}</small>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                        <small class="form-text text-muted">Set reminder in minutes before the appointment (e.g., 30 for 30 minutes before).</small>
+                    </div>
+                    
+                    <div class="mb-3">
+                        {{ form.notes.label(class="form-label") }}
+                        {{ form.notes(class="form-control", rows="3") }}
+                        {% if form.notes.errors %}
+                            <div class="text-danger">
+                                {% for error in form.notes.errors %}
+                                    <small>{{ error }}</small>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="d-flex justify-content-end">
+                        <a href="{{ url_for('appointments') }}" class="btn btn-secondary me-2">Cancel</a>
+                        <button type="submit" class="btn btn-primary">Schedule Appointment</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Appointment Types</h5>
+            </div>
+            <div class="card-body">
+                <div class="accordion" id="appointmentTypesAccordion">
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="consultationHeading">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#consultationCollapse" aria-expanded="false" aria-controls="consultationCollapse">
+                                Consultation
+                            </button>
+                        </h2>
+                        <div id="consultationCollapse" class="accordion-collapse collapse" aria-labelledby="consultationHeading" data-bs-parent="#appointmentTypesAccordion">
+                            <div class="accordion-body">
+                                Initial meeting with a potential client to discuss their legal needs and determine if the firm can assist them.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="meetingHeading">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#meetingCollapse" aria-expanded="false" aria-controls="meetingCollapse">
+                                Meeting
+                            </button>
+                        </h2>
+                        <div id="meetingCollapse" class="accordion-collapse collapse" aria-labelledby="meetingHeading" data-bs-parent="#appointmentTypesAccordion">
+                            <div class="accordion-body">
+                                General meeting with clients, colleagues, or other parties to discuss case matters, strategy, or updates.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="hearingHeading">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#hearingCollapse" aria-expanded="false" aria-controls="hearingCollapse">
+                                Hearing
+                            </button>
+                        </h2>
+                        <div id="hearingCollapse" class="accordion-collapse collapse" aria-labelledby="hearingHeading" data-bs-parent="#appointmentTypesAccordion">
+                            <div class="accordion-body">
+                                Court appearance before a judge or magistrate for arguments, motions, or other proceedings.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="depositionHeading">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#depositionCollapse" aria-expanded="false" aria-controls="depositionCollapse">
+                                Deposition
+                            </button>
+                        </h2>
+                        <div id="depositionCollapse" class="accordion-collapse collapse" aria-labelledby="depositionHeading" data-bs-parent="#appointmentTypesAccordion">
+                            <div class="accordion-body">
+                                Sworn testimony taken outside of court, typically as part of the discovery process in litigation.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="mediationHeading">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#mediationCollapse" aria-expanded="false" aria-controls="mediationCollapse">
+                                Mediation
+                            </button>
+                        </h2>
+                        <div id="mediationCollapse" class="accordion-collapse collapse" aria-labelledby="mediationHeading" data-bs-parent="#appointmentTypesAccordion">
+                            <div class="accordion-body">
+                                Alternative dispute resolution process where a neutral third party helps parties reach a settlement.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card mt-3">
+            <div class="card-header">
+                <h5 class="mb-0">Scheduling Tips</h5>
+            </div>
+            <div class="card-body">
+                <ul>
+                    <li>Check the lawyer's availability before scheduling</li>
+                    <li>Allow adequate travel time between appointments</li>
+                    <li>Consider client preferences for in-person vs. virtual meetings</li>
+                    <li>Set reminders for important appointments</li>
+                    <li>Include all relevant details in the appointment description</li>
+                    <li>For virtual meetings, test the technology in advance</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="card mt-3">
+            <div class="card-header">
+                <h5 class="mb-0">Virtual Meeting Platforms</h5>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <button type="button" class="btn btn-outline-primary" onclick="generateZoomLink()">
+                        <i class="fab fa-zoom me-2"></i>Generate Zoom Link
+                    </button>
+                    <button type="button" class="btn btn-outline-info" onclick="generateTeamsLink()">
+                        <i class="fab fa-microsoft me-2"></i>Generate Teams Link
+                    </button>
+                    <button type="button" class="btn btn-outline-success" onclick="generateMeetLink()">
+                        <i class="fab fa-google me-2"></i>Generate Google Meet Link
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    $(document).ready(function() {
+        // Handle client selection to update case options
+        $('#clientSelect').on('change', function() {
+            var clientId = $(this).val();
+            var caseSelect = $('#caseSelect');
+            
+            // Clear current options
+            caseSelect.empty();
+            caseSelect.append($('<option>', { value: '', text: 'Select a case (optional)' }));
+            
+            if (clientId) {
+                // Fetch cases for the selected client
+                $.ajax({
+                    url: '/api/client_cases/' + clientId,
+                    type: 'GET',
+                    success: function(data) {
+                        $.each(data.cases, function(index, caseItem) {
+                            caseSelect.append($('<option>', { 
+                                value: caseItem.id, 
+                                text: caseItem.title + ' (' + caseItem.case_number + ')' 
+                            }));
+                        });
+                        
+                        // Pre-select case if passed in URL
+                        var urlParams = new URLSearchParams(window.location.search);
+                        var caseId = urlParams.get('case_id');
+                        if (caseId) {
+                            caseSelect.val(caseId);
+                        }
+                    }
+                });
+            }
+        });
+        
+        // Handle virtual appointment checkbox
+        $('#isVirtualCheck').on('change', function() {
+            var isChecked = $(this).is(':checked');
+            var meetingLinkField = $('#meetingLinkField');
+            var locationField = $('#locationField');
+            
+            if (isChecked) {
+                meetingLinkField.show();
+                locationField.prop('required', false);
+            } else {
+                meetingLinkField.hide();
+                locationField.prop('required', true);
+            }
+        });
+        
+        // Pre-select client if passed in URL
+        var urlParams = new URLSearchParams(window.location.search);
+        var clientId = urlParams.get('client_id');
+        if (clientId) {
+            $('#clientSelect').val(clientId).trigger('change');
+        }
+        
+        // Set default date and time if not editing
+        var start_time = $('#start_time');
+        var end_time = $('#end_time');
+        
+        if (!start_time.val()) {
+            var now = new Date();
+            var year = now.getFullYear();
+            var month = String(now.getMonth() + 1).padStart(2, '0');
+            var day = String(now.getDate()).padStart(2, '0');
+            var hours = String(now.getHours()).padStart(2, '0');
+            var minutes = String(Math.ceil(now.getMinutes() / 15) * 15)).padStart(2, '0');
+            
+            start_time.val(`${year}-${month}-${day}T${hours}:${minutes}`);
+            
+            // Set end time to 1 hour after start time
+            var endTime = new Date(now.getTime() + 60 * 60 * 1000);
+            var endHours = String(endTime.getHours()).padStart(2, '0');
+            var endMinutes = String(endTime.getMinutes()).padStart(2, '0');
+            
+            end_time.val(`${year}-${month}-${day}T${endHours}:${endMinutes}`);
+        }
+    });
+    
+    // Functions to generate meeting links
+    function generateZoomLink() {
+        var meetingLink = 'https://zoom.us/j/' + Math.random().toString(36).substr(2, 9);
+        $('#meeting_link').val(meetingLink);
+        $('#isVirtualCheck').prop('checked', true).trigger('change');
+    }
+    
+    function generateTeamsLink() {
+        var meetingLink = 'https://teams.microsoft.com/l/meetup-join/' + Math.random().toString(36).substr(2, 12);
+        $('#meeting_link').val(meetingLink);
+        $('#isVirtualCheck').prop('checked', true).trigger('change');
+    }
+    
+    function generateMeetLink() {
+        var meetingLink = 'https://meet.google.com/' + Math.random().toString(36).substr(2, 10);
+        $('#meeting_link').val(meetingLink);
+        $('#isVirtualCheck').prop('checked', true).trigger('change');
+    }
+</script>
+{% endblock %}

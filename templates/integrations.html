@@ -1,0 +1,860 @@
+{% extends "base.html" %}
+
+{% block title %}Integrations - Law Firm Management System{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Integrations</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <div class="btn-group me-2">
+            <a href="{{ url_for('add_integration') }}" class="btn btn-sm btn-outline-secondary">
+                <i class="fas fa-plus me-1"></i>Add Integration
+            </a>
+        </div>
+        <div class="btn-group">
+            <a href="{{ url_for='integration_logs') }}" class="btn btn-sm btn-outline-secondary">
+                <i class="fas fa-history me-1"></i>Integration Logs
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Tabs for Integrations Navigation -->
+<ul class="nav nav-tabs mb-4" id="integrationsTabs" role="tablist">
+    <li class="nav-item" role="presentation">
+        <button class="nav-link {% if active_tab == 'active' %}active{% endif %}" id="activeIntegrations-tab" data-bs-toggle="tab" data-bs-target="#activeIntegrations" type="button" role="tab" aria-controls="activeIntegrations" aria-selected="{% if active_tab == 'active' %}true{% else %}false{% endif %}">
+            <i class="fas fa-plug me-1"></i>Active Integrations
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link {% if active_tab == 'available' %}active{% endif %}" id="availableIntegrations-tab" data-bs-toggle="tab" data-bs-target="#availableIntegrations" type="button" role="tab" aria-controls="availableIntegrations" aria-selected="{% if active_tab == 'available' %}true{% else %}false{% endif %}">
+            <i class="fas fa-puzzle-piece me-1"></i>Available Integrations
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link {% if active_tab == 'api' %}active{% endif %}" id="api-tab" data-bs-toggle="tab" data-bs-target="#api" type="button" role="tab" aria-controls="api" aria-selected="{% if active_tab == 'api' %}true{% else %}false{% endif %}">
+            <i class="fas fa-code me-1"></i>API Management
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link {% if active_tab == 'webhooks' %}active{% endif %}" id="webhooks-tab" data-bs-toggle="tab" data-bs-target="#webhooks" type="button" role="tab" aria-controls="webhooks" aria-selected="{% if active_tab == 'webhooks' %}true{% else %}false{% endif %}">
+            <i class="fas fa-project-diagram me-1"></i>Webhooks
+        </button>
+    </li>
+</ul>
+
+<!-- Tab Content -->
+<div class="tab-content" id="integrationsTabsContent">
+    <!-- Active Integrations Tab -->
+    <div class="tab-pane fade {% if active_tab == 'active' %}show active{% endif %}" id="activeIntegrations" role="tabpanel" aria-labelledby="activeIntegrations-tab">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                <h6 class="m-0 font-weight-bold text-primary">Active Integrations</h6>
+                <div class="dropdown no-arrow">
+                    <a class="dropdown-toggle" href="#" role="button" id="activeIntegrationsDropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in" aria-labelledby="activeIntegrationsDropdown">
+                        <div class="dropdown-header">Integration Options:</div>
+                        <a class="dropdown-item" href="{{ url_for('add_integration') }}">Add New Integration</a>
+                        <a class="dropdown-item" href="{{ url_for('integration_logs') }}">View Logs</a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" href="{{ url_for('export_integrations') }}">Export Configuration</a>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered" width="100%" cellspacing="0">
+                        <thead>
+                            <tr>
+                                <th>Integration</th>
+                                <th>Type</th>
+                                <th>Status</th>
+                                <th>Last Sync</th>
+                                <th>Next Sync</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for integration in active_integrations %}
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        {% if integration.icon_url %}
+                                        <img src="{{ integration.icon_url }}" alt="{{ integration.name }}" class="me-2" width="24" height="24">
+                                        {% else %}
+                                        <i class="fas fa-cube me-2"></i>
+                                        {% endif %}
+                                        {{ integration.name }}
+                                    </div>
+                                </td>
+                                <td>{{ integration.type }}</td>
+                                <td>
+                                    {% if integration.status == 'active' %}
+                                        <span class="badge bg-success">Active</span>
+                                    {% elif integration.status == 'error' %}
+                                        <span class="badge bg-danger">Error</span>
+                                    {% elif integration.status == 'disabled' %}
+                                        <span class="badge bg-secondary">Disabled</span>
+                                    {% else %}
+                                        <span class="badge bg-light text-dark">{{ integration.status }}</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ integration.last_sync.strftime('%Y-%m-%d %H:%M') if integration.last_sync else 'Never' }}</td>
+                                <td>{{ integration.next_sync.strftime('%Y-%m-%d %H:%M') if integration.next_sync else 'N/A' }}</td>
+                                <td>
+                                    <div class="btn-group" role="group">
+                                        <a href="{{ url_for('edit_integration', integration_id=integration.id) }}" class="btn btn-sm btn-info" title="Edit">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <button type="button" class="btn btn-sm btn-success sync-integration" data-id="{{ integration.id }}" title="Sync Now">
+                                            <i class="fas fa-sync"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-sm btn-warning toggle-integration" data-id="{{ integration.id }}" data-status="{{ integration.status }}" title="Toggle">
+                                            {% if integration.status == 'active' %}
+                                                <i class="fas fa-pause"></i>
+                                            {% else %}
+                                                <i class="fas fa-play"></i>
+                                            {% endif %}
+                                        </button>
+                                        <button type="button" class="btn btn-sm btn-danger delete-integration" data-id="{{ integration.id }}" data-name="{{ integration.name }}" title="Delete">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="6" class="text-center">No active integrations found.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <div class="text-center mt-3">
+                    <a href="{{ url_for('add_integration') }}" class="btn btn-primary">Add New Integration</a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Integration Activity</h6>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-8">
+                        <div class="chart-area">
+                            <canvas id="integrationActivityChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <h6>Recent Activity</h6>
+                        <div class="list-group">
+                            {% for activity in recent_integration_activity %}
+                            <div class="list-group-item">
+                                <div class="d-flex w-100 justify-content-between">
+                                    <h6 class="mb-1">{{ activity.integration_name }}</h6>
+                                    <small>{{ activity.timestamp.strftime('%H:%M') }}</small>
+                                </div>
+                                <p class="mb-1">{{ activity.action }}</p>
+                                <small>{{ activity.timestamp.strftime('%Y-%m-%d') }}</small>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Available Integrations Tab -->
+    <div class="tab-pane fade {% if active_tab == 'available' %}show active{% endif %}" id="availableIntegrations" role="tabpanel" aria-labelledby="availableIntegrations-tab">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Available Integrations</h6>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    {% for category, integrations in available_integrations.items() %}
+                    <div class="col-12 mb-4">
+                        <h5 class="text-primary">{{ category }}</h5>
+                        <div class="row">
+                            {% for integration in integrations %}
+                            <div class="col-lg-4 col-md-6 mb-4">
+                                <div class="card h-100">
+                                    <div class="card-body">
+                                        <div class="d-flex align-items-center mb-3">
+                                            {% if integration.icon_url %}
+                                            <img src="{{ integration.icon_url }}" alt="{{ integration.name }}" class="me-3" width="48" height="48">
+                                            {% else %}
+                                            <i class="fas fa-cube fa-2x me-3 text-primary"></i>
+                                            {% endif %}
+                                            <div>
+                                                <h5 class="card-title mb-0">{{ integration.name }}</h5>
+                                                <small class="text-muted">{{ integration.provider }}</small>
+                                            </div>
+                                        </div>
+                                        <p class="card-text">{{ integration.description }}</p>
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <div>
+                                                {% if integration.pricing == 'free' %}
+                                                    <span class="badge bg-success">Free</span>
+                                                {% elif integration.pricing == 'paid' %}
+                                                    <span class="badge bg-primary">Paid</span>
+                                                {% elif integration.pricing == 'freemium' %}
+                                                    <span class="badge bg-info">Freemium</span>
+                                                {% endif %}
+                                            </div>
+                                            <a href="{{ url_for('setup_integration', integration_id=integration.id) }}" class="btn btn-sm btn-outline-primary">Setup</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- API Management Tab -->
+    <div class="tab-pane fade {% if active_tab == 'api' %}show active{% endif %}" id="api" role="tabpanel" aria-labelledby="api-tab">
+        <div class="row mb-4">
+            <div class="col-lg-6">
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">API Keys</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-bordered" width="100%" cellspacing="0">
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Key</th>
+                                        <th>Created</th>
+                                        <th>Last Used</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for key in api_keys %}
+                                    <tr>
+                                        <td>{{ key.name }}</td>
+                                        <td>
+                                            <code>{{ key.key_prefix }}...</code>
+                                        </td>
+                                        <td>{{ key.created_at.strftime('%Y-%m-%d') }}</td>
+                                        <td>{{ key.last_used.strftime('%Y-%m-%d') if key.last_used else 'Never' }}</td>
+                                        <td>
+                                            <div class="btn-group" role="group">
+                                                <button type="button" class="btn btn-sm btn-primary view-api-key" data-id="{{ key.id }}" title="View">
+                                                    <i class="fas fa-eye"></i>
+                                                </button>
+                                                <button type="button" class="btn btn-sm btn-danger delete-api-key" data-id="{{ key.id }}" data-name="{{ key.name }}" title="Delete">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% else %}
+                                    <tr>
+                                        <td colspan="5" class="text-center">No API keys found.</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="text-center mt-3">
+                            <a href="{{ url_for('generate_api_key') }}" class="btn btn-primary">Generate New Key</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-6">
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">API Usage</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-area">
+                            <canvas id="apiUsageChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">API Documentation</h6>
+            </div>
+            <div class="card-body">
+                <div class="accordion" id="apiDocumentationAccordion">
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="authenticationHeading">
+                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#authenticationCollapse" aria-expanded="true" aria-controls="authenticationCollapse">
+                                Authentication
+                            </button>
+                        </h2>
+                        <div id="authenticationCollapse" class="accordion-collapse collapse show" aria-labelledby="authenticationHeading" data-bs-parent="#apiDocumentationAccordion">
+                            <div class="accordion-body">
+                                <p>All API requests must include an API key in the Authorization header:</p>
+                                <pre><code>Authorization: Bearer YOUR_API_KEY</code></pre>
+                                <p>You can generate API keys from the API Keys section above.</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="endpointsHeading">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#endpointsCollapse" aria-expanded="false" aria-controls="endpointsCollapse">
+                                Available Endpoints
+                            </button>
+                        </h2>
+                        <div id="endpointsCollapse" class="accordion-collapse collapse" aria-labelledby="endpointsHeading" data-bs-parent="#apiDocumentationAccordion">
+                            <div class="accordion-body">
+                                <div class="table-responsive">
+                                    <table class="table table-bordered">
+                                        <thead>
+                                            <tr>
+                                                <th>Endpoint</th>
+                                                <th>Method</th>
+                                                <th>Description</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td><code>/api/clients</code></td>
+                                                <td>GET</td>
+                                                <td>Retrieve a list of clients</td>
+                                            </tr>
+                                            <tr>
+                                                <td><code>/api/clients/{id}</code></td>
+                                                <td>GET</td>
+                                                <td>Retrieve a specific client</td>
+                                            </tr>
+                                            <tr>
+                                                <td><code>/api/cases</code></td>
+                                                <td>GET</td>
+                                                <td>Retrieve a list of cases</td>
+                                            </tr>
+                                            <tr>
+                                                <td><code>/api/cases/{id}</code></td>
+                                                <td>GET</td>
+                                                <td>Retrieve a specific case</td>
+                                            </tr>
+                                            <tr>
+                                                <td><code>/api/invoices</code></td>
+                                                <td>GET</td>
+                                                <td>Retrieve a list of invoices</td>
+                                            </tr>
+                                            <tr>
+                                                <td><code>/api/invoices/{id}</code></td>
+                                                <td>GET</td>
+                                                <td>Retrieve a specific invoice</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="rateLimitingHeading">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#rateLimitingCollapse" aria-expanded="false" aria-controls="rateLimitingCollapse">
+                                Rate Limiting
+                            </button>
+                        </h2>
+                        <div id="rateLimitingCollapse" class="accordion-collapse collapse" aria-labelledby="rateLimitingHeading" data-bs-parent="#apiDocumentationAccordion">
+                            <div class="accordion-body">
+                                <p>The API is rate limited to 1000 requests per hour per API key. When you exceed this limit, you will receive a 429 Too Many Requests response.</p>
+                                <p>The following headers are included in API responses to help you track your usage:</p>
+                                <ul>
+                                    <li><code>X-RateLimit-Limit</code>: The maximum number of requests allowed in the current time window</li>
+                                    <li><code>X-RateLimit-Remaining</code>: The number of requests remaining in the current time window</li>
+                                    <li><code>X-RateLimit-Reset</code>: The time when the current rate limit window resets (UTC timestamp)</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="webhooksHeading">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#webhooksCollapse" aria-expanded="false" aria-controls="webhooksCollapse">
+                                Webhooks
+                            </button>
+                        </h2>
+                        <div id="webhooksCollapse" class="accordion-collapse collapse" aria-labelledby="webhooksHeading" data-bs-parent="#apiDocumentationAccordion">
+                            <div class="accordion-body">
+                                <p>You can set up webhooks to receive real-time notifications about events in your law firm management system. See the Webhooks tab for more information.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Webhooks Tab -->
+    <div class="tab-pane fade {% if active_tab == 'webhooks' %}show active{% endif %}" id="webhooks" role="tabpanel" aria-labelledby="webhooks-tab">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                <h6 class="m-0 font-weight-bold text-primary">Webhooks</h6>
+                <div class="dropdown no-arrow">
+                    <a class="dropdown-toggle" href="#" role="button" id="webhooksDropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in" aria-labelledby="webhooksDropdown">
+                        <div class="dropdown-header">Webhook Options:</div>
+                        <a class="dropdown-item" href="{{ url_for('add_webhook') }}">Add New Webhook</a>
+                        <a class="dropdown-item" href="{{ url_for('webhook_logs') }}">View Logs</a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" href="{{ url_for('export_webhooks') }}">Export Configuration</a>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered" width="100%" cellspacing="0">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>URL</th>
+                                <th>Events</th>
+                                <th>Status</th>
+                                <th>Last Triggered</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for webhook in webhooks %}
+                            <tr>
+                                <td>{{ webhook.name }}</td>
+                                <td>
+                                    <code>{{ webhook.url[:50] }}{% if webhook.url|length > 50 %}...{% endif %}</code>
+                                </td>
+                                <td>
+                                    <div class="d-flex flex-wrap">
+                                        {% for event in webhook.events[:2] %}
+                                        <span class="badge bg-primary me-1 mb-1">{{ event }}</span>
+                                        {% endfor %}
+                                        {% if webhook.events|length > 2 %}
+                                        <span class="badge bg-secondary me-1 mb-1">+{{ webhook.events|length - 2 }} more</span>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                                <td>
+                                    {% if webhook.status == 'active' %}
+                                        <span class="badge bg-success">Active</span>
+                                    {% elif webhook.status == 'paused' %}
+                                        <span class="badge bg-warning">Paused</span>
+                                    {% elif webhook.status == 'error' %}
+                                        <span class="badge bg-danger">Error</span>
+                                    {% else %}
+                                        <span class="badge bg-light text-dark">{{ webhook.status }}</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ webhook.last_triggered.strftime('%Y-%m-%d %H:%M') if webhook.last_triggered else 'Never' }}</td>
+                                <td>
+                                    <div class="btn-group" role="group">
+                                        <a href="{{ url_for('edit_webhook', webhook_id=webhook.id) }}" class="btn btn-sm btn-info" title="Edit">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <button type="button" class="btn btn-sm btn-warning toggle-webhook" data-id="{{ webhook.id }}" data-status="{{ webhook.status }}" title="Toggle">
+                                            {% if webhook.status == 'active' %}
+                                                <i class="fas fa-pause"></i>
+                                            {% else %}
+                                                <i class="fas fa-play"></i>
+                                            {% endif %}
+                                        </button>
+                                        <button type="button" class="btn btn-sm btn-primary test-webhook" data-id="{{ webhook.id }}" title="Test">
+                                            <i class="fas fa-vial"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-sm btn-danger delete-webhook" data-id="{{ webhook.id }}" data-name="{{ webhook.name }}" title="Delete">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="6" class="text-center">No webhooks found.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <div class="text-center mt-3">
+                    <a href="{{ url_for('add_webhook') }}" class="btn btn-primary">Add New Webhook</a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Available Events</h6>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    {% for category, events in webhook_events.items() %}
+                    <div class="col-md-4 mb-4">
+                        <h6 class="text-primary">{{ category }}</h6>
+                        <ul class="list-group">
+                            {% for event in events %}
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                {{ event }}
+                                <small class="text-muted">{{ event.description }}</small>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Integration Confirmation Modal -->
+<div class="modal fade" id="deleteIntegrationModal" tabindex="-1" aria-labelledby="deleteIntegrationModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteIntegrationModalLabel">Confirm Delete</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to delete the integration "<strong id="deleteIntegrationName"></strong>"? This action cannot be undone.
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form id="deleteIntegrationForm" method="POST">
+                    <button type="submit" class="btn btn-danger">Delete</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete API Key Confirmation Modal -->
+<div class="modal fade" id="deleteApiKeyModal" tabindex="-1" aria-labelledby="deleteApiKeyModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteApiKeyModalLabel">Confirm Delete</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to delete the API key "<strong id="deleteApiKeyName"></strong>"? This action cannot be undone and will immediately invalidate the key.
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form id="deleteApiKeyForm" method="POST">
+                    <button type="submit" class="btn btn-danger">Delete</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Webhook Confirmation Modal -->
+<div class="modal fade" id="deleteWebhookModal" tabindex="-1" aria-labelledby="deleteWebhookModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteWebhookModalLabel">Confirm Delete</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to delete the webhook "<strong id="deleteWebhookName"></strong>"? This action cannot be undone.
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form id="deleteWebhookForm" method="POST">
+                    <button type="submit" class="btn btn-danger">Delete</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- View API Key Modal -->
+<div class="modal fade" id="viewApiKeyModal" tabindex="-1" aria-labelledby="viewApiKeyModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="viewApiKeyModalLabel">API Key</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label for="apiKeyName" class="form-label">Name</label>
+                    <input type="text" class="form-control" id="apiKeyName" readonly>
+                </div>
+                <div class="mb-3">
+                    <label for="apiKeyValue" class="form-label">Key</label>
+                    <div class="input-group">
+                        <input type="text" class="form-control" id="apiKeyValue" readonly>
+                        <button class="btn btn-outline-secondary" type="button" id="copyApiKey">
+                            <i class="fas fa-copy"></i>
+                        </button>
+                    </div>
+                    <small class="form-text text-muted">Keep this key secure. Do not share it publicly.</small>
+                </div>
+                <div class="mb-3">
+                    <label for="apiKeyCreated" class="form-label">Created</label>
+                    <input type="text" class="form-control" id="apiKeyCreated" readonly>
+                </div>
+                <div class="mb-3">
+                    <label for="apiKeyLastUsed" class="form-label">Last Used</label>
+                    <input type="text" class="form-control" id="apiKeyLastUsed" readonly>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    $(document).ready(function() {
+        // Integration Activity Chart
+        var integrationActivityCtx = document.getElementById('integrationActivityChart').getContext('2d');
+        var integrationActivityChart = new Chart(integrationActivityCtx, {
+            type: 'line',
+            data: {
+                labels: {{ integration_activity_chart.labels|tojson }},
+                datasets: [{
+                    label: 'Successful Syncs',
+                    data: {{ integration_activity_chart.success_data|tojson }},
+                    backgroundColor: 'rgba(28, 200, 138, 0.2)',
+                    borderColor: 'rgba(28, 200, 138, 1)',
+                    borderWidth: 1,
+                    tension: 0.3
+                }, {
+                    label: 'Failed Syncs',
+                    data: {{ integration_activity_chart.failure_data|tojson }},
+                    backgroundColor: 'rgba(231, 74, 59, 0.2)',
+                    borderColor: 'rgba(231, 74, 59, 1)',
+                    borderWidth: 1,
+                    tension: 0.3
+                }]
+            },
+            options: {
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            stepSize: 1
+                        }
+                    }
+                }
+            }
+        });
+        
+        // API Usage Chart
+        var apiUsageCtx = document.getElementById('apiUsageChart').getContext('2d');
+        var apiUsageChart = new Chart(apiUsageCtx, {
+            type: 'bar',
+            data: {
+                labels: {{ api_usage_chart.labels|tojson }},
+                datasets: [{
+                    label: 'API Calls',
+                    data: {{ api_usage_chart.data|tojson }},
+                    backgroundColor: 'rgba(54, 185, 204, 0.8)',
+                    borderColor: 'rgba(54, 185, 204, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                }
+            }
+        });
+        
+        // Toggle integration status
+        $('.toggle-integration').on('click', function() {
+            var integrationId = $(this).data('id');
+            var currentStatus = $(this).data('status');
+            var newStatus = currentStatus === 'active' ? 'disabled' : 'active';
+            
+            $.ajax({
+                url: '/toggle_integration/' + integrationId,
+                type: 'POST',
+                data: {
+                    status: newStatus
+                },
+                success: function(response) {
+                    if (response.success) {
+                        location.reload();
+                    } else {
+                        alert('Error updating integration status: ' + response.message);
+                    }
+                },
+                error: function() {
+                    alert('Error updating integration status. Please try again.');
+                }
+            });
+        });
+        
+        // Sync integration now
+        $('.sync-integration').on('click', function() {
+            var integrationId = $(this).data('id');
+            
+            $.ajax({
+                url: '/sync_integration/' + integrationId,
+                type: 'POST',
+                success: function(response) {
+                    if (response.success) {
+                        alert('Integration synced successfully!');
+                        location.reload();
+                    } else {
+                        alert('Error syncing integration: ' + response.message);
+                    }
+                },
+                error: function() {
+                    alert('Error syncing integration. Please try again.');
+                }
+            });
+        });
+        
+        // Delete integration confirmation
+        $('.delete-integration').on('click', function() {
+            var integrationId = $(this).data('id');
+            var integrationName = $(this).data('name');
+            
+            $('#deleteIntegrationName').text(integrationName);
+            $('#deleteIntegrationForm').attr('action', '/delete_integration/' + integrationId);
+            
+            var deleteIntegrationModal = new bootstrap.Modal(document.getElementById('deleteIntegrationModal'));
+            deleteIntegrationModal.show();
+        });
+        
+        // View API key
+        $('.view-api-key').on('click', function() {
+            var apiKeyId = $(this).data('id');
+            
+            $.ajax({
+                url: '/api/get_api_key/' + apiKeyId,
+                type: 'GET',
+                success: function(response) {
+                    $('#apiKeyName').val(response.name);
+                    $('#apiKeyValue').val(response.key);
+                    $('#apiKeyCreated').val(response.created_at);
+                    $('#apiKeyLastUsed').val(response.last_used || 'Never');
+                    
+                    var viewApiKeyModal = new bootstrap.Modal(document.getElementById('viewApiKeyModal'));
+                    viewApiKeyModal.show();
+                },
+                error: function() {
+                    alert('Error loading API key. Please try again.');
+                }
+            });
+        });
+        
+        // Copy API key to clipboard
+        $('#copyApiKey').on('click', function() {
+            var apiKeyValue = $('#apiKeyValue');
+            apiKeyValue.select();
+            document.execCommand('copy');
+            
+            var originalText = $(this).html();
+            $(this).html('<i class="fas fa-check"></i>');
+            
+            setTimeout(function() {
+                $('#copyApiKey').html(originalText);
+            }, 2000);
+        });
+        
+        // Delete API key confirmation
+        $('.delete-api-key').on('click', function() {
+            var apiKeyId = $(this).data('id');
+            var apiKeyName = $(this).data('name');
+            
+            $('#deleteApiKeyName').text(apiKeyName);
+            $('#deleteApiKeyForm').attr('action', '/delete_api_key/' + apiKeyId);
+            
+            var deleteApiKeyModal = new bootstrap.Modal(document.getElementById('deleteApiKeyModal'));
+            deleteApiKeyModal.show();
+        });
+        
+        // Toggle webhook status
+        $('.toggle-webhook').on('click', function() {
+            var webhookId = $(this).data('id');
+            var currentStatus = $(this).data('status');
+            var newStatus = currentStatus === 'active' ? 'paused' : 'active';
+            
+            $.ajax({
+                url: '/toggle_webhook/' + webhookId,
+                type: 'POST',
+                data: {
+                    status: newStatus
+                },
+                success: function(response) {
+                    if (response.success) {
+                        location.reload();
+                    } else {
+                        alert('Error updating webhook status: ' + response.message);
+                    }
+                },
+                error: function() {
+                    alert('Error updating webhook status. Please try again.');
+                }
+            });
+        });
+        
+        // Test webhook
+        $('.test-webhook').on('click', function() {
+            var webhookId = $(this).data('id');
+            
+            $.ajax({
+                url: '/test_webhook/' + webhookId,
+                type: 'POST',
+                success: function(response) {
+                    if (response.success) {
+                        alert('Webhook test successful!');
+                    } else {
+                        alert('Error testing webhook: ' + response.message);
+                    }
+                },
+                error: function() {
+                    alert('Error testing webhook. Please try again.');
+                }
+            });
+        });
+        
+        // Delete webhook confirmation
+        $('.delete-webhook').on('click', function() {
+            var webhookId = $(this).data('id');
+            var webhookName = $(this).data('name');
+            
+            $('#deleteWebhookName').text(webhookName);
+            $('#deleteWebhookForm').attr('action', '/delete_webhook/' + webhookId);
+            
+            var deleteWebhookModal = new bootstrap.Modal(document.getElementById('deleteWebhookModal'));
+            deleteWebhookModal.show();
+        });
+    });
+</script>
+{% endblock %}

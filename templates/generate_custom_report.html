@@ -1,0 +1,532 @@
+{% extends "base.html" %}
+
+{% block title %}Generate Custom Report - Law Firm Management System{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Generate Custom Report</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <div class="btn-group me-2">
+            <a href="{{ url_for('reports_compliance', tab='reports') }}" class="btn btn-sm btn-outline-secondary">
+                <i class="fas fa-arrow-left me-1"></i>Back to Reports
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Create Custom Report</h6>
+    </div>
+    <div class="card-body">
+        <form method="POST" action="{{ url_for('generate_custom_report') }}">
+            {{ custom_report_form.hidden_tag() }}
+            
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    {{ custom_report_form.name.label(class="form-label") }}
+                    {{ custom_report_form.name(class="form-control") }}
+                    {% if custom_report_form.name.errors %}
+                        <div class="text-danger">
+                            {% for error in custom_report_form.name.errors %}
+                                <small>{{ error }}</small>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <div class="col-md-6 mb-3">
+                    {{ custom_report_form.category.label(class="form-label") }}
+                    {{ custom_report_form.category(class="form-control") }}
+                    {% if custom_report_form.category.errors %}
+                        <div class="text-danger">
+                            {% for error in custom_report_form.category.errors %}
+                                <small>{{ error }}</small>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="mb-3">
+                {{ custom_report_form.description.label(class="form-label") }}
+                {{ custom_report_form.description(class="form-control", rows="2") }}
+                {% if custom_report_form.description.errors %}
+                    <div class="text-danger">
+                        {% for error in custom_report_form.description.errors %}
+                            <small>{{ error }}</small>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+            
+            <div class="card mb-3">
+                <div class="card-header py-2">
+                    <h6 class="m-0 font-weight-bold text-primary">Data Source</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            {{ custom_report_form.data_source.label(class="form-label") }}
+                            {{ custom_report_form.data_source(class="form-control") }}
+                            {% if custom_report_form.data_source.errors %}
+                                <div class="text-danger">
+                                    {% for error in custom_report_form.data_source.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            {{ custom_report_form.data_filter.label(class="form-label") }}
+                            {{ custom_report_form.data_filter(class="form-control") }}
+                            {% if custom_report_form.data_filter.errors %}
+                                <div class="text-danger">
+                                    {% for error in custom_report_form.data_filter.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                            <small class="form-text text-muted">Enter filter conditions in JSON format.</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card mb-3">
+                <div class="card-header py-2">
+                    <h6 class="m-0 font-weight-bold text-primary">Report Columns</h6>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        {{ custom_report_form.available_columns.label(class="form-label") }}
+                        {{ custom_report_form.available_columns(class="form-control", size="8") }}
+                        {% if custom_report_form.available_columns.errors %}
+                            <div class="text-danger">
+                                {% for error in custom_report_form.available_columns.errors %}
+                                    <small>{{ error }}</small>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                        <small class="form-text text-muted">Hold Ctrl/Cmd to select multiple columns.</small>
+                    </div>
+                    
+                    <div class="mb-3">
+                        {{ custom_report_form.column_order.label(class="form-label") }}
+                        {{ custom_report_form.column_order(class="form-control", rows="4") }}
+                        {% if custom_report_form.column_order.errors %}
+                            <div class="text-danger">
+                                {% for error in custom_report_form.column_order.errors %}
+                                    <small>{{ error }}</small>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                        <small class="form-text text-muted">Enter column names in the desired order, one per line.</small>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card mb-3">
+                <div class="card-header py-2">
+                    <h6 class="m-0 font-weight-bold text-primary">Grouping & Sorting</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            {{ custom_report_form.group_by.label(class="form-label") }}
+                            {{ custom_report_form.group_by(class="form-control") }}
+                            {% if custom_report_form.group_by.errors %}
+                                <div class="text-danger">
+                                    {% for error in custom_report_form.group_by.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            {{ custom_report_form.sort_by.label(class="form-label") }}
+                            {{ custom_report_form.sort_by(class="form-control") }}
+                            {% if custom_report_form.sort_by.errors %}
+                                <div class="text-danger">
+                                    {% for error in custom_report_form.sort_by.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            {{ custom_report_form.sort_order.label(class="form-label") }}
+                            {{ custom_report_form.sort_order(class="form-control") }}
+                            {% if custom_report_form.sort_order.errors %}
+                                <div class="text-danger">
+                                    {% for error in custom_report_form.sort_order.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            {{ custom_report_form.limit_rows.label(class="form-label") }}
+                            {{ custom_report_form.limit_rows(class="form-control") }}
+                            {% if custom_report_form.limit_rows.errors %}
+                                <div class="text-danger">
+                                    {% for error in custom_report_form.limit_rows.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card mb-3">
+                <div class="card-header py-2">
+                    <h6 class="m-0 font-weight-bold text-primary">Calculations & Aggregations</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            {{ custom_report_form.calculations.label(class="form-label") }}
+                            {{ custom_report_form.calculations(class="form-control", size="5") }}
+                            {% if custom_report_form.calculations.errors %}
+                                <div class="text-danger">
+                                    {% for error in custom_report_form.calculations.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                            <small class="form-text text-muted">Hold Ctrl/Cmd to select multiple calculations.</small>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            {{ custom_report_form.calculation_columns.label(class="form-label") }}
+                            {{ custom_report_form.calculation_columns(class="form-control", size="5") }}
+                            {% if custom_report_form.calculation_columns.errors %}
+                                <div class="text-danger">
+                                    {% for error in custom_report_form.calculation_columns.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                            <small class="form-text text-muted">Hold Ctrl/Cmd to select multiple columns.</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card mb-3">
+                <div class="card-header py-2">
+                    <h6 class="m-0 font-weight-bold text-primary">Chart Options</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <div class="form-check form-switch">
+                                {{ custom_report_form.include_chart(class="form-check-input") }}
+                                {{ custom_report_form.include_chart.label(class="form-check-label") }}
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            {{ custom_report_form.chart_type.label(class="form-label") }}
+                            {{ custom_report_form.chart_type(class="form-control") }}
+                            {% if custom_report_form.chart_type.errors %}
+                                <div class="text-danger">
+                                    {% for error in custom_report_form.chart_type.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            {{ custom_report_form.chart_x_axis.label(class="form-label") }}
+                            {{ custom_report_form.chart_x_axis(class="form-control") }}
+                            {% if custom_report_form.chart_x_axis.errors %}
+                                <div class="text-danger">
+                                    {% for error in custom_report_form.chart_x_axis.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            {{ custom_report_form.chart_y_axis.label(class="form-label") }}
+                            {{ custom_report_form.chart_y_axis(class="form-control") }}
+                            {% if custom_report_form.chart_y_axis.errors %}
+                                <div class="text-danger">
+                                    {% for error in custom_report_form.chart_y_axis.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card mb-3">
+                <div class="card-header py-2">
+                    <h6 class="m-0 font-weight-bold text-primary">Output Options</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            {{ custom_report_form.output_format.label(class="form-label") }}
+                            {{ custom_report_form.output_format(class="form-control") }}
+                            {% if custom_report_form.output_format.errors %}
+                                <div class="text-danger">
+                                    {% for error in custom_report_form.output_format.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            {{ custom_report_form.email_to.label(class="form-label") }}
+                            {{ custom_report_form.email_to(class="form-control") }}
+                            {% if custom_report_form.email_to.errors %}
+                                <div class="text-danger">
+                                    {% for error in custom_report_form.email_to.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                            <small class="form-text text-muted">Enter email addresses separated by commas.</small>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <div class="form-check form-switch">
+                                {{ custom_report_form.save_as_template(class="form-check-input") }}
+                                {{ custom_report_form.save_as_template.label(class="form-check-label") }}
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            {{ custom_report_form.template_name.label(class="form-label") }}
+                            {{ custom_report_form.template_name(class="form-control") }}
+                            {% if custom_report_form.template_name.errors %}
+                                <div class="text-danger">
+                                    {% for error in custom_report_form.template_name.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="d-flex justify-content-between">
+                <a href="{{ url_for('reports_compliance', tab='reports') }}" class="btn btn-secondary">Cancel</a>
+                <div>
+                    <button type="button" class="btn btn-outline-primary me-2" id="previewReportBtn">Preview Report</button>
+                    <button type="submit" class="btn btn-primary">Generate Report</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Preview Report Modal -->
+<div class="modal fade" id="previewReportModal" tabindex="-1" aria-labelledby="previewReportModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="previewReportModalLabel">Report Preview</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div id="previewReportContent">
+                    <!-- Preview content will be loaded here -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="generateReportBtn">Generate Report</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    $(document).ready(function() {
+        // Handle data source change to update available columns
+        $('#data_source').on('change', function() {
+            var dataSource = $(this).val();
+            
+            $.ajax({
+                url: '/get_columns_for_data_source',
+                type: 'POST',
+                data: {
+                    data_source: dataSource
+                },
+                success: function(response) {
+                    if (response.success) {
+                        // Update available columns
+                        var availableColumns = $('#available_columns');
+                        availableColumns.empty();
+                        
+                        for (var i = 0; i < response.columns.length; i++) {
+                            var column = response.columns[i];
+                            availableColumns.append($('<option>', {
+                                value: column.value,
+                                text: column.label
+                            }));
+                        }
+                        
+                        // Update calculation columns
+                        var calculationColumns = $('#calculation_columns');
+                        calculationColumns.empty();
+                        
+                        for (var i = 0; i < response.columns.length; i++) {
+                            var column = response.columns[i];
+                            if (column.numeric) {
+                                calculationColumns.append($('<option>', {
+                                    value: column.value,
+                                    text: column.label
+                                }));
+                            }
+                        }
+                        
+                        // Update chart axis options
+                        var xAxisOptions = $('#chart_x_axis');
+                        var yAxisOptions = $('#chart_y_axis');
+                        
+                        xAxisOptions.empty();
+                        yAxisOptions.empty();
+                        
+                        for (var i = 0; i < response.columns.length; i++) {
+                            var column = response.columns[i];
+                            xAxisOptions.append($('<option>', {
+                                value: column.value,
+                                text: column.label
+                            }));
+                            
+                            if (column.numeric) {
+                                yAxisOptions.append($('<option>', {
+                                    value: column.value,
+                                    text: column.label
+                                }));
+                            }
+                        }
+                        
+                        // Update group by and sort by options
+                        var groupByOptions = $('#group_by');
+                        var sortByOptions = $('#sort_by');
+                        
+                        groupByOptions.empty();
+                        sortByOptions.empty();
+                        
+                        for (var i = 0; i < response.columns.length; i++) {
+                            var column = response.columns[i];
+                            groupByOptions.append($('<option>', {
+                                value: column.value,
+                                text: column.label
+                            }));
+                            
+                            sortByOptions.append($('<option>', {
+                                value: column.value,
+                                text: column.label
+                            }));
+                        }
+                    } else {
+                        alert('Error loading columns: ' + response.message);
+                    }
+                },
+                error: function() {
+                    alert('Error loading columns. Please try again.');
+                }
+            });
+        });
+        
+        // Handle include chart change
+        $('#include_chart').on('change', function() {
+            var chartOptions = $('#chart_type, #chart_x_axis, #chart_y_axis').closest('.mb-3');
+            if ($(this).is(':checked')) {
+                chartOptions.show();
+            } else {
+                chartOptions.hide();
+            }
+        });
+        
+        // Handle save as template change
+        $('#save_as_template').on('change', function() {
+            var templateNameField = $('#template_name').closest('.mb-3');
+            if ($(this).is(':checked')) {
+                templateNameField.show();
+            } else {
+                templateNameField.hide();
+            }
+        });
+        
+        // Initialize form based on current settings
+        $('#include_chart').trigger('change');
+        $('#save_as_template').trigger('change');
+        
+        // Preview report button
+        $('#previewReportBtn').on('click', function() {
+            // Get form data
+            var formData = $('form').serialize();
+            
+            $.ajax({
+                url: '/preview_custom_report',
+                type: 'POST',
+                data: formData,
+                success: function(response) {
+                    if (response.success) {
+                        // Display preview
+                        $('#previewReportContent').html(response.preview);
+                        
+                        // Show preview modal
+                        var previewReportModal = new bootstrap.Modal(document.getElementById('previewReportModal'));
+                        previewReportModal.show();
+                    } else {
+                        alert('Error generating preview: ' + response.message);
+                    }
+                },
+                error: function() {
+                    alert('Error generating preview. Please try again.');
+                }
+            });
+        });
+        
+        // Generate report from preview button
+        $('#generateReportBtn').on('click', function() {
+            // Close preview modal
+            bootstrap.Modal.getInstance(document.getElementById('previewReportModal')).hide();
+            
+            // Submit form
+            $('form').submit();
+        });
+        
+        // Handle column selection to update column order
+        $('#available_columns').on('change', function() {
+            var selectedColumns = $(this).val() || [];
+            var columnOrder = $('#column_order');
+            
+            columnOrder.empty();
+            
+            for (var i = 0; i < selectedColumns.length; i++) {
+                var columnText = $('#available_columns option[value="' + selectedColumns[i] + '"]').text();
+                columnOrder.append(columnText + '\n');
+            }
+        });
+    });
+</script>
+{% endblock %}

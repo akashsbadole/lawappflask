@@ -1,0 +1,1320 @@
+{% extends "base.html" %}
+
+{% block title %}Enterprise Features - Law Firm Management System{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Enterprise Features</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <div class="btn-group me-2">
+            <a href="{{ url_for('add_api_key') }}" class="btn btn-sm btn-outline-secondary">
+                <i class="fas fa-key me-1"></i>Generate API Key
+            </a>
+        </div>
+        <div class="btn-group">
+            <a href="{{ url_for='sso_settings') }}" class="btn btn-sm btn-outline-secondary">
+                <i class="fas fa-user-shield me-1"></i>SSO Settings
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Tabs for Enterprise Features Navigation -->
+<ul class="nav nav-tabs mb-4" id="enterpriseTabs" role="tablist">
+    <li class="nav-item" role="presentation">
+        <button class="nav-link {% if active_tab == 'api_management' %}active{% endif %}" id="apiManagement-tab" data-bs-toggle="tab" data-bs-target="#apiManagement" type="button" role="tab" aria-controls="apiManagement" aria-selected="{% if active_tab == 'api_management' %}true{% else %}false{% endif %}">
+            <i class="fas fa-code me-1"></i>API Management
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link {% if active_tab == 'sso_integration' %}active{% endif %}" id="ssoIntegration-tab" data-bs-toggle="tab" data-bs-target="#ssoIntegration" type="button" role="tab" aria-controls="ssoIntegration" aria-selected="{% if active_tab == 'sso_integration' %}true{% else %}false{% endif %}">
+            <i class="fas fa-user-shield me-1"></i>SSO Integration
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link {% if active_tab == 'multi_tenancy' %}active{% endif %}" id="multiTenancy-tab" data-bs-toggle="tab" data-bs-target="#multiTenancy" type="button" role="tab" aria-controls="multiTenancy" aria-selected="{% if active_tab == 'multi_tenancy' %}true{% else %}false{% endif %}">
+            <i class="fas fa-building me-1"></i>Multi-Tenancy
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link {% if active_tab == 'advanced_security' %}active{% endif %}" id="advancedSecurity-tab" data-bs-toggle="tab" data-bs-target="#advancedSecurity" type="button" role="tab" aria-controls="advancedSecurity" aria-selected="{% if active_tab == 'advanced_security' %}true{% else %}false{% endif %}">
+            <i class="fas fa-lock me-1"></i>Advanced Security
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link {% if active_tab == 'customization' %}active{% endif %}" id="customization-tab" data-bs-toggle="tab" data-bs-target="#customization" type="button" role="tab" aria-controls="customization" aria-selected="{% if active_tab == 'customization' %}true{% else %}false{% endif %}">
+            <i class="fas fa-cogs me-1"></i>Customization
+        </button>
+    </li>
+</ul>
+
+<!-- Tab Content -->
+<div class="tab-content" id="enterpriseTabsContent">
+    <!-- API Management Tab -->
+    <div class="tab-pane fade {% if active_tab == 'api_management' %}show active{% endif %}" id="apiManagement" role="tabpanel" aria-labelledby="apiManagement-tab">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                <h6 class="m-0 font-weight-bold text-primary">API Keys</h6>
+                <div class="dropdown no-arrow">
+                    <a class="dropdown-toggle" href="#" role="button" id="apiKeysDropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in" aria-labelledby="apiKeysDropdown">
+                        <div class="dropdown-header">API Key Options:</div>
+                        <a class="dropdown-item" href="{{ url_for('add_api_key') }}">Generate New Key</a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" href="{{ url_for('export_api_keys') }}">Export API Keys</a>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered" width="100%" cellspacing="0">
+                        <thead>
+                            <tr>
+                                <th>Key Name</th>
+                                <th>API Key</th>
+                                <th>Created By</th>
+                                <th>Created Date</th>
+                                <th>Expires</th>
+                                <th>Last Used</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for api_key in api_keys %}
+                            <tr>
+                                <td>{{ api_key.name }}</td>
+                                <td>
+                                    <code>{{ api_key.key_prefix }}...</code>
+                                    <button type="button" class="btn btn-sm btn-outline-secondary ms-2 view-key" data-id="{{ api_key.id }}" title="View Key">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </td>
+                                <td>{{ api_key.created_by }}</td>
+                                <td>{{ api_key.created_date.strftime('%Y-%m-%d') }}</td>
+                                <td>{{ api_key.expires_date.strftime('%Y-%m-%d') if api_key.expires_date else 'Never' }}</td>
+                                <td>{{ api_key.last_used.strftime('%Y-%m-%d %H:%M') if api_key.last_used else 'Never' }}</td>
+                                <td>
+                                    {% if api_key.status == 'active' %}
+                                        <span class="badge bg-success">Active</span>
+                                    {% elif api_key.status == 'expired' %}
+                                        <span class="badge bg-danger">Expired</span>
+                                    {% elif api_key.status == 'revoked' %}
+                                        <span class="badge bg-secondary">Revoked</span>
+                                    {% else %}
+                                        <span class="badge bg-light text-dark">{{ api_key.status }}</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div class="btn-group" role="group">
+                                        <a href="{{ url_for('view_api_key', key_id=api_key.id) }}" class="btn btn-sm btn-info" title="View">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <button type="button" class="btn btn-sm btn-warning toggle-key" data-id="{{ api_key.id }}" data-status="{{ api_key.status }}" title="Toggle">
+                                            {% if api_key.status == 'active' %}
+                                                <i class="fas fa-pause"></i>
+                                            {% else %}
+                                                <i class="fas fa-play"></i>
+                                            {% endif %}
+                                        </button>
+                                        <button type="button" class="btn btn-sm btn-danger delete-key" data-id="{{ api_key.id }}" data-name="{{ api_key.name }}" title="Delete">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="8" class="text-center">No API keys found.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <div class="text-center mt-3">
+                    <a href="{{ url_for('add_api_key') }}" class="btn btn-primary">Generate API Key</a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">API Usage Statistics</h6>
+            </div>
+            <div class="card-body">
+                <div class="row mb-4">
+                    <div class="col-xl-3 col-md-6 mb-4">
+                        <div class="card border-left-primary shadow h-100 py-2">
+                            <div class="card-body">
+                                <div class="row no-gutters align-items-center">
+                                    <div class="col mr-2">
+                                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Total Requests</div>
+                                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ api_stats.total_requests }}</div>
+                                    </div>
+                                    <div class="col-auto">
+                                        <i class="fas fa-chart-line fa-2x text-gray-300"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-xl-3 col-md-6 mb-4">
+                        <div class="card border-left-success shadow h-100 py-2">
+                            <div class="card-body">
+                                <div class="row no-gutters align-items-center">
+                                    <div class="col mr-2">
+                                        <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Success Rate</div>
+                                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ api_stats.success_rate|round(1) }}%</div>
+                                    </div>
+                                    <div class="col-auto">
+                                        <i class="fas fa-check-circle fa-2x text-gray-300"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-xl-3 col-md-6 mb-4">
+                        <div class="card border-left-info shadow h-100 py-2">
+                            <div class="card-body">
+                                <div class="row no-gutters align-items-center">
+                                    <div class="col mr-2">
+                                        <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Avg. Response Time</div>
+                                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ api_stats.avg_response_time }}ms</div>
+                                    </div>
+                                    <div class="col-auto">
+                                        <i class="fas fa-clock fa-2x text-gray-300"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-xl-3 col-md-6 mb-4">
+                        <div class="card border-left-warning shadow h-100 py-2">
+                            <div class="card-body">
+                                <div class="row no-gutters align-items-center">
+                                    <div class="col mr-2">
+                                        <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Error Rate</div>
+                                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ api_stats.error_rate|round(1) }}%</div>
+                                    </div>
+                                    <div class="col-auto">
+                                        <i class="fas fa-exclamation-triangle fa-2x text-gray-300"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-lg-8">
+                        <div class="card shadow mb-4">
+                            <div class="card-header py-3">
+                                <h6 class="m-0 font-weight-bold text-primary">API Usage Trend</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="chart-area">
+                                    <canvas id="apiUsageTrendChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-lg-4">
+                        <div class="card shadow mb-4">
+                            <div class="card-header py-3">
+                                <h6 class="m-0 font-weight-bold text-primary">API Usage by Endpoint</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="chart-pie pt-4 pb-2">
+                                    <canvas id="apiUsageByEndpointChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">API Documentation</h6>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-info">
+                    <h5 class="alert-heading">API Documentation</h5>
+                    <p class="mb-0">Access our comprehensive API documentation to learn how to integrate with our system.</p>
+                    <hr>
+                    <p class="mb-0">
+                        <a href="{{ url_for('api_documentation') }}" class="btn btn-primary" target="_blank">View API Documentation</a>
+                    </p>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-4 mb-4">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h5 class="card-title">Getting Started</h5>
+                                <p class="card-text">Learn how to get started with our API, including authentication and basic requests.</p>
+                                <a href="{{ url_for('api_documentation', section='getting_started') }}" class="btn btn-sm btn-outline-primary">Read More</a>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-4 mb-4">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h5 class="card-title">Authentication</h5>
+                                <p class="card-text">Understand how to authenticate with our API using API keys and OAuth.</p>
+                                <a href="{{ url_for('api_documentation', section='authentication') }}" class="btn btn-sm btn-outline-primary">Read More</a>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-4 mb-4">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h5 class="card-title">Endpoints</h5>
+                                <p class="card-text">Explore all available API endpoints and their parameters.</p>
+                                <a href="{{ url_for('api_documentation', section='endpoints') }}" class="btn btn-sm btn-outline-primary">Read More</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- SSO Integration Tab -->
+    <div class="tab-pane fade {% if active_tab == 'sso_integration' %}show active{% endif %}" id="ssoIntegration" role="tabpanel" aria-labelledby="ssoIntegration-tab">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Single Sign-On (SSO) Configuration</h6>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('update_sso_settings') }}">
+                    {{ sso_settings_form.hidden_tag() }}
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <div class="form-check form-switch">
+                                {{ sso_settings_form.enable_sso(class="form-check-input") }}
+                                {{ sso_settings_form.enable_sso.label(class="form-check-label") }}
+                            </div>
+                            <small class="form-text text-muted">Enable Single Sign-On for your organization.</small>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            {{ sso_settings_form.sso_provider.label(class="form-label") }}
+                            {{ sso_settings_form.sso_provider(class="form-control") }}
+                            {% if sso_settings_form.sso_provider.errors %}
+                                <div class="text-danger">
+                                    {% for error in sso_settings_form.sso_provider.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            {{ sso_settings_form.client_id.label(class="form-label") }}
+                            {{ sso_settings_form.client_id(class="form-control") }}
+                            {% if sso_settings_form.client_id.errors %}
+                                <div class="text-danger">
+                                    {% for error in sso_settings_form.client_id.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            {{ sso_settings_form.client_secret.label(class="form-label") }}
+                            {{ sso_settings_form.client_secret(class="form-control") }}
+                            {% if sso_settings_form.client_secret.errors %}
+                                <div class="text-danger">
+                                    {% for error in sso_settings_form.client_secret.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            {{ sso_settings_form.issuer_url.label(class="form-label") }}
+                            {{ sso_settings_form.issuer_url(class="form-control") }}
+                            {% if sso_settings_form.issuer_url.errors %}
+                                <div class="text-danger">
+                                    {% for error in sso_settings_form.issuer_url.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            {{ sso_settings_form.authorization_endpoint.label(class="form-label") }}
+                            {{ sso_settings_form.authorization_endpoint(class="form-control") }}
+                            {% if sso_settings_form.authorization_endpoint.errors %}
+                                <div class="text-danger">
+                                    {% for error in sso_settings_form.authorization_endpoint.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            {{ sso_settings_form.token_endpoint.label(class="form-label") }}
+                            {{ sso_settings_form.token_endpoint(class="form-control") }}
+                            {% if sso_settings_form.token_endpoint.errors %}
+                                <div class="text-danger">
+                                    {% for error in sso_settings_form.token_endpoint.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            {{ sso_settings_form.userinfo_endpoint.label(class="form-label") }}
+                            {{ sso_settings_form.userinfo_endpoint(class="form-control") }}
+                            {% if sso_settings_form.userinfo_endpoint.errors %}
+                                <div class="text-danger">
+                                    {% for error in sso_settings_form.userinfo_endpoint.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            {{ sso_settings_form.jwks_uri.label(class="form-label") }}
+                            {{ sso_settings_form.jwks_uri(class="form-control") }}
+                            {% if sso_settings_form.jwks_uri.errors %}
+                                <div class="text-danger">
+                                    {% for error in sso_settings_form.jwks_uri.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            {{ sso_settings_form.redirect_uri.label(class="form-label") }}
+                            {{ sso_settings_form.redirect_uri(class="form-control") }}
+                            {% if sso_settings_form.redirect_uri.errors %}
+                                <div class="text-danger">
+                                    {% for error in sso_settings_form.redirect_uri.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <div class="form-check form-switch">
+                                {{ sso_settings_form.enable_slo(class="form-check-input") }}
+                                {{ sso_settings_form.enable_slo.label(class="form-check-label") }}
+                            </div>
+                            <small class="form-text text-muted">Enable Single Log-Out (SLO) functionality.</small>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            {{ sso_settings_form.slo_endpoint.label(class="form-label") }}
+                            {{ sso_settings_form.slo_endpoint(class="form-control") }}
+                            {% if sso_settings_form.slo_endpoint.errors %}
+                                <div class="text-danger">
+                                    {% for error in sso_settings_form.slo_endpoint.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex justify-content-end">
+                        <button type="submit" class="btn btn-primary">Update SSO Settings</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">SSO Test</h6>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-info">
+                    <h5 class="alert-heading">Test SSO Configuration</h5>
+                    <p class="mb-0">Use the button below to test your SSO configuration. This will initiate the SSO flow and allow you to verify that everything is working correctly.</p>
+                </div>
+                
+                <div class="text-center">
+                    <button type="button" class="btn btn-primary" id="testSSOBtn">Test SSO Configuration</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Multi-Tenancy Tab -->
+    <div class="tab-pane fade {% if active_tab == 'multi_tenancy' %}show active{% endif %}" id="multiTenancy" role="tabpanel" aria-labelledby="multiTenancy-tab">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                <h6 class="m-0 font-weight-bold text-primary">Tenants</h6>
+                <div class="dropdown no-arrow">
+                    <a class="dropdown-toggle" href="#" role="button" id="tenantsDropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in" aria-labelledby="tenantsDropdown">
+                        <div class="dropdown-header">Tenant Options:</div>
+                        <a class="dropdown-item" href="{{ url_for('add_tenant') }}">Add New Tenant</a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" href="{{ url_for('export_tenants') }}">Export Tenants</a>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered" width="100%" cellspacing="0">
+                        <thead>
+                            <tr>
+                                <th>Tenant Name</th>
+                                <th>Domain</th>
+                                <th>Admin</th>
+                                <th>Users</th>
+                                <th>Created Date</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for tenant in tenants %}
+                            <tr>
+                                <td>{{ tenant.name }}</td>
+                                <td>{{ tenant.domain }}</td>
+                                <td>{{ tenant.admin_name }}</td>
+                                <td>{{ tenant.users_count }}</td>
+                                <td>{{ tenant.created_date.strftime('%Y-%m-%d') }}</td>
+                                <td>
+                                    {% if tenant.status == 'active' %}
+                                        <span class="badge bg-success">Active</span>
+                                    {% elif tenant.status == 'suspended' %}
+                                        <span class="badge bg-warning">Suspended</span>
+                                    {% elif tenant.status == 'inactive' %}
+                                        <span class="badge bg-secondary">Inactive</span>
+                                    {% else %}
+                                        <span class="badge bg-light text-dark">{{ tenant.status }}</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div class="btn-group" role="group">
+                                        <a href="{{ url_for('view_tenant', tenant_id=tenant.id) }}" class="btn btn-sm btn-info" title="View">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <a href="{{ url_for('edit_tenant', tenant_id=tenant.id) }}" class="btn btn-sm btn-primary" title="Edit">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <button type="button" class="btn btn-sm btn-warning toggle-tenant" data-id="{{ tenant.id }}" data-status="{{ tenant.status }}" title="Toggle">
+                                            {% if tenant.status == 'active' %}
+                                                <i class="fas fa-pause"></i>
+                                            {% else %}
+                                                <i class="fas fa-play"></i>
+                                            {% endif %}
+                                        </button>
+                                        <button type="button" class="btn btn-sm btn-danger delete-tenant" data-id="{{ tenant.id }}" data-name="{{ tenant.name }}" title="Delete">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="7" class="text-center">No tenants found.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <div class="text-center mt-3">
+                    <a href="{{ url_for('add_tenant') }}" class="btn btn-primary">Add Tenant</a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Multi-Tenancy Settings</h6>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('update_multi_tenancy_settings') }}">
+                    {{ multi_tenancy_settings_form.hidden_tag() }}
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <div class="form-check form-switch">
+                                {{ multi_tenancy_settings_form.enable_multi_tenancy(class="form-check-input") }}
+                                {{ multi_tenancy_settings_form.enable_multi_tenancy.label(class="form-check-label") }}
+                            </div>
+                            <small class="form-text text-muted">Enable multi-tenancy for your organization.</small>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            {{ multi_tenancy_settings_form.default_tenant_role.label(class="form-label") }}
+                            {{ multi_tenancy_settings_form.default_tenant_role(class="form-control") }}
+                            {% if multi_tenancy_settings_form.default_tenant_role.errors %}
+                                <div class="text-danger">
+                                    {% for error in multi_tenancy_settings_form.default_tenant_role.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            {{ multi_tenancy_settings_form.max_tenants.label(class="form-label") }}
+                            {{ multi_tenancy_settings_form.max_tenants(class="form-control") }}
+                            {% if multi_tenancy_settings_form.max_tenants.errors %}
+                                <div class="text-danger">
+                                    {% for error in multi_tenancy_settings_form.max_tenants.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            {{ multi_tenancy_settings_form.max_users_per_tenant.label(class="form-label") }}
+                            {{ multi_tenancy_settings_form.max_users_per_tenant(class="form-control") }}
+                            {% if multi_tenancy_settings_form.max_users_per_tenant.errors %}
+                                <div class="text-danger">
+                                    {% for error in multi_tenancy_settings_form.max_users_per_tenant.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <div class="form-check form-switch">
+                                {{ multi_tenancy_settings_form.enable_tenant_isolation(class="form-check-input") }}
+                                {{ multi_tenancy_settings_form.enable_tenant_isolation.label(class="form-check-label") }}
+                            </div>
+                            <small class="form-text text-muted">Enable complete data isolation between tenants.</small>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <div class="form-check form-switch">
+                                {{ multi_tenancy_settings_form.enable_tenant_branding(class="form-check-input") }}
+                                {{ multi_tenancy_settings_form.enable_tenant_branding.label(class="form-check-label") }}
+                            </div>
+                            <small class="form-text text-muted">Allow tenants to customize their branding.</small>
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex justify-content-end">
+                        <button type="submit" class="btn btn-primary">Update Multi-Tenancy Settings</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Advanced Security Tab -->
+    <div class="tab-pane fade {% if active_tab == 'advanced_security' %}show active{% endif %}" id="advancedSecurity" role="tabpanel" aria-labelledby="advancedSecurity-tab">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Advanced Security Settings</h6>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('update_advanced_security_settings') }}">
+                    {{ advanced_security_settings_form.hidden_tag() }}
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <h6 class="text-primary">Authentication</h6>
+                            <div class="form-check form-switch mb-2">
+                                {{ advanced_security_settings_form.enable_two_factor_auth(class="form-check-input") }}
+                                {{ advanced_security_settings_form.enable_two_factor_auth.label(class="form-check-label") }}
+                            </div>
+                            <div class="form-check form-switch mb-2">
+                                {{ advanced_security_settings_form.require_two_factor_auth(class="form-check-input") }}
+                                {{ advanced_security_settings_form.require_two_factor_auth.label(class="form-check-label") }}
+                            </div>
+                            <div class="form-check form-switch mb-2">
+                                {{ advanced_security_settings_form.enable_password_expiry(class="form-check-input") }}
+                                {{ advanced_security_settings_form.enable_password_expiry.label(class="form-check-label") }}
+                            </div>
+                            <div class="mb-3">
+                                {{ advanced_security_settings_form.password_expiry_days.label(class="form-label") }}
+                                {{ advanced_security_settings_form.password_expiry_days(class="form-control") }}
+                                {% if advanced_security_settings_form.password_expiry_days.errors %}
+                                    <div class="text-danger">
+                                        {% for error in advanced_security_settings_form.password_expiry_days.errors %}
+                                            <small>{{ error }}</small>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <h6 class="text-primary">Session Security</h6>
+                            <div class="form-check form-switch mb-2">
+                                {{ advanced_security_settings_form.enable_session_timeout(class="form-check-input") }}
+                                {{ advanced_security_settings_form.enable_session_timeout.label(class="form-check-label") }}
+                            </div>
+                            <div class="mb-3">
+                                {{ advanced_security_settings_form.session_timeout_minutes.label(class="form-label") }}
+                                {{ advanced_security_settings_form.session_timeout_minutes(class="form-control") }}
+                                {% if advanced_security_settings_form.session_timeout_minutes.errors %}
+                                    <div class="text-danger">
+                                        {% for error in advanced_security_settings_form.session_timeout_minutes.errors %}
+                                            <small>{{ error }}</small>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div class="form-check form-switch mb-2">
+                                {{ advanced_security_settings_form.enable_concurrent_sessions(class="form-check-input") }}
+                                {{ advanced_security_settings_form.enable_concurrent_sessions.label(class="form-check-label") }}
+                            </div>
+                            <div class="mb-3">
+                                {{ advanced_security_settings_form.max_concurrent_sessions.label(class="form-label") }}
+                                {{ advanced_security_settings_form.max_concurrent_sessions(class="form-control") }}
+                                {% if advanced_security_settings_form.max_concurrent_sessions.errors %}
+                                    <div class="text-danger">
+                                        {% for error in advanced_security_settings_form.max_concurrent_sessions.errors %}
+                                            <small>{{ error }}</small>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <h6 class="text-primary">Access Control</h6>
+                            <div class="form-check form-switch mb-2">
+                                {{ advanced_security_settings_form.enable_ip_whitelist(class="form-check-input") }}
+                                {{ advanced_security_settings_form.enable_ip_whitelist.label(class="form-check-label") }}
+                            </div>
+                            <div class="mb-3">
+                                {{ advanced_security_settings_form.ip_whitelist.label(class="form-label") }}
+                                {{ advanced_security_settings_form.ip_whitelist(class="form-control", rows="3") }}
+                                {% if advanced_security_settings_form.ip_whitelist.errors %}
+                                    <div class="text-danger">
+                                        {% for error in advanced_security_settings_form.ip_whitelist.errors %}
+                                            <small>{{ error }}</small>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                                <small class="form-text text-muted">Enter IP addresses or CIDR blocks, one per line.</small>
+                            </div>
+                            <div class="form-check form-switch mb-2">
+                                {{ advanced_security_settings_form.enable_login_attempts_limit(class="form-check-input") }}
+                                {{ advanced_security_settings_form.enable_login_attempts_limit.label(class="form-check-label") }}
+                            </div>
+                            <div class="mb-3">
+                                {{ advanced_security_settings_form.max_login_attempts.label(class="form-label") }}
+                                {{ advanced_security_settings_form.max_login_attempts(class="form-control") }}
+                                {% if advanced_security_settings_form.max_login_attempts.errors %}
+                                    <div class="text-danger">
+                                        {% for error in advanced_security_settings_form.max_login_attempts.errors %}
+                                            <small>{{ error }}</small>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <h6 class="text-primary">Data Security</h6>
+                            <div class="form-check form-switch mb-2">
+                                {{ advanced_security_settings_form.enable_data_encryption(class="form-check-input") }}
+                                {{ advanced_security_settings_form.enable_data_encryption.label(class="form-check-label") }}
+                            </div>
+                            <div class="form-check form-switch mb-2">
+                                {{ advanced_security_settings_form.enable_audit_logging(class="form-check-input") }}
+                                {{ advanced_security_settings_form.enable_audit_logging.label(class="form-check-label") }}
+                            </div>
+                            <div class="form-check form-switch mb-2">
+                                {{ advanced_security_settings_form.enable_data_backup(class="form-check-input") }}
+                                {{ advanced_security_settings_form.enable_data_backup.label(class="form-check-label") }}
+                            </div>
+                            <div class="mb-3">
+                                {{ advanced_security_settings_form.backup_schedule.label(class="form-label") }}
+                                {{ advanced_security_settings_form.backup_schedule(class="form-control") }}
+                                {% if advanced_security_settings_form.backup_schedule.errors %}
+                                    <div class="text-danger">
+                                        {% for error in advanced_security_settings_form.backup_schedule.errors %}
+                                            <small>{{ error }}</small>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex justify-content-end">
+                        <button type="submit" class="btn btn-primary">Update Security Settings</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Security Audit Log</h6>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered" width="100%" cellspacing="0">
+                        <thead>
+                            <tr>
+                                <th>Timestamp</th>
+                                <th>User</th>
+                                <th>Action</th>
+                                <th>IP Address</th>
+                                <th>Device</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for log in security_audit_logs %}
+                            <tr>
+                                <td>{{ log.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                                <td>{{ log.user }}</td>
+                                <td>{{ log.action }}</td>
+                                <td>{{ log.ip_address }}</td>
+                                <td>{{ log.device }}</td>
+                                <td>
+                                    {% if log.status == 'success' %}
+                                        <span class="badge bg-success">Success</span>
+                                    {% elif log.status == 'failed' %}
+                                        <span class="badge bg-danger">Failed</span>
+                                    {% elif log.status == 'warning' %}
+                                        <span class="badge bg-warning">Warning</span>
+                                    {% else %}
+                                        <span class="badge bg-light text-dark">{{ log.status }}</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div class="btn-group" role="group">
+                                        <a href="{{ url_for('view_security_audit_log', log_id=log.id) }}" class="btn btn-sm btn-info" title="View">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="7" class="text-center">No security audit logs found.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Customization Tab -->
+    <div class="tab-pane fade {% if active_tab == 'customization' %}show active{% endif %}" id="customization" role="tabpanel" aria-labelledby="customization-tab">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Advanced Customization</h6>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('update_advanced_customization_settings') }}">
+                    {{ advanced_customization_settings_form.hidden_tag() }}
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <h6 class="text-primary">UI Customization</h6>
+                            <div class="form-check form-switch mb-2">
+                                {{ advanced_customization_settings_form.enable_custom_themes(class="form-check-input") }}
+                                {{ advanced_customization_settings_form.enable_custom_themes.label(class="form-check-label") }}
+                            </div>
+                            <div class="form-check form-switch mb-2">
+                                {{ advanced_customization_settings_form.enable_custom_layouts(class="form-check-input") }}
+                                {{ advanced_customization_settings_form.enable_custom_layouts.label(class="form-check-label") }}
+                            </div>
+                            <div class="mb-3">
+                                {{ advanced_customization_settings_form.custom_css.label(class="form-label") }}
+                                {{ advanced_customization_settings_form.custom_css(class="form-control", rows="5") }}
+                                {% if advanced_customization_settings_form.custom_css.errors %}
+                                    <div class="text-danger">
+                                        {% for error in advanced_customization_settings_form.custom_css.errors %}
+                                            <small>{{ error }}</small>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div class="mb-3">
+                                {{ advanced_customization_settings_form.custom_js.label(class="form-label") }}
+                                {{ advanced_customization_settings_form.custom_js(class="form-control", rows="5") }}
+                                {% if advanced_customization_settings_form.custom_js.errors %}
+                                    <div class="text-danger">
+                                        {% for error in advanced_customization_settings_form.custom_js.errors %}
+                                            <small>{{ error }}</small>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <h6 class="text-primary">Feature Customization</h6>
+                            <div class="form-check form-switch mb-2">
+                                {{ advanced_customization_settings_form.enable_custom_fields(class="form-check-input") }}
+                                {{ advanced_customization_settings_form.enable_custom_fields.label(class="form-check-label") }}
+                            </div>
+                            <div class="form-check form-switch mb-2">
+                                {{ advanced_customization_settings_form.enable_custom_workflows(class="form-check-input") }}
+                                {{ advanced_customization_settings_form.enable_custom_workflows.label(class="form-check-label") }}
+                            </div>
+                            <div class="form-check form-switch mb-2">
+                                {{ advanced_customization_settings_form.enable_custom_reports(class="form-check-input") }}
+                                {{ advanced_customization_settings_form.enable_custom_reports.label(class="form-check-label") }}
+                            </div>
+                            <div class="form-check form-switch mb-2">
+                                {{ advanced_customization_settings_form.enable_custom_integrations(class="form-check-input") }}
+                                {{ advanced_customization_settings_form.enable_custom_integrations.label(class="form-check-label") }}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex justify-content-end">
+                        <button type="submit" class="btn btn-primary">Update Customization Settings</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Custom Fields</h6>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered" width="100%" cellspacing="0">
+                        <thead>
+                            <tr>
+                                <th>Field Name</th>
+                                <th>Entity</th>
+                                <th>Type</th>
+                                <th>Required</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for field in custom_fields %}
+                            <tr>
+                                <td>{{ field.name }}</td>
+                                <td>{{ field.entity }}</td>
+                                <td>{{ field.type }}</td>
+                                <td>
+                                    {% if field.required %}
+                                        <span class="badge bg-primary">Yes</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">No</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if field.status == 'active' %}
+                                        <span class="badge bg-success">Active</span>
+                                    {% elif field.status == 'inactive' %}
+                                        <span class="badge bg-secondary">Inactive</span>
+                                    {% else %}
+                                        <span class="badge bg-light text-dark">{{ field.status }}</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div class="btn-group" role="group">
+                                        <a href="{{ url_for('view_custom_field', field_id=field.id) }}" class="btn btn-sm btn-info" title="View">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <a href="{{ url_for('edit_custom_field', field_id=field.id) }}" class="btn btn-sm btn-primary" title="Edit">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <button type="button" class="btn btn-sm btn-warning toggle-field" data-id="{{ field.id }}" data-status="{{ field.status }}" title="Toggle">
+                                            {% if field.status == 'active' %}
+                                                <i class="fas fa-pause"></i>
+                                            {% else %}
+                                                <i class="fas fa-play"></i>
+                                            {% endif %}
+                                        </button>
+                                        <button type="button" class="btn btn-sm btn-danger delete-field" data-id="{{ field.id }}" data-name="{{ field.name }}" title="Delete">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="6" class="text-center">No custom fields found.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <div class="text-center mt-3">
+                    <a href="{{ url_for('add_custom_field') }}" class="btn btn-primary">Add Custom Field</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- View API Key Modal -->
+<div class="modal fade" id="viewApiKeyModal" tabindex="-1" aria-labelledby="viewApiKeyModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="viewApiKeyModalLabel">API Key</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label for="apiKeyValue" class="form-label">API Key</label>
+                    <div class="input-group">
+                        <input type="text" class="form-control" id="apiKeyValue" readonly>
+                        <button class="btn btn-outline-secondary" type="button" id="copyApiKeyBtn">
+                            <i class="fas fa-copy"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="alert alert-warning">
+                    <h5 class="alert-heading">Security Warning</h5>
+                    <p class="mb-0">This API key provides full access to your account. Keep it secure and do not share it with unauthorized individuals.</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete API Key Confirmation Modal -->
+<div class="modal fade" id="deleteApiKeyModal" tabindex="-1" aria-labelledby="deleteApiKeyModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteApiKeyModalLabel">Confirm Delete</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to delete the API key "<strong id="deleteApiKeyName"></strong>"? This action cannot be undone.
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form id="deleteApiKeyForm" method="POST">
+                    <button type="submit" class="btn btn-danger">Delete</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Tenant Confirmation Modal -->
+<div class="modal fade" id="deleteTenantModal" tabindex="-1" aria-labelledby="deleteTenantModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteTenantModalLabel">Confirm Delete</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to delete the tenant "<strong id="deleteTenantName"></strong>"? This action cannot be undone and will delete all data associated with this tenant.
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form id="deleteTenantForm" method="POST">
+                    <button type="submit" class="btn btn-danger">Delete</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Custom Field Confirmation Modal -->
+<div class="modal fade" id="deleteCustomFieldModal" tabindex="-1" aria-labelledby="deleteCustomFieldModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteCustomFieldModalLabel">Confirm Delete</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to delete the custom field "<strong id="deleteCustomFieldName"></strong>"? This action cannot be undone and will delete all data associated with this field.
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form id="deleteCustomFieldForm" method="POST">
+                    <button type="submit" class="btn btn-danger">Delete</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    $(document).ready(function() {
+        // API Usage Trend Chart
+        var apiUsageTrendCtx = document.getElementById('apiUsageTrendChart').getContext('2d');
+        var apiUsageTrendChart = new Chart(apiUsageTrendCtx, {
+            type: 'line',
+            data: {
+                labels: {{ api_usage_trend_chart.labels|tojson }},
+                datasets: [{
+                    label: 'API Requests',
+                    data: {{ api_usage_trend_chart.data|tojson }},
+                    backgroundColor: 'rgba(54, 185, 204, 0.2)',
+                    borderColor: 'rgba(54, 185, 204, 1)',
+                    pointBackgroundColor: 'rgba(54, 185, 204, 1)',
+                    pointBorderColor: '#fff',
+                    pointHoverBackgroundColor: '#fff',
+                    pointHoverBorderColor: 'rgba(54, 185, 204, 1)',
+                    tension: 0.3,
+                    fill: true
+                }]
+            },
+            options: {
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+        
+        // API Usage by Endpoint Chart
+        var apiUsageByEndpointCtx = document.getElementById('apiUsageByEndpointChart').getContext('2d');
+        var apiUsageByEndpointChart = new Chart(apiUsageByEndpointCtx, {
+            type: 'doughnut',
+            data: {
+                labels: {{ api_usage_by_endpoint_chart.labels|tojson }},
+                datasets: [{
+                    data: {{ api_usage_by_endpoint_chart.data|tojson }},
+                    backgroundColor: [
+                        'rgba(54, 185, 204, 0.8)',
+                        'rgba(28, 200, 138, 0.8)',
+                        'rgba(246, 194, 62, 0.8)',
+                        'rgba(231, 74, 59, 0.8)',
+                        'rgba(155, 89, 182, 0.8)'
+                    ],
+                    hoverBackgroundColor: [
+                        'rgba(54, 185, 204, 1)',
+                        'rgba(28, 200, 138, 1)',
+                        'rgba(246, 194, 62, 1)',
+                        'rgba(231, 74, 59, 1)',
+                        'rgba(155, 89, 182, 1)'
+                    ],
+                    hoverBorderColor: "rgba(234, 236, 244, 1)",
+                }]
+            },
+            options: {
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
+                }
+            }
+        });
+        
+        // View API key
+        $('.view-key').on('click', function() {
+            var keyId = $(this).data('id');
+            
+            $.ajax({
+                url: '/get_api_key/' + keyId,
+                type: 'GET',
+                success: function(response) {
+                    if (response.success) {
+                        $('#apiKeyValue').val(response.key);
+                        var viewApiKeyModal = new bootstrap.Modal(document.getElementById('viewApiKeyModal'));
+                        viewApiKeyModal.show();
+                    } else {
+                        alert('Error retrieving API key: ' + response.message);
+                    }
+                },
+                error: function() {
+                    alert('Error retrieving API key. Please try again.');
+                }
+            });
+        });
+        
+        // Copy API key
+        $('#copyApiKeyBtn').on('click', function() {
+            var apiKeyValue = $('#apiKeyValue');
+            apiKeyValue.select();
+            document.execCommand('copy');
+            
+            // Change button text temporarily
+            var btn = $(this);
+            btn.html('<i class="fas fa-check"></i>');
+            setTimeout(function() {
+                btn.html('<i class="fas fa-copy"></i>');
+            }, 2000);
+        });
+        
+        // Toggle API key status
+        $('.toggle-key').on('click', function() {
+            var keyId = $(this).data('id');
+            var currentStatus = $(this).data('status');
+            var newStatus = currentStatus === 'active' ? 'revoked' : 'active';
+            
+            $.ajax({
+                url: '/toggle_api_key/' + keyId,
+                type: 'POST',
+                data: {
+                    status: newStatus
+                },
+                success: function(response) {
+                    if (response.success) {
+                        location.reload();
+                    } else {
+                        alert('Error updating key status: ' + response.message);
+                    }
+                },
+                error: function() {
+                    alert('Error updating key status. Please try again.');
+                }
+            });
+        });
+        
+        // Delete API key confirmation
+        $('.delete-key').on('click', function() {
+            var keyId = $(this).data('id');
+            var keyName = $(this).data('name');
+            
+            $('#deleteApiKeyName').text(keyName);
+            $('#deleteApiKeyForm').attr('action', '/delete_api_key/' + keyId);
+            
+            var deleteApiKeyModal = new bootstrap.Modal(document.getElementById('deleteApiKeyModal'));
+            deleteApiKeyModal.show();
+        });
+        
+        // Test SSO configuration
+        $('#testSSOBtn').on('click', function() {
+            $.ajax({
+                url: '/test_sso_configuration',
+                type: 'POST',
+                success: function(response) {
+                    if (response.success) {
+                        alert('SSO configuration test successful!');
+                        window.location.href = response.redirect_url;
+                    } else {
+                        alert('Error testing SSO configuration: ' + response.message);
+                    }
+                },
+                error: function() {
+                    alert('Error testing SSO configuration. Please try again.');
+                }
+            });
+        });
+        
+        // Toggle tenant status
+        $('.toggle-tenant').on('click', function() {
+            var tenantId = $(this).data('id');
+            var currentStatus = $(this).data('status');
+            var newStatus = currentStatus === 'active' ? 'suspended' : 'active';
+            
+            $.ajax({
+                url: '/toggle_tenant/' + tenantId,
+                type: 'POST',
+                data: {
+                    status: newStatus
+                },
+                success: function(response) {
+                    if (response.success) {
+                        location.reload();
+                    } else {
+                        alert('Error updating tenant status: ' + response.message);
+                    }
+                },
+                error: function() {
+                    alert('Error updating tenant status. Please try again.');
+                }
+            });
+        });
+        
+        // Delete tenant confirmation
+        $('.delete-tenant').on('click', function() {
+            var tenantId = $(this).data('id');
+            var tenantName = $(this).data('name');
+            
+            $('#deleteTenantName').text(tenantName);
+            $('#deleteTenantForm').attr('action', '/delete_tenant/' + tenantId);
+            
+            var deleteTenantModal = new bootstrap.Modal(document.getElementById('deleteTenantModal'));
+            deleteTenantModal.show();
+        });
+        
+        // Toggle custom field status
+        $('.toggle-field').on('click', function() {
+            var fieldId = $(this).data('id');
+            var currentStatus = $(this).data('status');
+            var newStatus = currentStatus === 'active' ? 'inactive' : 'active';
+            
+            $.ajax({
+                url: '/toggle_custom_field/' + fieldId,
+                type: 'POST',
+                data: {
+                    status: newStatus
+                },
+                success: function(response) {
+                    if (response.success) {
+                        location.reload();
+                    } else {
+                        alert('Error updating field status: ' + response.message);
+                    }
+                },
+                error: function() {
+                    alert('Error updating field status. Please try again.');
+                }
+            });
+        });
+        
+        // Delete custom field confirmation
+        $('.delete-field').on('click', function() {
+            var fieldId = $(this).data('id');
+            var fieldName = $(this).data('name');
+            
+            $('#deleteCustomFieldName').text(fieldName);
+            $('#deleteCustomFieldForm').attr('action', '/delete_custom_field/' + fieldId);
+            
+            var deleteCustomFieldModal = new bootstrap.Modal(document.getElementById('deleteCustomFieldModal'));
+            deleteCustomFieldModal.show();
+        });
+    });
+</script>
+{% endblock %}

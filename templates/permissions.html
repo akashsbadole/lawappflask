@@ -1,0 +1,196 @@
+{% extends "base.html" %}
+
+{% block title %}Permission Management - Law Firm Management System{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Permission Management</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <div class="btn-group me-2">
+            <a href="{{ url_for('add_permission') }}" class="btn btn-sm btn-outline-secondary">
+                <i class="fas fa-plus me-1"></i>Add Permission
+            </a>
+        </div>
+        <div class="btn-group">
+            <a href="{{ url_for('users') }}" class="btn btn-sm btn-outline-secondary">
+                <i class="fas fa-users me-1"></i>Users
+            </a>
+            <a href="{{ url_for('firms') }}" class="btn btn-sm btn-outline-secondary">
+                <i class="fas fa-building me-1"></i>Firms
+            </a>
+            <a href="{{ url_for('role_permissions') }}" class="btn btn-sm btn-outline-secondary">
+                <i class="fas fa-user-shield me-1"></i>Role Permissions
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <div class="row align-items-center">
+            <div class="col">
+                <h5 class="mb-0">System Permissions</h5>
+            </div>
+            <div class="col-auto">
+                <div class="input-group">
+                    <input type="text" class="form-control form-control-sm" placeholder="Search permissions..." id="permissionSearch">
+                    <button class="btn btn-sm btn-outline-secondary" type="button">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-striped table-hover" id="permissionsTable">
+                <thead>
+                    <tr>
+                        <th>Permission Name</th>
+                        <th>Module</th>
+                        <th>Action</th>
+                        <th>Description</th>
+                        <th>Assigned Roles</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for permission in permissions %}
+                    <tr>
+                        <td>{{ permission.name }}</td>
+                        <td>
+                            {% if permission.module == 'dashboard' %}
+                                <span class="badge bg-primary">Dashboard</span>
+                            {% elif permission.module == 'users' %}
+                                <span class="badge bg-danger">User Management</span>
+                            {% elif permission.module == 'clients' %}
+                                <span class="badge bg-success">Client Management</span>
+                            {% elif permission.module == 'cases' %}
+                                <span class="badge bg-info">Case Management</span>
+                            {% elif permission.module == 'appointments' %}
+                                <span class="badge bg-warning">Appointments</span>
+                            {% elif permission.module == 'documents' %}
+                                <span class="badge bg-secondary">Documents</span>
+                            {% elif permission.module == 'billing' %}
+                                <span class="badge bg-dark">Billing</span>
+                            {% elif permission.module == 'reports' %}
+                                <span class="badge bg-light text-dark">Reports</span>
+                            {% elif permission.module == 'settings' %}
+                                <span class="badge bg-purple">Settings</span>
+                            {% else %}
+                                <span class="badge bg-light text-dark">{{ permission.module }}</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if permission.action == 'create' %}
+                                <span class="badge bg-success">Create</span>
+                            {% elif permission.action == 'read' %}
+                                <span class="badge bg-info">Read</span>
+                            {% elif permission.action == 'update' %}
+                                <span class="badge bg-warning">Update</span>
+                            {% elif permission.action == 'delete' %}
+                                <span class="badge bg-danger">Delete</span>
+                            {% elif permission.action == 'approve' %}
+                                <span class="badge bg-primary">Approve</span>
+                            {% elif permission.action == 'export' %}
+                                <span class="badge bg-secondary">Export</span>
+                            {% else %}
+                                <span class="badge bg-light text-dark">{{ permission.action }}</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ permission.description or 'No description' }}</td>
+                        <td>
+                            {% set assigned_roles = [] %}
+                            {% for rp in permission.role_permissions %}
+                                {% set _ = assigned_roles.append(rp.role) %}
+                            {% endfor %}
+                            
+                            {% if assigned_roles %}
+                                {% for role in assigned_roles %}
+                                    {% if role == 'admin' %}
+                                        <span class="badge bg-danger me-1">Admin</span>
+                                    {% elif role == 'lawyer' %}
+                                        <span class="badge bg-primary me-1">Lawyer</span>
+                                    {% elif role == 'paralegal' %}
+                                        <span class="badge bg-info me-1">Paralegal</span>
+                                    {% elif role == 'staff' %}
+                                        <span class="badge bg-secondary me-1">Staff</span>
+                                    {% elif role == 'finance' %}
+                                        <span class="badge bg-warning me-1">Finance</span>
+                                    {% elif role == 'client' %}
+                                        <span class="badge bg-light text-dark me-1">Client</span>
+                                    {% endif %}
+                                {% endfor %}
+                            {% else %}
+                                <span class="text-muted">None</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="btn-group" role="group">
+                                <a href="{{ url_for('edit_permission', permission_id=permission.id) }}" class="btn btn-sm btn-primary">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <button type="button" class="btn btn-sm btn-danger delete-permission" data-id="{{ permission.id }}" data-name="{{ permission.name }}">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="6" class="text-center">No permissions found.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Permission Confirmation Modal -->
+<div class="modal fade" id="deletePermissionModal" tabindex="-1" aria-labelledby="deletePermissionModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deletePermissionModalLabel">Confirm Delete</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to delete the permission <strong id="deletePermissionName"></strong>? This action cannot be undone and will affect all role assignments.
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form id="deletePermissionForm" method="POST">
+                    <button type="submit" class="btn btn-danger">Delete</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    $(document).ready(function() {
+        // Permission search functionality
+        $('#permissionSearch').on('keyup', function() {
+            var value = $(this).val().toLowerCase();
+            $('#permissionsTable tbody tr').filter(function() {
+                $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1);
+            });
+        });
+        
+        // Delete permission confirmation
+        $('.delete-permission').on('click', function() {
+            var permissionId = $(this).data('id');
+            var permissionName = $(this).data('name');
+            
+            $('#deletePermissionName').text(permissionName);
+            $('#deletePermissionForm').attr('action', '/delete_permission/' + permissionId);
+            
+            var deletePermissionModal = new bootstrap.Modal(document.getElementById('deletePermissionModal'));
+            deletePermissionModal.show();
+        });
+    });
+</script>
+{% endblock %}

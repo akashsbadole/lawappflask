@@ -1,0 +1,417 @@
+{% extends "base.html" %}
+
+{% block title %}{{ document.title }} - Law Firm Management System{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <div>
+        <h1 class="h2">{{ document.title }}</h1>
+        <p class="text-muted">Uploaded on {{ document.created_at.strftime('%Y-%m-%d %H:%M') }}</p>
+    </div>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <div class="btn-group me-2">
+            <a href="{{ url_for('documents') }}" class="btn btn-sm btn-outline-secondary">
+                <i class="fas fa-arrow-left me-1"></i>Back to Documents
+            </a>
+        </div>
+        <div class="btn-group">
+            <a href="{{ url_for('download_document', document_id=document.id) }}" class="btn btn-sm btn-outline-secondary">
+                <i class="fas fa-download me-1"></i>Download
+            </a>
+            <a href="{{ url_for('edit_document', document_id=document.id) }}" class="btn btn-sm btn-outline-secondary">
+                <i class="fas fa-edit me-1"></i>Edit Document
+            </a>
+            {% if document.is_template %}
+            <a href="{{ url_for('create_from_template', template_id=document.id) }}" class="btn btn-sm btn-outline-secondary">
+                <i class="fas fa-copy me-1"></i>Create from Template
+            </a>
+            {% endif %}
+            {% if document.requires_signature and not document.is_signed %}
+            <a href="{{ url_for('request_signature', document_id=document.id) }}" class="btn btn-sm btn-outline-secondary">
+                <i class="fas fa-signature me-1"></i>Request Signature
+            </a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Document Overview -->
+<div class="row mb-4">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Document Details</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <h6 class="text-muted">Title</h6>
+                        <p>{{ document.title }}</p>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <h6 class="text-muted">File Name</h6>
+                        <p>{{ document.file_name }}</p>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <h6 class="text-muted">File Type</h6>
+                        <p>
+                            {% if document.file_type == 'pdf' %}
+                                <span class="badge bg-danger">PDF</span>
+                            {% elif document.file_type == 'doc' or document.file_type == 'docx' %}
+                                <span class="badge bg-primary">Word Document</span>
+                            {% elif document.file_type == 'xls' or document.file_type == 'xlsx' %}
+                                <span class="badge bg-success">Excel Spreadsheet</span>
+                            {% elif document.file_type == 'ppt' or document.file_type == 'pptx' %}
+                                <span class="badge bg-warning">PowerPoint Presentation</span>
+                            {% elif document.file_type == 'jpg' or document.file_type == 'jpeg' or document.file_type == 'png' or document.file_type == 'gif' %}
+                                <span class="badge bg-info">Image</span>
+                            {% else %}
+                                <span class="badge bg-secondary">{{ document.file_type|upper }}</span>
+                            {% endif %}
+                        </p>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <h6 class="text-muted">File Size</h6>
+                        <p>{{ document.file_size|filesizeformat }}</p>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <h6 class="text-muted">Category</h6>
+                        <p>{{ document.category }}</p>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <h6 class="text-muted">Document Type</h6>
+                        <p>{{ document.document_type }}</p>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <h6 class="text-muted">Client</h6>
+                        <p>
+                            {% if document.client %}
+                                <a href="{{ url_for('view_client', client_id=document.client.id) }}">
+                                    {% if document.client.company %}
+                                        {{ document.client.company }} ({{ document.client.full_name }})
+                                    {% else %}
+                                        {{ document.client.full_name }}
+                                    {% endif %}
+                                </a>
+                            {% else %}
+                                N/A
+                            {% endif %}
+                        </p>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <h6 class="text-muted">Case</h6>
+                        <p>
+                            {% if document.case %}
+                                <a href="{{ url_for('view_case', case_id=document.case.id) }}">
+                                    {{ document.case.title }} ({{ document.case.case_number }})
+                                </a>
+                            {% else %}
+                                N/A
+                            {% endif %}
+                        </p>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <h6 class="text-muted">Uploaded By</h6>
+                        <p>{{ document.uploaded_by.full_name if document.uploaded_by else 'N/A' }}</p>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <h6 class="text-muted">Uploaded At</h6>
+                        <p>{{ document.created_at.strftime('%Y-%m-%d %H:%M') }}</p>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <h6 class="text-muted">Last Modified</h6>
+                        <p>{{ document.updated_at.strftime('%Y-%m-%d %H:%M') }}</p>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <h6 class="text-muted">Expiry Date</h6>
+                        <p>{{ document.expiry_date.strftime('%Y-%m-%d') if document.expiry_date else 'N/A' }}</p>
+                    </div>
+                </div>
+                
+                <div class="row mb-3">
+                    <div class="col-md-12">
+                        <h6 class="text-muted">Tags</h6>
+                        <p>
+                            {% if document.tags %}
+                                {% for tag in document.tags.split(',') %}
+                                <span class="badge bg-secondary">{{ tag.strip() }}</span>
+                                {% endfor %}
+                            {% else %}
+                                <span class="text-muted">No tags</span>
+                            {% endif %}
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="row mb-3">
+                    <div class="col-md-12">
+                        <h6 class="text-muted">Description</h6>
+                        <p>{{ document.description or 'No description provided.' }}</p>
+                    </div>
+                </div>
+                
+                <div class="row mb-3">
+                    <div class="col-md-12">
+                        <h6 class="text-muted">Document Properties</h6>
+                        <div class="d-flex flex-wrap">
+                            <div class="me-3 mb-2">
+                                {% if document.is_confidential %}
+                                    <span class="badge bg-danger"><i class="fas fa-lock me-1"></i>Confidential</span>
+                                {% else %}
+                                    <span class="badge bg-success"><i class="fas fa-unlock me-1"></i>Public</span>
+                                {% endif %}
+                            </div>
+                            <div class="me-3 mb-2">
+                                {% if document.requires_signature %}
+                                    <span class="badge bg-warning"><i class="fas fa-signature me-1"></i>Requires Signature</span>
+                                {% else %}
+                                    <span class="badge bg-secondary"><i class="fas fa-file-signature me-1"></i>No Signature Required</span>
+                                {% endif %}
+                            </div>
+                            <div class="me-3 mb-2">
+                                {% if document.is_signed %}
+                                    <span class="badge bg-success"><i class="fas fa-check-circle me-1"></i>Signed</span>
+                                {% else %}
+                                    <span class="badge bg-secondary"><i class="fas fa-times-circle me-1"></i>Not Signed</span>
+                                {% endif %}
+                            </div>
+                            <div class="me-3 mb-2">
+                                {% if document.is_template %}
+                                    <span class="badge bg-info"><i class="fas fa-copy me-1"></i>Template</span>
+                                {% else %}
+                                    <span class="badge bg-secondary"><i class="fas fa-file me-1"></i>Regular Document</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                {% if document.signature_details %}
+                <div class="mb-3">
+                    <h6 class="text-muted">Signature Details</h6>
+                    <p>{{ document.signature_details }}</p>
+                </div>
+                {% endif %}
+                
+                {% if document.template_details %}
+                <div class="mb-3">
+                    <h6 class="text-muted">Template Details</h6>
+                    <p>{{ document.template_details }}</p>
+                </div>
+                {% endif %}
+                
+                {% if document.notes %}
+                <div class="mb-3">
+                    <h6 class="text-muted">Notes</h6>
+                    <p>{{ document.notes }}</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Document Preview -->
+        <div class="card mt-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Document Preview</h5>
+                <a href="{{ url_for('download_document', document_id=document.id) }}" class="btn btn-sm btn-outline-secondary">
+                    <i class="fas fa-download me-1"></i>Download Full Document
+                </a>
+            </div>
+            <div class="card-body">
+                <div class="document-preview-container">
+                    {% if document.file_type in ['jpg', 'jpeg', 'png', 'gif'] %}
+                        <img src="{{ url_for('serve_document', document_id=document.id) }}" class="img-fluid" alt="{{ document.title }}">
+                    {% elif document.file_type == 'pdf' %}
+                        <div class="pdf-preview">
+                            <iframe src="{{ url_for('serve_document', document_id=document.id) }}" width="100%" height="500px"></iframe>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-5">
+                            <i class="fas fa-file fa-5x text-secondary mb-3"></i>
+                            <p class="text-muted">Preview not available for this file type.</p>
+                            <a href="{{ url_for('download_document', document_id=document.id) }}" class="btn btn-primary">
+                                <i class="fas fa-download me-1"></i>Download Document
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">Quick Actions</h5>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a href="{{ url_for('download_document', document_id=document.id) }}" class="btn btn-outline-primary">
+                        <i class="fas fa-download me-2"></i>Download Document
+                    </a>
+                    <a href="{{ url_for('edit_document', document_id=document.id) }}" class="btn btn-outline-secondary">
+                        <i class="fas fa-edit me-2"></i>Edit Document Details
+                    </a>
+                    
+                    {% if document.is_template %}
+                    <a href="{{ url_for('create_from_template', template_id=document.id) }}" class="btn btn-outline-info">
+                        <i class="fas fa-copy me-2"></i>Create from Template
+                    </a>
+                    {% endif %}
+                    
+                    {% if document.requires_signature and not document.is_signed %}
+                    <a href="{{ url_for('request_signature', document_id=document.id) }}" class="btn btn-outline-warning">
+                        <i class="fas fa-signature me-2"></i>Request Signature
+                    </a>
+                    {% endif %}
+                    
+                    {% if document.client %}
+                    <a href="{{ url_for('client_documents', client_id=document.client.id) }}" class="btn btn-outline-secondary">
+                        <i class="fas fa-folder me-2"></i>View Client Documents
+                    </a>
+                    {% endif %}
+                    
+                    {% if document.case %}
+                    <a href="{{ url_for('case_documents', case_id=document.case.id) }}" class="btn btn-outline-secondary">
+                        <i class="fas fa-folder me-2"></i>View Case Documents
+                    </a>
+                    {% endif %}
+                    
+                    <a href="{{ url_for('share_document', document_id=document.id) }}" class="btn btn-outline-success">
+                        <i class="fas fa-share-alt me-2"></i>Share Document
+                    </a>
+                    
+                    <button type="button" class="btn btn-outline-danger" id="deleteDocumentBtn">
+                        <i class="fas fa-trash me-2"></i>Delete Document
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">Document Information</h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <h6 class="text-muted">Document ID</h6>
+                    <p>{{ document.id }}</p>
+                </div>
+                <div class="mb-3">
+                    <h6 class="text-muted">File Path</h6>
+                    <p class="text-break">{{ document.file_path }}</p>
+                </div>
+                <div class="mb-3">
+                    <h6 class="text-muted">MD5 Hash</h6>
+                    <p class="text-break">{{ document.md5_hash }}</p>
+                </div>
+                
+                {% if document.is_signed %}
+                <div class="mb-3">
+                    <h6 class="text-muted">Signed By</h6>
+                    <p>{{ document.signed_by }}</p>
+                </div>
+                <div class="mb-3">
+                    <h6 class="text-muted">Signed At</h6>
+                    <p>{{ document.signed_at.strftime('%Y-%m-%d %H:%M') if document.signed_at else 'N/A' }}</p>
+                </div>
+                {% endif %}
+                
+                {% if document.expires_soon %}
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    This document expires on {{ document.expiry_date.strftime('%Y-%m-%d') }}.
+                </div>
+                {% endif %}
+                
+                {% if document.is_expired %}
+                <div class="alert alert-danger">
+                    <i class="fas fa-times-circle me-2"></i>
+                    This document expired on {{ document.expiry_date.strftime('%Y-%m-%d') }}.
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Version History</h5>
+            </div>
+            <div class="card-body">
+                {% if document_versions %}
+                <div class="list-group list-group-flush">
+                    {% for version in document_versions %}
+                    <div class="list-group-item px-0">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h6 class="mb-1">Version {{ version.version_number }}</h6>
+                            <small>{{ version.created_at.strftime('%Y-%m-%d %H:%M') }}</small>
+                        </div>
+                        <p class="mb-1">{{ version.change_summary }}</p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <small>By {{ version.created_by.full_name if version.created_by else 'Unknown' }}</small>
+                            <a href="{{ url_for('download_document_version', version_id=version.id) }}" class="btn btn-sm btn-outline-primary">
+                                <i class="fas fa-download"></i>
+                            </a>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p class="text-muted">No version history available.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Document Confirmation Modal -->
+<div class="modal fade" id="deleteDocumentModal" tabindex="-1" aria-labelledby="deleteDocumentModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteDocumentModalLabel">Confirm Delete</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to delete the document "<strong>{{ document.title }}</strong>"? This action cannot be undone and the file will be permanently removed from the system.
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form id="deleteDocumentForm" method="POST" action="{{ url_for('delete_document', document_id=document.id) }}">
+                    <button type="submit" class="btn btn-danger">Delete</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .document-preview-container {
+        max-height: 600px;
+        overflow: auto;
+    }
+    
+    .pdf-preview {
+        width: 100%;
+        height: 500px;
+    }
+    
+    .pdf-preview iframe {
+        border: none;
+        width: 100%;
+        height: 100%;
+    }
+</style>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    $(document).ready(function() {
+        // Delete document button
+        $('#deleteDocumentBtn').on('click', function() {
+            var deleteDocumentModal = new bootstrap.Modal(document.getElementById('deleteDocumentModal'));
+            deleteDocumentModal.show();
+        });
+    });
+</script>
+{% endblock %}

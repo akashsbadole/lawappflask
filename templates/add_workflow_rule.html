@@ -1,0 +1,464 @@
+{% extends "base.html" %}
+
+{% block title %}Add Workflow Rule - Law Firm Management System{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Add Workflow Rule</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <div class="btn-group me-2">
+            <a href="{{ url_for('notifications_workflow', tab='workflow_rules') }}" class="btn btn-sm btn-outline-secondary">
+                <i class="fas fa-arrow-left me-1"></i>Back to Workflow Rules
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Create New Workflow Rule</h6>
+    </div>
+    <div class="card-body">
+        <form method="POST" action="{{ url_for('add_workflow_rule') }}">
+            {{ workflow_rule_form.hidden_tag() }}
+            
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    {{ workflow_rule_form.name.label(class="form-label") }}
+                    {{ workflow_rule_form.name(class="form-control") }}
+                    {% if workflow_rule_form.name.errors %}
+                        <div class="text-danger">
+                            {% for error in workflow_rule_form.name.errors %}
+                                <small>{{ error }}</small>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <div class="col-md-6 mb-3">
+                    {{ workflow_rule_form.category.label(class="form-label") }}
+                    {{ workflow_rule_form.category(class="form-control") }}
+                    {% if workflow_rule_form.category.errors %}
+                        <div class="text-danger">
+                            {% for error in workflow_rule_form.category.errors %}
+                                <small>{{ error }}</small>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="mb-3">
+                {{ workflow_rule_form.description.label(class="form-label") }}
+                {{ workflow_rule_form.description(class="form-control", rows="3") }}
+                {% if workflow_rule_form.description.errors %}
+                    <div class="text-danger">
+                        {% for error in workflow_rule_form.description.errors %}
+                            <small>{{ error }}</small>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+            
+            <div class="card mb-3">
+                <div class="card-header py-2">
+                    <h6 class="m-0 font-weight-bold text-primary">Trigger Configuration</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            {{ workflow_rule_form.trigger_event.label(class="form-label") }}
+                            {{ workflow_rule_form.trigger_event(class="form-control") }}
+                            {% if workflow_rule_form.trigger_event.errors %}
+                                <div class="text-danger">
+                                    {% for error in workflow_rule_form.trigger_event.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            {{ workflow_rule_form.trigger_condition.label(class="form-label") }}
+                            {{ workflow_rule_form.trigger_condition(class="form-control") }}
+                            {% if workflow_rule_form.trigger_condition.errors %}
+                                <div class="text-danger">
+                                    {% for error in workflow_rule_form.trigger_condition.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        {{ workflow_rule_form.trigger_condition_value.label(class="form-label") }}
+                        {{ workflow_rule_form.trigger_condition_value(class="form-control") }}
+                        {% if workflow_rule_form.trigger_condition_value.errors %}
+                            <div class="text-danger">
+                                {% for error in workflow_rule_form.trigger_condition_value.errors %}
+                                    <small>{{ error }}</small>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card mb-3">
+                <div class="card-header py-2">
+                    <h6 class="m-0 font-weight-bold text-primary">Action Configuration</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            {{ workflow_rule_form.action_type.label(class="form-label") }}
+                            {{ workflow_rule_form.action_type(class="form-control") }}
+                            {% if workflow_rule_form.action_type.errors %}
+                                <div class="text-danger">
+                                    {% for error in workflow_rule_form.action_type.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            {{ workflow_rule_form.action_target.label(class="form-label") }}
+                            {{ workflow_rule_form.action_target(class="form-control") }}
+                            {% if workflow_rule_form.action_target.errors %}
+                                <div class="text-danger">
+                                    {% for error in workflow_rule_form.action_target.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        {{ workflow_rule_form.action_parameters.label(class="form-label") }}
+                        {{ workflow_rule_form.action_parameters(class="form-control", rows="3") }}
+                        {% if workflow_rule_form.action_parameters.errors %}
+                            <div class="text-danger">
+                                {% for error in workflow_rule_form.action_parameters.errors %}
+                                    <small>{{ error }}</small>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                        <small class="form-text text-muted">Enter parameters in JSON format.</small>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card mb-3">
+                <div class="card-header py-2">
+                    <h6 class="m-0 font-weight-bold text-primary">Schedule Configuration</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <div class="form-check form-switch">
+                                {{ workflow_rule_form.enable_schedule(class="form-check-input") }}
+                                {{ workflow_rule_form.enable_schedule.label(class="form-check-label") }}
+                            </div>
+                            <small class="form-text text-muted">Enable scheduled execution of this rule.</small>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            {{ workflow_rule_form.schedule_type.label(class="form-label") }}
+                            {{ workflow_rule_form.schedule_type(class="form-control") }}
+                            {% if workflow_rule_form.schedule_type.errors %}
+                                <div class="text-danger">
+                                    {% for error in workflow_rule_form.schedule_type.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="row" id="scheduleDetails">
+                        <div class="col-md-6 mb-3">
+                            {{ workflow_rule_form.schedule_time.label(class="form-label") }}
+                            {{ workflow_rule_form.schedule_time(class="form-control") }}
+                            {% if workflow_rule_form.schedule_time.errors %}
+                                <div class="text-danger">
+                                    {% for error in workflow_rule_form.schedule_time.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            {{ workflow_rule_form.schedule_days.label(class="form-label") }}
+                            {{ workflow_rule_form.schedule_days(class="form-control") }}
+                            {% if workflow_rule_form.schedule_days.errors %}
+                                <div class="text-danger">
+                                    {% for error in workflow_rule_form.schedule_days.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            {{ workflow_rule_form.timezone.label(class="form-label") }}
+                            {{ workflow_rule_form.timezone(class="form-control") }}
+                            {% if workflow_rule_form.timezone.errors %}
+                                <div class="text-danger">
+                                    {% for error in workflow_rule_form.timezone.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            {{ workflow_rule_form.start_date.label(class="form-label") }}
+                            {{ workflow_rule_form.start_date(class="form-control") }}
+                            {% if workflow_rule_form.start_date.errors %}
+                                <div class="text-danger">
+                                    {% for error in workflow_rule_form.start_date.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card mb-3">
+                <div class="card-header py-2">
+                    <h6 class="m-0 font-weight-bold text-primary">Advanced Settings</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <div class="form-check form-switch">
+                                {{ workflow_rule_form.enable_logging(class="form-check-input") }}
+                                {{ workflow_rule_form.enable_logging.label(class="form-check-label") }}
+                            </div>
+                            <small class="form-text text-muted">Enable logging for this rule.</small>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <div class="form-check form-switch">
+                                {{ workflow_rule_form.enable_error_notification(class="form-check-input") }}
+                                {{ workflow_rule_form.enable_error_notification.label(class="form-check-label") }}
+                            </div>
+                            <small class="form-text text-muted">Send notifications when this rule encounters errors.</small>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            {{ workflow_rule_form.priority.label(class="form-label") }}
+                            {{ workflow_rule_form.priority(class="form-control") }}
+                            {% if workflow_rule_form.priority.errors %}
+                                <div class="text-danger">
+                                    {% for error in workflow_rule_form.priority.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            {{ workflow_rule_form.execution_timeout.label(class="form-label") }}
+                            {{ workflow_rule_form.execution_timeout(class="form-control") }}
+                            {% if workflow_rule_form.execution_timeout.errors %}
+                                <div class="text-danger">
+                                    {% for error in workflow_rule_form.execution_timeout.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="d-flex justify-content-between">
+                <a href="{{ url_for('notifications_workflow', tab='workflow_rules') }}" class="btn btn-secondary">Cancel</a>
+                <div>
+                    <button type="button" class="btn btn-outline-primary me-2" id="testRuleBtn">Test Rule</button>
+                    <button type="submit" class="btn btn-primary">Create Rule</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Test Rule Modal -->
+<div class="modal fade" id="testRuleModal" tabindex="-1" aria-labelledby="testRuleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="testRuleModalLabel">Test Workflow Rule</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="testRuleForm">
+                    <div class="mb-3">
+                        <label for="testTriggerData" class="form-label">Trigger Data</label>
+                        <textarea class="form-control" id="testTriggerData" rows="5" placeholder="Enter test trigger data in JSON format"></textarea>
+                    </div>
+                    <div class="form-check form-switch mb-3">
+                        <input class="form-check-input" type="checkbox" id="dryRun">
+                        <label class="form-check-label" for="dryRun">Dry Run (Don't execute actions)</label>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="runTestBtn">Run Test</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Test Results Modal -->
+<div class="modal fade" id="testResultsModal" tabindex="-1" aria-labelledby="testResultsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="testResultsModalLabel">Test Results</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div id="testResultsContent">
+                    <!-- Test results will be loaded here -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    $(document).ready(function() {
+        // Handle enable/disable schedule fields
+        $('#enable_schedule').on('change', function() {
+            var scheduleDetails = $('#scheduleDetails');
+            if ($(this).is(':checked')) {
+                scheduleDetails.find('input, select').prop('disabled', false);
+            } else {
+                scheduleDetails.find('input, select').prop('disabled', true);
+            }
+        });
+        
+        // Initialize form based on current settings
+        $('#enable_schedule').trigger('change');
+        
+        // Test rule button
+        $('#testRuleBtn').on('click', function() {
+            var testRuleModal = new bootstrap.Modal(document.getElementById('testRuleModal'));
+            testRuleModal.show();
+        });
+        
+        // Run test button
+        $('#runTestBtn').on('click', function() {
+            var triggerData = $('#testTriggerData').val();
+            var dryRun = $('#dryRun').is(':checked');
+            
+            // Get form data
+            var formData = $('form').serialize();
+            
+            $.ajax({
+                url: '/test_workflow_rule',
+                type: 'POST',
+                data: formData + '&trigger_data=' + encodeURIComponent(triggerData) + '&dry_run=' + dryRun,
+                success: function(response) {
+                    if (response.success) {
+                        // Display test results
+                        var resultsHtml = `
+                            <div class="alert alert-${response.results.success ? 'success' : 'danger'}">
+                                <h5 class="alert-heading">Test ${response.results.success ? 'Succeeded' : 'Failed'}</h5>
+                                <p>${response.results.message}</p>
+                            </div>
+                        `;
+                        
+                        if (response.results.trigger_match) {
+                            resultsHtml += `
+                                <div class="card mb-3">
+                                    <div class="card-header py-2">
+                                        <h6 class="m-0 font-weight-bold text-primary">Trigger Match</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <pre>${JSON.stringify(response.results.trigger_match, null, 2)}</pre>
+                                    </div>
+                                </div>
+                            `;
+                        }
+                        
+                        if (response.results.action_result) {
+                            resultsHtml += `
+                                <div class="card mb-3">
+                                    <div class="card-header py-2">
+                                        <h6 class="m-0 font-weight-bold text-primary">Action Result</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <pre>${JSON.stringify(response.results.action_result, null, 2)}</pre>
+                                    </div>
+                                </div>
+                            `;
+                        }
+                        
+                        if (response.results.logs && response.results.logs.length > 0) {
+                            resultsHtml += `
+                                <div class="card mb-3">
+                                    <div class="card-header py-2">
+                                        <h6 class="m-0 font-weight-bold text-primary">Execution Logs</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <ul class="list-group">
+                            `;
+                            
+                            for (var i = 0; i < response.results.logs.length; i++) {
+                                var log = response.results.logs[i];
+                                resultsHtml += `
+                                    <li class="list-group-item">
+                                        <div class="d-flex w-100 justify-content-between">
+                                            <h6 class="mb-1">${log.level}</h6>
+                                            <small>${log.timestamp}</small>
+                                        </div>
+                                        <p class="mb-1">${log.message}</p>
+                                    </li>
+                                `;
+                            }
+                            
+                            resultsHtml += `
+                                        </ul>
+                                    </div>
+                                </div>
+                            `;
+                        }
+                        
+                        $('#testResultsContent').html(resultsHtml);
+                        
+                        // Close test modal and show results
+                        bootstrap.Modal.getInstance(document.getElementById('testRuleModal')).hide();
+                        
+                        var testResultsModal = new bootstrap.Modal(document.getElementById('testResultsModal'));
+                        testResultsModal.show();
+                    } else {
+                        alert('Error testing rule: ' + response.message);
+                    }
+                },
+                error: function() {
+                    alert('Error testing rule. Please try again.');
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}

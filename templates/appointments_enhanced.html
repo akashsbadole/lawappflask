@@ -1,0 +1,379 @@
+{% extends "base.html" %}
+
+{% block title %}Appointment Management - Law Firm Management System{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Appointment Management</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <div class="btn-group me-2">
+            <a href="{{ url_for('add_appointment') }}" class="btn btn-sm btn-outline-secondary">
+                <i class="fas fa-plus me-1"></i>Schedule Appointment
+            </a>
+        </div>
+        <div class="btn-group me-2">
+            <a href="{{ url_for('clients') }}" class="btn btn-sm btn-outline-secondary">
+                <i class="fas fa-users me-1"></i>Clients
+            </a>
+            <a href="{{ url_for('cases') }}" class="btn btn-sm btn-outline-secondary">
+                <i class="fas fa-briefcase me-1"></i>Cases
+            </a>
+        </div>
+        <div class="btn-group">
+            <a href="{{ url_for('export_appointments') }}" class="btn btn-sm btn-outline-secondary">
+                <i class="fas fa-download me-1"></i>Export
+            </a>
+            <a href="{{ url_for('calendar_view') }}" class="btn btn-sm btn-outline-secondary">
+                <i class="fas fa-calendar-alt me-1"></i>Calendar View
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Filters -->
+<div class="card mb-4">
+    <div class="card-header">
+        <div class="row align-items-center">
+            <div class="col">
+                <h5 class="mb-0">Filter Appointments</h5>
+            </div>
+            <div class="col-auto">
+                <button class="btn btn-sm btn-outline-secondary" id="toggleFilters">
+                    <i class="fas fa-filter me-1"></i>Toggle Filters
+                </button>
+            </div>
+        </div>
+    </div>
+    <div class="card-body" id="filtersPanel">
+        <form method="GET" action="{{ url_for('appointments') }}">
+            <div class="row">
+                <div class="col-md-3 mb-3">
+                    <label for="client_id" class="form-label">Client</label>
+                    <select class="form-select" id="client_id" name="client_id">
+                        <option value="">All Clients</option>
+                        {% for client in clients %}
+                        <option value="{{ client.id }}" {% if client.id == current_client_id %}selected{% endif %}>{{ client.full_name }} ({{ client.client_number }})</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label for="lawyer_id" class="form-label">Lawyer</label>
+                    <select class="form-select" id="lawyer_id" name="lawyer_id">
+                        <option value="">All Lawyers</option>
+                        {% for lawyer in lawyers %}
+                        <option value="{{ lawyer.id }}" {% if lawyer.id == current_lawyer_id %}selected{% endif %}>{{ lawyer.full_name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label for="appointment_type" class="form-label">Appointment Type</label>
+                    <select class="form-select" id="appointment_type" name="appointment_type">
+                        <option value="">All Types</option>
+                        {% for type in appointment_types %}
+                        <option value="{{ type }}" {% if type == current_appointment_type %}selected{% endif %}>{{ type|title }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label for="status" class="form-label">Status</label>
+                    <select class="form-select" id="status" name="status">
+                        <option value="">All Statuses</option>
+                        {% for status in statuses %}
+                        <option value="{{ status }}" {% if status == current_status %}selected{% endif %}>{{ status|title }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="date_from" class="form-label">Date From</label>
+                    <input type="date" class="form-control" id="date_from" name="date_from" value="{{ current_date_from or '' }}">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="date_to" class="form-label">Date To</label>
+                    <input type="date" class="form-control" id="date_to" name="date_to" value="{{ current_date_to or '' }}">
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12 d-flex justify-content-end">
+                    <a href="{{ url_for('appointments') }}" class="btn btn-outline-secondary me-2">Clear Filters</a>
+                    <button type="submit" class="btn btn-primary">Apply Filters</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Appointment Statistics -->
+<div class="row mb-4">
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-primary shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Total Appointments</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ appointments|length }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-calendar fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-success shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Scheduled</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ appointments|selectattr('status', 'equalto', 'scheduled')|list|length }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-calendar-check fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-info shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Today</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ appointments|selectattr('start_time', 'greaterthan', today_start)|selectattr('start_time', 'lessthan', today_end)|list|length }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-calendar-day fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-warning shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">This Week</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ appointments|selectattr('start_time', 'greaterthan', week_start)|selectattr('start_time', 'lessthan', week_end)|list|length }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-calendar-week fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- View Toggle -->
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div class="btn-group" role="group">
+        <a href="{{ url_for('appointments', view='list') }}" class="btn btn-sm {% if view == 'list' %}btn-primary{% else %}btn-outline-secondary{% endif %}">
+            <i class="fas fa-list me-1"></i>List View
+        </a>
+        <a href="{{ url_for('appointments', view='calendar') }}" class="btn btn-sm {% if view == 'calendar' %}btn-primary{% else %}btn-outline-secondary{% endif %}">
+            <i class="fas fa-calendar-alt me-1"></i>Calendar View
+        </a>
+    </div>
+    <div class="input-group" style="width: 300px;">
+        <input type="text" class="form-control form-control-sm" placeholder="Search appointments..." id="appointmentSearch">
+        <button class="btn btn-sm btn-outline-secondary" type="button">
+            <i class="fas fa-search"></i>
+        </button>
+    </div>
+</div>
+
+<!-- Appointments Table/List -->
+<div class="card">
+    <div class="card-header">
+        <h5 class="mb-0">Appointments</h5>
+    </div>
+    <div class="card-body">
+        {% if view == 'list' %}
+        <div class="table-responsive">
+            <table class="table table-striped table-hover" id="appointmentsTable">
+                <thead>
+                    <tr>
+                        <th>Date & Time</th>
+                        <th>Title</th>
+                        <th>Client</th>
+                        <th>Lawyer</th>
+                        <th>Type</th>
+                        <th>Status</th>
+                        <th>Location</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for appointment in appointments %}
+                    <tr>
+                        <td>
+                            <div>{{ appointment.start_time.strftime('%Y-%m-%d') }}</div>
+                            <div class="text-muted small">{{ appointment.start_time.strftime('%H:%M') }} - {{ appointment.end_time.strftime('%H:%M') }}</div>
+                        </td>
+                        <td>{{ appointment.title }}</td>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                {% if appointment.client.company %}
+                                    <div>
+                                        <div class="font-weight-bold">{{ appointment.client.company }}</div>
+                                        <div class="text-muted small">{{ appointment.client.full_name }}</div>
+                                    </div>
+                                {% else %}
+                                    <div class="font-weight-bold">{{ appointment.client.full_name }}</div>
+                                {% endif %}
+                            </div>
+                        </td>
+                        <td>{{ appointment.lawyer.full_name if appointment.lawyer else 'N/A' }}</td>
+                        <td>
+                            {% if appointment.appointment_type == 'consultation' %}
+                                <span class="badge bg-primary">Consultation</span>
+                            {% elif appointment.appointment_type == 'meeting' %}
+                                <span class="badge bg-info">Meeting</span>
+                            {% elif appointment.appointment_type == 'hearing' %}
+                                <span class="badge bg-warning">Hearing</span>
+                            {% elif appointment.appointment_type == 'deposition' %}
+                                <span class="badge bg-danger">Deposition</span>
+                            {% elif appointment.appointment_type == 'mediation' %}
+                                <span class="badge bg-success">Mediation</span>
+                            {% else %}
+                                <span class="badge bg-secondary">{{ appointment.appointment_type|title }}</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if appointment.status == 'scheduled' %}
+                                <span class="badge bg-primary">Scheduled</span>
+                            {% elif appointment.status == 'completed' %}
+                                <span class="badge bg-success">Completed</span>
+                            {% elif appointment.status == 'cancelled' %}
+                                <span class="badge bg-danger">Cancelled</span>
+                            {% elif appointment.status == 'no_show' %}
+                                <span class="badge bg-warning">No Show</span>
+                            {% else %}
+                                <span class="badge bg-light text-dark">{{ appointment.status }}</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if appointment.is_virtual %}
+                                <span class="text-info"><i class="fas fa-video me-1"></i>Virtual</span>
+                            {% else %}
+                                {{ appointment.location or 'N/A' }}
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="btn-group" role="group">
+                                <a href="{{ url_for('view_appointment', appointment_id=appointment.id) }}" class="btn btn-sm btn-primary" title="View">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <a href="{{ url_for('edit_appointment', appointment_id=appointment.id) }}" class="btn btn-sm btn-info" title="Edit">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                {% if appointment.status == 'scheduled' and appointment.is_virtual and appointment.meeting_link %}
+                                <a href="{{ appointment.meeting_link }}" target="_blank" class="btn btn-sm btn-success" title="Join Meeting">
+                                    <i class="fas fa-video"></i>
+                                </a>
+                                {% endif %}
+                                <button type="button" class="btn btn-sm btn-danger delete-appointment" data-id="{{ appointment.id }}" data-title="{{ appointment.title }}" title="Delete">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="8" class="text-center">No appointments found matching your criteria.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <!-- Calendar View -->
+        <div id="calendar"></div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Delete Appointment Confirmation Modal -->
+<div class="modal fade" id="deleteAppointmentModal" tabindex="-1" aria-labelledby="deleteAppointmentModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteAppointmentModalLabel">Confirm Delete</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to delete the appointment "<strong id="deleteAppointmentTitle"></strong>"? This action cannot be undone.
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form id="deleteAppointmentForm" method="POST">
+                    <button type="submit" class="btn btn-danger">Delete</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    $(document).ready(function() {
+        // Toggle filters panel
+        $('#toggleFilters').on('click', function() {
+            $('#filtersPanel').slideToggle();
+        });
+        
+        // Appointment search functionality
+        $('#appointmentSearch').on('keyup', function() {
+            var value = $(this).val().toLowerCase();
+            $('#appointmentsTable tbody tr').filter(function() {
+                $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1);
+            });
+        });
+        
+        // Delete appointment confirmation
+        $('.delete-appointment').on('click', function() {
+            var appointmentId = $(this).data('id');
+            var appointmentTitle = $(this).data('title');
+            
+            $('#deleteAppointmentTitle').text(appointmentTitle);
+            $('#deleteAppointmentForm').attr('action', '/delete_appointment/' + appointmentId);
+            
+            var deleteAppointmentModal = new bootstrap.Modal(document.getElementById('deleteAppointmentModal'));
+            deleteAppointmentModal.show();
+        });
+        
+        // Initialize calendar if in calendar view
+        {% if view == 'calendar' %}
+        var calendar = new FullCalendar.Calendar(document.getElementById('calendar'), {
+            initialView: 'dayGridMonth',
+            headerToolbar: {
+                left: 'prev,next today',
+                center: 'title',
+                right: 'dayGridMonth,timeGridWeek,timeGridDay'
+            },
+            events: [
+                {% for appointment in appointments %}
+                {
+                    title: '{{ appointment.title }}',
+                    start: '{{ appointment.start_time.isoformat() }}',
+                    end: '{{ appointment.end_time.isoformat() }}',
+                    url: '{{ url_for('view_appointment', appointment_id=appointment.id) }}',
+                    backgroundColor: {% if appointment.status == 'scheduled' %}'#007bff'{% elif appointment.status == 'completed' %}'#28a745'{% elif appointment.status == 'cancelled' %}'#dc3545'{% else %}'#6c757d'{% endif %},
+                    borderColor: {% if appointment.status == 'scheduled' %}'#007bff'{% elif appointment.status == 'completed' %}'#28a745'{% elif appointment.status == 'cancelled' %}'#dc3545'{% else %}'#6c757d'{% endif %}
+                },
+                {% endfor %}
+            ]
+        });
+        calendar.render();
+        {% endif %}
+    });
+</script>
+{% endblock %}

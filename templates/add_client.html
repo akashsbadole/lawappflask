@@ -1,0 +1,365 @@
+{% extends "base.html" %}
+
+{% block title %}Add Client - Law Firm Management System{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Add Client</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <div class="btn-group me-2">
+            <a href="{{ url_for('clients') }}" class="btn btn-sm btn-outline-secondary">
+                <i class="fas fa-arrow-left me-1"></i>Back to Clients
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">New Client Information</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('add_client') }}">
+                    {{ form.hidden_tag() }}
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            {{ form.first_name.label(class="form-label") }}
+                            {{ form.first_name(class="form-control") }}
+                            {% if form.first_name.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.first_name.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            {{ form.last_name.label(class="form-label") }}
+                            {{ form.last_name(class="form-control") }}
+                            {% if form.last_name.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.last_name.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            {{ form.email.label(class="form-label") }}
+                            {{ form.email(class="form-control") }}
+                            {% if form.email.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.email.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            {{ form.phone.label(class="form-label") }}
+                            {{ form.phone(class="form-control") }}
+                            {% if form.phone.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.phone.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        {{ form.address.label(class="form-label") }}
+                        {{ form.address(class="form-control", rows="2") }}
+                        {% if form.address.errors %}
+                            <div class="text-danger">
+                                {% for error in form.address.errors %}
+                                    <small>{{ error }}</small>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            {{ form.city.label(class="form-label") }}
+                            {{ form.city(class="form-control") }}
+                            {% if form.city.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.city.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-4">
+                            {{ form.state.label(class="form-label") }}
+                            {{ form.state(class="form-control") }}
+                            {% if form.state.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.state.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-4">
+                            {{ form.postal_code.label(class="form-label") }}
+                            {{ form.postal_code(class="form-control") }}
+                            {% if form.postal_code.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.postal_code.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        {{ form.company.label(class="form-label") }}
+                        {{ form.company(class="form-control") }}
+                        <small class="form-text text-muted">Leave blank for individual clients.</small>
+                        {% if form.company.errors %}
+                            <div class="text-danger">
+                                {% for error in form.company.errors %}
+                                    <small>{{ error }}</small>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            {{ form.client_type.label(class="form-label") }}
+                            {{ form.client_type(class="form-control") }}
+                            {% if form.client_type.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.client_type.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-4">
+                            {{ form.practice_area.label(class="form-label") }}
+                            {{ form.practice_area(class="form-control") }}
+                            {% if form.practice_area.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.practice_area.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-4">
+                            {{ form.priority.label(class="form-label") }}
+                            {{ form.priority(class="form-control") }}
+                            {% if form.priority.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.priority.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        {{ form.assigned_lawyer_id.label(class="form-label") }}
+                        {{ form.assigned_lawyer_id(class="form-control") }}
+                        {% if form.assigned_lawyer_id.errors %}
+                            <div class="text-danger">
+                                {% for error in form.assigned_lawyer_id.errors %}
+                                    <small>{{ error }}</small>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        {{ form.tags.label(class="form-label") }}
+                        {{ form.tags(class="form-control") }}
+                        <small class="form-text text-muted">Separate multiple tags with commas.</small>
+                        {% if form.tags.errors %}
+                            <div class="text-danger">
+                                {% for error in form.tags.errors %}
+                                    <small>{{ error }}</small>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        {{ form.notes.label(class="form-label") }}
+                        {{ form.notes(class="form-control", rows="3") }}
+                        {% if form.notes.errors %}
+                            <div class="text-danger">
+                                {% for error in form.notes.errors %}
+                                    <small>{{ error }}</small>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="d-flex justify-content-end">
+                        <a href="{{ url_for('clients') }}" class="btn btn-secondary me-2">Cancel</a>
+                        <button type="submit" class="btn btn-primary">Add Client</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Client Types</h5>
+            </div>
+            <div class="card-body">
+                <div class="accordion" id="clientTypesAccordion">
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="individualHeading">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#individualCollapse" aria-expanded="false" aria-controls="individualCollapse">
+                                Individual
+                            </button>
+                        </h2>
+                        <div id="individualCollapse" class="accordion-collapse collapse" aria-labelledby="individualHeading" data-bs-parent="#clientTypesAccordion">
+                            <div class="accordion-body">
+                                Individual clients are private persons seeking legal services for personal matters such as property disputes, family law, criminal defense, etc.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="corporateHeading">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#corporateCollapse" aria-expanded="false" aria-controls="corporateCollapse">
+                                Corporate
+                            </button>
+                        </h2>
+                        <div id="corporateCollapse" class="accordion-collapse collapse" aria-labelledby="corporateHeading" data-bs-parent="#clientTypesAccordion">
+                            <div class="accordion-body">
+                                Corporate clients are businesses or organizations seeking legal services for corporate matters such as contracts, compliance, mergers and acquisitions, etc.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="governmentHeading">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#governmentCollapse" aria-expanded="false" aria-controls="governmentCollapse">
+                                Government
+                            </button>
+                        </h2>
+                        <div id="governmentCollapse" class="accordion-collapse collapse" aria-labelledby="governmentHeading" data-bs-parent="#clientTypesAccordion">
+                            <div class="accordion-body">
+                                Government clients are government agencies or departments seeking legal services for public sector matters such as regulatory compliance, litigation, etc.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="ngoHeading">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#ngoCollapse" aria-expanded="false" aria-controls="ngoCollapse">
+                                NGO
+                            </button>
+                        </h2>
+                        <div id="ngoCollapse" class="accordion-collapse collapse" aria-labelledby="ngoHeading" data-bs-parent="#clientTypesAccordion">
+                            <div class="accordion-body">
+                                NGO clients are non-governmental organizations or non-profits seeking legal services for matters such as incorporation, compliance, advocacy, etc.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card mt-3">
+            <div class="card-header">
+                <h5 class="mb-0">Practice Areas</h5>
+            </div>
+            <div class="card-body">
+                <p>Select the appropriate practice area for the client's legal needs:</p>
+                <ul>
+                    <li><strong>Property Law</strong> - Real estate transactions, property disputes, landlord-tenant issues</li>
+                    <li><strong>Corporate Law</strong> - Business formation, contracts, mergers and acquisitions</li>
+                    <li><strong>Criminal Law</strong> - Defense against criminal charges, plea negotiations</li>
+                    <li><strong>Family Law</strong> - Divorce, child custody, adoption, domestic violence</li>
+                    <li><strong>Employment Law</strong> - Workplace disputes, discrimination, wrongful termination</li>
+                    <li><strong>Intellectual Property</strong> - Patents, trademarks, copyrights, trade secrets</li>
+                    <li><strong>Tax Law</strong> - Tax planning, disputes with tax authorities</li>
+                    <li><strong>Immigration Law</strong> - Visas, citizenship, deportation defense</li>
+                    <li><strong>Environmental Law</strong> - Regulatory compliance, pollution cases</li>
+                    <li><strong>Other</strong> - Any other legal practice area not listed above</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="card mt-3">
+            <div class="card-header">
+                <h5 class="mb-0">Priority Levels</h5>
+            </div>
+            <div class="card-body">
+                <div class="accordion" id="priorityAccordion">
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="lowHeading">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#lowCollapse" aria-expanded="false" aria-controls="lowCollapse">
+                                Low Priority
+                            </button>
+                        </h2>
+                        <div id="lowCollapse" class="accordion-collapse collapse" aria-labelledby="lowHeading" data-bs-parent="#priorityAccordion">
+                            <div class="accordion-body">
+                                Routine matters with no immediate deadlines. Can be addressed within normal business hours.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="mediumHeading">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#mediumCollapse" aria-expanded="false" aria-controls="mediumCollapse">
+                                Medium Priority
+                            </button>
+                        </h2>
+                        <div id="mediumCollapse" class="accordion-collapse collapse" aria-labelledby="mediumHeading" data-bs-parent="#priorityAccordion">
+                            <div class="accordion-body">
+                                Important matters with moderate urgency. Should be addressed within a few days.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="highHeading">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#highCollapse" aria-expanded="false" aria-controls="highCollapse">
+                                High Priority
+                            </button>
+                        </h2>
+                        <div id="highCollapse" class="accordion-collapse collapse" aria-labelledby="highHeading" data-bs-parent="#priorityAccordion">
+                            <div class="accordion-body">
+                                Urgent matters requiring immediate attention. Should be addressed within 24 hours.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="urgentHeading">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#urgentCollapse" aria-expanded="false" aria-controls="urgentCollapse">
+                                Urgent Priority
+                            </button>
+                        </h2>
+                        <div id="urgentCollapse" class="accordion-collapse collapse" aria-labelledby="urgentHeading" data-bs-parent="#priorityAccordion">
+                            <div class="accordion-body">
+                                Critical matters requiring immediate attention. Should be addressed immediately.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

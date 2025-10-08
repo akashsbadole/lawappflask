@@ -1,0 +1,287 @@
+/* Custom CSS for Law Firm Management System */
+
+/* Global Styles */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f8f9fc;
+}
+
+/* Navbar Styles */
+.navbar-brand {
+    font-weight: bold;
+    font-size: 1.5rem;
+}
+
+/* Card Styles */
+.card {
+    border: none;
+    border-radius: 0.35rem;
+    box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+}
+
+.card-header {
+    background-color: #f8f9fc;
+    border-bottom: 1px solid #e3e6f0;
+}
+
+/* Border Left Colors */
+.border-left-primary {
+    border-left: 0.25rem solid #4e73df !important;
+}
+
+.border-left-success {
+    border-left: 0.25rem solid #1cc88a !important;
+}
+
+.border-left-info {
+    border-left: 0.25rem solid #36b9cc !important;
+}
+
+.border-left-warning {
+    border-left: 0.25rem solid #f6c23e !important;
+}
+
+.border-left-danger {
+    border-left: 0.25rem solid #e74a3b !important;
+}
+
+/* Text Colors */
+.text-xs {
+    font-size: 0.7rem;
+}
+
+.text-gray-300 {
+    color: #dddfeb !important;
+}
+
+.text-gray-800 {
+    color: #5a5c69 !important;
+}
+
+/* Timeline Styles */
+.timeline {
+    position: relative;
+    padding: 0;
+    list-style: none;
+}
+
+.timeline:before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 40px;
+    height: 100%;
+    width: 2px;
+    background: #e3e6f0;
+}
+
+.timeline-item {
+    position: relative;
+    padding-left: 70px;
+    margin-bottom: 1.5rem;
+}
+
+.timeline-marker {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    border: 2px solid #fff;
+    background: #e3e6f0;
+}
+
+.timeline-content {
+    position: relative;
+    padding: 1rem;
+    background: #fff;
+    border: 1px solid #e3e6f0;
+    border-radius: 0.35rem;
+}
+
+.timeline-title {
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+}
+
+.timeline-text {
+    margin-bottom: 0.5rem;
+    color: #5a5c69;
+}
+
+.timeline-date {
+    font-size: 0.85rem;
+    color: #858796;
+}
+
+/* Badge Styles */
+.badge {
+    font-size: 0.75rem;
+}
+
+/* Button Styles */
+.btn {
+    border-radius: 0.35rem;
+}
+
+.btn-sm {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.875rem;
+}
+
+/* Table Styles */
+.table {
+    margin-bottom: 0;
+}
+
+.table th {
+    border-top: none;
+    font-weight: 600;
+    font-size: 0.85rem;
+    color: #5a5c69;
+}
+
+.table td {
+    font-size: 0.9rem;
+    vertical-align: middle;
+}
+
+/* Form Styles */
+.form-control {
+    border-radius: 0.35rem;
+    border: 1px solid #d1d3e2;
+}
+
+.form-control:focus {
+    border-color: #bac8f3;
+    box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.25);
+}
+
+.form-label {
+    font-weight: 600;
+    color: #5a5c69;
+}
+
+/* Input Group Styles */
+.input-group-text {
+    border-radius: 0.35rem 0 0 0.35rem;
+    background-color: #f8f9fc;
+    border: 1px solid #d1d3e2;
+    color: #5a5c69;
+}
+
+/* Jumbotron Styles */
+.jumbotron {
+    background: linear-gradient(135deg, #4e73df 0%, #224abe 100%);
+    border-radius: 0.5rem;
+}
+
+/* Alert Styles */
+.alert {
+    border-radius: 0.35rem;
+    border: none;
+}
+
+/* Footer Styles */
+footer {
+    margin-top: auto;
+}
+
+/* Loading Spinner */
+.spinner {
+    display: inline-block;
+    width: 1rem;
+    height: 1rem;
+    border: 0.2em solid rgba(0, 0, 0, 0.1);
+    border-top: 0.2em solid #007bff;
+    border-radius: 50%;
+    animation: spinner 0.6s linear infinite;
+}
+
+@keyframes spinner {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+    .timeline:before {
+        left: 20px;
+    }
+    
+    .timeline-item {
+        padding-left: 40px;
+    }
+    
+    .timeline-marker {
+        left: 15px;
+    }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+
+/* Print Styles */
+@media print {
+    .sidebar,
+    .btn-toolbar,
+    .dropdown,
+    .no-print {
+        display: none !important;
+    }
+    
+    .container-fluid {
+        max-width: 100%;
+        padding: 0;
+    }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+    body {
+        background-color: #1a1a2e;
+        color: #eee;
+    }
+    
+    .card {
+        background-color: #16213e;
+        color: #eee;
+    }
+    
+    .card-header {
+        background-color: #0f3460;
+        border-bottom: 1px solid #533483;
+    }
+    
+    .table {
+        color: #eee;
+    }
+    
+    .form-control {
+        background-color: #16213e;
+        border-color: #533483;
+        color: #eee;
+    }
+    
+    .form-control:focus {
+        background-color: #16213e;
+        border-color: #533483;
+        color: #eee;
+    }
+}

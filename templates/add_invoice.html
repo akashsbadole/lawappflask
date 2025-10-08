@@ -1,0 +1,607 @@
+{% extends "base.html" %}
+
+{% block title %}Create Invoice - Law Firm Management System{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Create Invoice</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <div class="btn-group me-2">
+            <a href="{{ url_for('invoices') }}" class="btn btn-sm btn-outline-secondary">
+                <i class="fas fa-arrow-left me-1"></i>Back to Invoices
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">New Invoice</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('add_invoice') }}">
+                    {{ form.hidden_tag() }}
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            {{ form.client_id.label(class="form-label") }}
+                            {{ form.client_id(class="form-control", id="clientSelect") }}
+                            {% if form.client_id.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.client_id.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            {{ form.case_id.label(class="form-label") }}
+                            {{ form.case_id(class="form-control", id="caseSelect") }}
+                            {% if form.case_id.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.case_id.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            {{ form.issue_date.label(class="form-label") }}
+                            {{ form.issue_date(class="form-control", type="date") }}
+                            {% if form.issue_date.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.issue_date.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            {{ form.due_date.label(class="form-label") }}
+                            {{ form.due_date(class="form-control", type="date") }}
+                            {% if form.due_date.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.due_date.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        {{ form.description.label(class="form-label") }}
+                        {{ form.description(class="form-control", rows="2") }}
+                        {% if form.description.errors %}
+                            <div class="text-danger">
+                                {% for error in form.description.errors %}
+                                    <small>{{ error }}</small>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Invoice Items</label>
+                        <div id="invoiceItems">
+                            <div class="invoice-item mb-3 p-3 border rounded">
+                                <div class="row">
+                                    <div class="col-md-5 mb-2">
+                                        <input type="text" class="form-control item-description" placeholder="Description" required>
+                                    </div>
+                                    <div class="col-md-2 mb-2">
+                                        <input type="number" class="form-control item-quantity" placeholder="Qty" value="1" min="1" required>
+                                    </div>
+                                    <div class="col-md-2 mb-2">
+                                        <input type="number" class="form-control item-rate" placeholder="Rate" step="0.01" required>
+                                    </div>
+                                    <div class="col-md-2 mb-2">
+                                        <input type="number" class="form-control item-amount" placeholder="Amount" step="0.01" readonly>
+                                    </div>
+                                    <div class="col-md-1 mb-2 d-flex align-items-center justify-content-center">
+                                        <button type="button" class="btn btn-sm btn-danger remove-item" title="Remove">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <button type="button" class="btn btn-sm btn-outline-secondary" id="addItemBtn">
+                            <i class="fas fa-plus me-1"></i>Add Item
+                        </button>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            {{ form.subtotal.label(class="form-label") }}
+                            {{ form.subtotal(class="form-control", id="subtotal", readonly=true) }}
+                            {% if form.subtotal.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.subtotal.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            {{ form.tax_rate.label(class="form-label") }}
+                            {{ form.tax_rate(class="form-control", id="taxRate") }}
+                            {% if form.tax_rate.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.tax_rate.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            {{ form.tax_amount.label(class="form-label") }}
+                            {{ form.tax_amount(class="form-control", id="taxAmount", readonly=true) }}
+                            {% if form.tax_amount.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.tax_amount.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            {{ form.total.label(class="form-label") }}
+                            {{ form.total(class="form-control", id="total", readonly=true) }}
+                            {% if form.total.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.total.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            {{ form.status.label(class="form-label") }}
+                            {{ form.status(class="form-control") }}
+                            {% if form.status.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.status.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            {{ form.payment_terms.label(class="form-label") }}
+                            {{ form.payment_terms(class="form-control") }}
+                            {% if form.payment_terms.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.payment_terms.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        {{ form.notes.label(class="form-label") }}
+                        {{ form.notes(class="form-control", rows="3") }}
+                        {% if form.notes.errors %}
+                            <div class="text-danger">
+                                {% for error in form.notes.errors %}
+                                    <small>{{ error }}</small>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <div class="form-check">
+                            {{ form.send_email(class="form-check-input", id="sendEmailCheck") }}
+                            {{ form.send_email.label(class="form-check-label", for="sendEmailCheck") }}
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex justify-content-end">
+                        <a href="{{ url_for('invoices') }}" class="btn btn-secondary me-2">Cancel</a>
+                        <button type="submit" class="btn btn-primary">Create Invoice</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Invoice Guidelines</h5>
+            </div>
+            <div class="card-body">
+                <ul>
+                    <li>Always select the correct client and case</li>
+                    <li>Provide clear descriptions for all invoice items</li>
+                    <li>Set appropriate due dates based on client agreements</li>
+                    <li>Review all calculations before sending</li>
+                    <li>Include relevant payment terms</li>
+                    <li>Add any special instructions in the notes</li>
+                    <li>Consider sending a preview to the client before finalizing</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="card mt-3">
+            <div class="card-header">
+                <h5 class="mb-0">Invoice Statuses</h5>
+            </div>
+            <div class="card-body">
+                <div class="accordion" id="invoiceStatusesAccordion">
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="draftInvoiceHeading">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#draftInvoiceCollapse" aria-expanded="false" aria-controls="draftInvoiceCollapse">
+                                Draft
+                            </button>
+                        </h2>
+                        <div id="draftInvoiceCollapse" class="accordion-collapse collapse" aria-labelledby="draftInvoiceHeading" data-bs-parent="#invoiceStatusesAccordion">
+                            <div class="accordion-body">
+                                Invoice is saved but not yet sent to the client. Can be edited or deleted.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="sentInvoiceHeading">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#sentInvoiceCollapse" aria-expanded="false" aria-controls="sentInvoiceCollapse">
+                                Sent
+                            </button>
+                        </h2>
+                        <div id="sentInvoiceCollapse" class="accordion-collapse collapse" aria-labelledby="sentInvoiceHeading" data-bs-parent="#invoiceStatusesAccordion">
+                            <div class="accordion-body">
+                                Invoice has been sent to the client and is awaiting payment.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="paidInvoiceHeading">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#paidInvoiceCollapse" aria-expanded="false" aria-controls="paidInvoiceCollapse">
+                                Paid
+                            </button>
+                        </h2>
+                        <div id="paidInvoiceCollapse" class="accordion-collapse collapse" aria-labelledby="paidInvoiceHeading" data-bs-parent="#invoiceStatusesAccordion">
+                            <div class="accordion-body">
+                                Invoice has been paid in full by the client.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="overdueInvoiceHeading">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#overdueInvoiceCollapse" aria-expanded="false" aria-controls="overdueInvoiceCollapse">
+                                Overdue
+                            </button>
+                        </h2>
+                        <div id="overdueInvoiceCollapse" class="accordion-collapse collapse" aria-labelledby="overdueInvoiceHeading" data-bs-parent="#invoiceStatusesAccordion">
+                            <div class="accordion-body">
+                                Invoice is past its due date and payment has not been received.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="cancelledInvoiceHeading">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#cancelledInvoiceCollapse" aria-expanded="false" aria-controls="cancelledInvoiceCollapse">
+                                Cancelled
+                            </button>
+                        </h2>
+                        <div id="cancelledInvoiceCollapse" class="accordion-collapse collapse" aria-labelledby="cancelledInvoiceHeading" data-bs-parent="#invoiceStatusesAccordion">
+                            <div class="accordion-body">
+                                Invoice has been cancelled and is no longer valid.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="disputedInvoiceHeading">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#disputedInvoiceCollapse" aria-expanded="false" aria-controls="disputedInvoiceCollapse">
+                                Disputed
+                            </button>
+                        </h2>
+                        <div id="disputedInvoiceCollapse" class="accordion-collapse collapse" aria-labelledby="disputedInvoiceHeading" data-bs-parent="#invoiceStatusesAccordion">
+                            <div class="accordion-body">
+                                Client has disputed the invoice and resolution is pending.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card mt-3">
+            <div class="card-header">
+                <h5 class="mb-0">Payment Terms</h5>
+            </div>
+            <div class="card-body">
+                <div class="accordion" id="paymentTermsAccordion">
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="net15Heading">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#net15Collapse" aria-expanded="false" aria-controls="net15Collapse">
+                                Net 15
+                            </button>
+                        </h2>
+                        <div id="net15Collapse" class="accordion-collapse collapse" aria-labelledby="net15Heading" data-bs-parent="#paymentTermsAccordion">
+                            <div class="accordion-body">
+                                Payment is due 15 days after the invoice date.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="net30Heading">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#net30Collapse" aria-expanded="false" aria-controls="net30Collapse">
+                                Net 30
+                            </button>
+                        </h2>
+                        <div id="net30Collapse" class="accordion-collapse collapse" aria-labelledby="net30Heading" data-bs-parent="#paymentTermsAccordion">
+                            <div class="accordion-body">
+                                Payment is due 30 days after the invoice date.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="net60Heading">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#net60Collapse" aria-expanded="false" aria-controls="net60Collapse">
+                                Net 60
+                            </button>
+                        </h2>
+                        <div id="net60Collapse" class="accordion-collapse collapse" aria-labelledby="net60Heading" data-bs-parent="#paymentTermsAccordion">
+                            <div class="accordion-body">
+                                Payment is due 60 days after the invoice date.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="dueOnReceiptHeading">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#dueOnReceiptCollapse" aria-expanded="false" aria-controls="dueOnReceiptCollapse">
+                                Due on Receipt
+                            </button>
+                        </h2>
+                        <div id="dueOnReceiptCollapse" class="accordion-collapse collapse" aria-labelledby="dueOnReceiptHeading" data-bs-parent="#paymentTermsAccordion">
+                            <div class="accordion-body">
+                                Payment is due immediately upon receipt of the invoice.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card mt-3">
+            <div class="card-header">
+                <h5 class="mb-0">Recent Invoices</h5>
+            </div>
+            <div class="card-body">
+                {% if recent_invoices %}
+                <div class="list-group list-group-flush">
+                    {% for invoice in recent_invoices %}
+                    <div class="list-group-item px-0">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h6 class="mb-1">{{ invoice.invoice_number }}</h6>
+                            <small>{{ invoice.issue_date.strftime('%Y-%m-%d') }}</small>
+                        </div>
+                        <p class="mb-1">{{ invoice.client.full_name }} • ₹{{ invoice.total|round(2) }}</p>
+                        <div>
+                            {% if invoice.status == 'draft' %}
+                                <span class="badge bg-secondary">Draft</span>
+                            {% elif invoice.status == 'sent' %}
+                                <span class="badge bg-primary">Sent</span>
+                            {% elif invoice.status == 'paid' %}
+                                <span class="badge bg-success">Paid</span>
+                            {% elif invoice.status == 'overdue' %}
+                                <span class="badge bg-danger">Overdue</span>
+                            {% elif invoice.status == 'cancelled' %}
+                                <span class="badge bg-warning">Cancelled</span>
+                            {% elif invoice.status == 'disputed' %}
+                                <span class="badge bg-info">Disputed</span>
+                            {% else %}
+                                <span class="badge bg-light text-dark">{{ invoice.status }}</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p class="text-muted">No recent invoices found.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Template for invoice items -->
+<template id="invoiceItemTemplate">
+    <div class="invoice-item mb-3 p-3 border rounded">
+        <div class="row">
+            <div class="col-md-5 mb-2">
+                <input type="text" class="form-control item-description" placeholder="Description" required>
+            </div>
+            <div class="col-md-2 mb-2">
+                <input type="number" class="form-control item-quantity" placeholder="Qty" value="1" min="1" required>
+            </div>
+            <div class="col-md-2 mb-2">
+                <input type="number" class="form-control item-rate" placeholder="Rate" step="0.01" required>
+            </div>
+            <div class="col-md-2 mb-2">
+                <input type="number" class="form-control item-amount" placeholder="Amount" step="0.01" readonly>
+            </div>
+            <div class="col-md-1 mb-2 d-flex align-items-center justify-content-center">
+                <button type="button" class="btn btn-sm btn-danger remove-item" title="Remove">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+</template>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    $(document).ready(function() {
+        // Handle client selection to update case options
+        $('#clientSelect').on('change', function() {
+            var clientId = $(this).val();
+            var caseSelect = $('#caseSelect');
+            
+            // Clear current options
+            caseSelect.empty();
+            caseSelect.append($('<option>', { value: '', text: 'Select a case (optional)' }));
+            
+            if (clientId) {
+                // Fetch cases for the selected client
+                $.ajax({
+                    url: '/api/client_cases/' + clientId,
+                    type: 'GET',
+                    success: function(data) {
+                        $.each(data.cases, function(index, caseItem) {
+                            caseSelect.append($('<option>', { 
+                                value: caseItem.id, 
+                                text: caseItem.title + ' (' + caseItem.case_number + ')' 
+                            }));
+                        });
+                        
+                        // Pre-select case if passed in URL
+                        var urlParams = new URLSearchParams(window.location.search);
+                        var caseId = urlParams.get('case_id');
+                        if (caseId) {
+                            caseSelect.val(caseId);
+                        }
+                    }
+                });
+            }
+        });
+        
+        // Add item button
+        $('#addItemBtn').on('click', function() {
+            var template = $('#invoiceItemTemplate').html();
+            $('#invoiceItems').append(template);
+        });
+        
+        // Remove item button
+        $(document).on('click', '.remove-item', function() {
+            if ($('.invoice-item').length > 1) {
+                $(this).closest('.invoice-item').remove();
+                calculateTotals();
+            }
+        });
+        
+        // Calculate item amount when quantity or rate changes
+        $(document).on('input', '.item-quantity, .item-rate', function() {
+            var itemRow = $(this).closest('.invoice-item');
+            var quantity = parseFloat(itemRow.find('.item-quantity').val()) || 0;
+            var rate = parseFloat(itemRow.find('.item-rate').val()) || 0;
+            var amount = quantity * rate;
+            
+            itemRow.find('.item-amount').val(amount.toFixed(2));
+            calculateTotals();
+        });
+        
+        // Calculate totals when tax rate changes
+        $('#taxRate').on('input', function() {
+            calculateTotals();
+        });
+        
+        // Pre-select client if passed in URL
+        var urlParams = new URLSearchParams(window.location.search);
+        var clientId = urlParams.get('client_id');
+        if (clientId) {
+            $('#clientSelect').val(clientId).trigger('change');
+        }
+        
+        // Set default dates
+        var issueDateField = $('#issue_date');
+        var dueDateField = $('#due_date');
+        
+        if (!issueDateField.val()) {
+            var today = new Date();
+            var year = today.getFullYear();
+            var month = String(today.getMonth() + 1).padStart(2, '0');
+            var day = String(today.getDate()).padStart(2, '0');
+            
+            issueDateField.val(`${year}-${month}-${day}`);
+            
+            // Set due date to 30 days from now
+            var dueDate = new Date(today.getTime() + 30 * 24 * 60 * 60 * 1000);
+            var dueYear = dueDate.getFullYear();
+            var dueMonth = String(dueDate.getMonth() + 1).padStart(2, '0');
+            var dueDay = String(dueDate.getDate()).padStart(2, '0');
+            
+            dueDateField.val(`${dueYear}-${dueMonth}-${dueDay}`);
+        }
+        
+        // Add unbilled time entries if case is selected
+        var caseId = urlParams.get('case_id');
+        if (caseId) {
+            $.ajax({
+                url: '/api/case_unbilled_time/' + caseId,
+                type: 'GET',
+                success: function(data) {
+                    if (data.time_entries && data.time_entries.length > 0) {
+                        // Clear existing items
+                        $('#invoiceItems').empty();
+                        
+                        // Add time entries as invoice items
+                        $.each(data.time_entries, function(index, entry) {
+                            var template = $('#invoiceItemTemplate').html();
+                            var $item = $(template);
+                            
+                            $item.find('.item-description').val(entry.description);
+                            $item.find('.item-quantity').val(entry.duration_minutes / 60);
+                            $item.find('.item-rate').val(entry.hourly_rate);
+                            $item.find('.item-amount').val(entry.amount.toFixed(2));
+                            
+                            $('#invoiceItems').append($item);
+                        });
+                        
+                        calculateTotals();
+                    }
+                }
+            });
+        }
+    });
+    
+    function calculateTotals() {
+        var subtotal = 0;
+        
+        // Calculate subtotal from all items
+        $('.invoice-item').each(function() {
+            var amount = parseFloat($(this).find('.item-amount').val()) || 0;
+            subtotal += amount;
+        });
+        
+        // Update subtotal field
+        $('#subtotal').val(subtotal.toFixed(2));
+        
+        // Calculate tax amount
+        var taxRate = parseFloat($('#taxRate').val()) || 0;
+        var taxAmount = subtotal * (taxRate / 100);
+        
+        // Update tax amount field
+        $('#taxAmount').val(taxAmount.toFixed(2));
+        
+        // Calculate total
+        var total = subtotal + taxAmount;
+        
+        // Update total field
+        $('#total').val(total.toFixed(2));
+    }
+</script>
+{% endblock %}

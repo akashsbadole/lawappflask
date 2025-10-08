@@ -1,0 +1,530 @@
+{% extends "base.html" %}
+
+{% block title %}Add Expense - Law Firm Management System{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Add Expense</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <div class="btn-group me-2">
+            <a href="{{ url_for('time_entries', tab='expense') }}" class="btn btn-sm btn-outline-secondary">
+                <i class="fas fa-arrow-left me-1"></i>Back to Expenses
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">New Expense</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('add_expense') }}" enctype="multipart/form-data">
+                    {{ form.hidden_tag() }}
+                    
+                    <div class="mb-3">
+                        {{ form.description.label(class="form-label") }}
+                        {{ form.description(class="form-control") }}
+                        {% if form.description.errors %}
+                            <div class="text-danger">
+                                {% for error in form.description.errors %}
+                                    <small>{{ error }}</small>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            {{ form.date.label(class="form-label") }}
+                            {{ form.date(class="form-control", type="date") }}
+                            {% if form.date.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.date.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            {{ form.amount.label(class="form-label") }}
+                            {{ form.amount(class="form-control") }}
+                            {% if form.amount.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.amount.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            {{ form.category.label(class="form-label") }}
+                            {{ form.category(class="form-control") }}
+                            {% if form.category.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.category.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            {{ form.payment_method.label(class="form-label") }}
+                            {{ form.payment_method(class="form-control") }}
+                            {% if form.payment_method.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.payment_method.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            {{ form.case_id.label(class="form-label") }}
+                            {{ form.case_id(class="form-control", id="caseSelect") }}
+                            {% if form.case_id.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.case_id.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            {{ form.client_id.label(class="form-label") }}
+                            {{ form.client_id(class="form-control", id="clientSelect") }}
+                            {% if form.client_id.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.client_id.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            {{ form.lawyer_id.label(class="form-label") }}
+                            {{ form.lawyer_id(class="form-control") }}
+                            {% if form.lawyer_id.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.lawyer_id.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            {{ form.status.label(class="form-label") }}
+                            {{ form.status(class="form-control") }}
+                            {% if form.status.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.status.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        {{ form.receipt.label(class="form-label") }}
+                        {{ form.receipt(class="form-control") }}
+                        {% if form.receipt.errors %}
+                            <div class="text-danger">
+                                {% for error in form.receipt.errors %}
+                                    <small>{{ error }}</small>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                        <small class="form-text text-muted">Upload a receipt or proof of purchase (PDF, JPG, PNG, max 5MB).</small>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <div class="form-check">
+                                {{ form.is_billable_to_client(class="form-check-input", id="isBillableToClientCheck") }}
+                                {{ form.is_billable_to_client.label(class="form-check-label", for="isBillableToClientCheck") }}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-check">
+                                {{ form.is_reimbursable(class="form-check-input", id="isReimbursableCheck") }}
+                                {{ form.is_reimbursable.label(class="form-check-label", for="isReimbursableCheck") }}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3" id="reimbursementDetailsField" style="display: none;">
+                        {{ form.reimbursement_details.label(class="form-label") }}
+                        {{ form.reimbursement_details(class="form-control", rows="2") }}
+                        {% if form.reimbursement_details.errors %}
+                            <div class="text-danger">
+                                {% for error in form.reimbursement_details.errors %}
+                                    <small>{{ error }}</small>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                        <small class="form-text text-muted">Enter details about reimbursement, such as bank account information or payment method.</small>
+                    </div>
+                    
+                    <div class="mb-3">
+                        {{ form.notes.label(class="form-label") }}
+                        {{ form.notes(class="form-control", rows="3") }}
+                        {% if form.notes.errors %}
+                            <div class="text-danger">
+                                {% for error in form.notes.errors %}
+                                    <small>{{ error }}</small>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="d-flex justify-content-end">
+                        <a href="{{ url_for('time_entries', tab='expense') }}" class="btn btn-secondary me-2">Cancel</a>
+                        <button type="submit" class="btn btn-primary">Add Expense</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Expense Guidelines</h5>
+            </div>
+            <div class="card-body">
+                <ul>
+                    <li>Always keep receipts for expenses</li>
+                    <li>Record expenses as soon as possible after they occur</li>
+                    <li>Assign expenses to the appropriate case or client</li>
+                    <li>Mark expenses as billable to client when appropriate</li>
+                    <li>Provide detailed descriptions for all expenses</li>
+                    <li>Follow firm policies for expense reimbursement</li>
+                    <li>Submit expenses promptly for approval</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="card mt-3">
+            <div class="card-header">
+                <h5 class="mb-0">Expense Categories</h5>
+            </div>
+            <div class="card-body">
+                <div class="accordion" id="expenseCategoriesAccordion">
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="travelHeading">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#travelCollapse" aria-expanded="false" aria-controls="travelCollapse">
+                                Travel
+                            </button>
+                        </h2>
+                        <div id="travelCollapse" class="accordion-collapse collapse" aria-labelledby="travelHeading" data-bs-parent="#expenseCategoriesAccordion">
+                            <div class="accordion-body">
+                                Airfare, hotel, car rental, mileage, meals, and other travel-related expenses.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="mealsHeading">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#mealsCollapse" aria-expanded="false" aria-controls="mealsCollapse">
+                                Meals & Entertainment
+                            </button>
+                        </h2>
+                        <div id="mealsCollapse" class="accordion-collapse collapse" aria-labelledby="mealsHeading" data-bs-parent="#expenseCategoriesAccordion">
+                            <div class="accordion-body">
+                                Meals with clients, business entertainment, and client development activities.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="officeHeading">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#officeCollapse" aria-expanded="false" aria-controls="officeCollapse">
+                                Office Supplies
+                            </button>
+                        </h2>
+                        <div id="officeCollapse" class="accordion-collapse collapse" aria-labelledby="officeHeading" data-bs-parent="#expenseCategoriesAccordion">
+                            <div class="accordion-body">
+                                Stationery, printer ink, paper, and other office supplies and equipment.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="professionalHeading">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#professionalCollapse" aria-expanded="false" aria-controls="professionalCollapse">
+                                Professional Services
+                            </button>
+                        </h2>
+                        <div id="professionalCollapse" class="accordion-collapse collapse" aria-labelledby="professionalHeading" data-bs-parent="#expenseCategoriesAccordion">
+                            <div class="accordion-body">
+                                Expert witnesses, consultants, court reporters, and other professional services.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="researchHeading">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#researchCollapse" aria-expanded="false" aria-controls="researchCollapse">
+                                Research & Database
+                            </button>
+                        </h2>
+                        <div id="researchCollapse" class="accordion-collapse collapse" aria-labelledby="researchHeading" data-bs-parent="#expenseCategoriesAccordion">
+                            <div class="accordion-body">
+                                Legal research databases, publications, and research-related expenses.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="postageHeading">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#postageCollapse" aria-expanded="false" aria-controls="postageCollapse">
+                                Postage & Delivery
+                            </button>
+                        </h2>
+                        <div id="postageCollapse" class="accordion-collapse collapse" aria-labelledby="postageHeading" data-bs-parent="#expenseCategoriesAccordion">
+                            <div class="accordion-body">
+                                Postage, courier services, and other delivery-related expenses.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="otherHeading">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#otherCollapse" aria-expanded="false" aria-controls="otherCollapse">
+                                Other
+                            </button>
+                        </h2>
+                        <div id="otherCollapse" class="accordion-collapse collapse" aria-labelledby="otherHeading" data-bs-parent="#expenseCategoriesAccordion">
+                            <div class="accordion-body">
+                                Expenses that don't fit into other categories, such as filing fees, subscriptions, etc.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card mt-3">
+            <div class="card-header">
+                <h5 class="mb-0">Expense Statuses</h5>
+            </div>
+            <div class="card-body">
+                <div class="accordion" id="expenseStatusesAccordion">
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="draftExpenseHeading">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#draftExpenseCollapse" aria-expanded="false" aria-controls="draftExpenseCollapse">
+                                Draft
+                            </button>
+                        </h2>
+                        <div id="draftExpenseCollapse" class="accordion-collapse collapse" aria-labelledby="draftExpenseHeading" data-bs-parent="#expenseStatusesAccordion">
+                            <div class="accordion-body">
+                                Expense is saved but not yet submitted for approval. Can be edited or deleted.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="submittedExpenseHeading">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#submittedExpenseCollapse" aria-expanded="false" aria-controls="submittedExpenseCollapse">
+                                Submitted
+                            </button>
+                        </h2>
+                        <div id="submittedExpenseCollapse" class="accordion-collapse collapse" aria-labelledby="submittedExpenseHeading" data-bs-parent="#expenseStatusesAccordion">
+                            <div class="accordion-body">
+                                Expense has been submitted for approval and is awaiting review by a supervisor or manager.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="approvedExpenseHeading">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#approvedExpenseCollapse" aria-expanded="false" aria-controls="approvedExpenseCollapse">
+                                Approved
+                            </button>
+                        </h2>
+                        <div id="approvedExpenseCollapse" class="accordion-collapse collapse" aria-labelledby="approvedExpenseHeading" data-bs-parent="#expenseStatusesAccordion">
+                            <div class="accordion-body">
+                                Expense has been approved and is ready for reimbursement or billing to client.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="reimbursedExpenseHeading">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#reimbursedExpenseCollapse" aria-expanded="false" aria-controls="reimbursedExpenseCollapse">
+                                Reimbursed
+                            </button>
+                        </h2>
+                        <div id="reimbursedExpenseCollapse" class="accordion-collapse collapse" aria-labelledby="reimbursedExpenseHeading" data-bs-parent="#expenseStatusesAccordion">
+                            <div class="accordion-body">
+                                Expense has been reimbursed to the person who paid for it.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="rejectedExpenseHeading">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#rejectedExpenseCollapse" aria-expanded="false" aria-controls="rejectedExpenseCollapse">
+                                Rejected
+                            </button>
+                        </h2>
+                        <div id="rejectedExpenseCollapse" class="accordion-collapse collapse" aria-labelledby="rejectedExpenseHeading" data-bs-parent="#expenseStatusesAccordion">
+                            <div class="accordion-body">
+                                Expense has been rejected and requires correction or additional information.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card mt-3">
+            <div class="card-header">
+                <h5 class="mb-0">Recent Expenses</h5>
+            </div>
+            <div class="card-body">
+                {% if recent_expenses %}
+                <div class="list-group list-group-flush">
+                    {% for expense in recent_expenses %}
+                    <div class="list-group-item px-0">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h6 class="mb-1">{{ expense.description[:50] }}{% if expense.description|length > 50 %}...{% endif %}</h6>
+                            <small>{{ expense.date.strftime('%Y-%m-%d') }}</small>
+                        </div>
+                        <p class="mb-1">{{ expense.category }} • ₹{{ expense.amount|round(2) }}</p>
+                        <div>
+                            {% if expense.status == 'draft' %}
+                                <span class="badge bg-secondary">Draft</span>
+                            {% elif expense.status == 'submitted' %}
+                                <span class="badge bg-primary">Submitted</span>
+                            {% elif expense.status == 'approved' %}
+                                <span class="badge bg-success">Approved</span>
+                            {% elif expense.status == 'reimbursed' %}
+                                <span class="badge bg-info">Reimbursed</span>
+                            {% elif expense.status == 'rejected' %}
+                                <span class="badge bg-danger">Rejected</span>
+                            {% else %}
+                                <span class="badge bg-light text-dark">{{ expense.status }}</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p class="text-muted">No recent expenses found.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    $(document).ready(function() {
+        // Handle case selection to update client options
+        $('#caseSelect').on('change', function() {
+            var caseId = $(this).val();
+            var clientSelect = $('#clientSelect');
+            
+            if (caseId) {
+                // Fetch client for the selected case
+                $.ajax({
+                    url: '/api/case_client/' + caseId,
+                    type: 'GET',
+                    success: function(data) {
+                        if (data.client) {
+                            clientSelect.val(data.client.id);
+                            // Disable client selection when case is selected
+                            clientSelect.prop('disabled', true);
+                        }
+                    }
+                });
+            } else {
+                // Enable client selection when no case is selected
+                clientSelect.prop('disabled', false);
+            }
+        });
+        
+        // Handle client selection to update case options
+        $('#clientSelect').on('change', function() {
+            var clientId = $(this).val();
+            var caseSelect = $('#caseSelect');
+            
+            if (clientId && !$('#caseSelect').val()) {
+                // Fetch cases for the selected client
+                $.ajax({
+                    url: '/api/client_cases/' + clientId,
+                    type: 'GET',
+                    success: function(data) {
+                        // Clear current options
+                        caseSelect.empty();
+                        caseSelect.append($('<option>', { value: '', text: 'Select a case (optional)' }));
+                        
+                        $.each(data.cases, function(index, caseItem) {
+                            caseSelect.append($('<option>', { 
+                                value: caseItem.id, 
+                                text: caseItem.title + ' (' + caseItem.case_number + ')' 
+                            }));
+                        });
+                    }
+                });
+            }
+        });
+        
+        // Handle is reimbursable checkbox
+        $('#isReimbursableCheck').on('change', function() {
+            var isChecked = $(this).is(':checked');
+            var reimbursementDetailsField = $('#reimbursementDetailsField');
+            
+            if (isChecked) {
+                reimbursementDetailsField.show();
+            } else {
+                reimbursementDetailsField.hide();
+            }
+        });
+        
+        // Pre-select case if passed in URL
+        var urlParams = new URLSearchParams(window.location.search);
+        var caseId = urlParams.get('case_id');
+        if (caseId) {
+            $('#caseSelect').val(caseId).trigger('change');
+        }
+        
+        // Pre-select client if passed in URL
+        var clientId = urlParams.get('client_id');
+        if (clientId && !caseId) {
+            $('#clientSelect').val(clientId).trigger('change');
+        }
+        
+        // Set default date to today
+        var dateField = $('#date');
+        if (!dateField.val()) {
+            var today = new Date();
+            var year = today.getFullYear();
+            var month = String(today.getMonth() + 1).padStart(2, '0');
+            var day = String(today.getDate()).padStart(2, '0');
+            
+            dateField.val(`${year}-${month}-${day}`);
+        }
+        
+        // Set default lawyer to current user if available
+        var lawyerSelect = $('#lawyer_id');
+        if (!lawyerSelect.val() && lawyerSelect.find('option[value="' + current_user_id + '"]').length) {
+            lawyerSelect.val(current_user_id);
+        }
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,910 @@
+{% extends "base.html" %}
+
+{% block title %}Security & Compliance - Law Firm Management System{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Security & Compliance</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <div class="btn-group me-2">
+            <a href="{{ url_for('add_security_policy') }}" class="btn btn-sm btn-outline-secondary">
+                <i class="fas fa-plus me-1"></i>Add Security Policy
+            </a>
+        </div>
+        <div class="btn-group">
+            <a href="{{ url_for='compliance_reports') }}" class="btn btn-sm btn-outline-secondary">
+                <i class="fas fa-file-alt me-1"></i>Compliance Reports
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Tabs for Security & Compliance Navigation -->
+<ul class="nav nav-tabs mb-4" id="securityComplianceTabs" role="tablist">
+    <li class="nav-item" role="presentation">
+        <button class="nav-link {% if active_tab == 'security_policies' %}active{% endif %}" id="securityPolicies-tab" data-bs-toggle="tab" data-bs-target="#securityPolicies" type="button" role="tab" aria-controls="securityPolicies" aria-selected="{% if active_tab == 'security_policies' %}true{% else %}false{% endif %}">
+            <i class="fas fa-shield-alt me-1"></i>Security Policies
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link {% if active_tab == 'access_control' %}active{% endif %}" id="accessControl-tab" data-bs-toggle="tab" data-bs-target="#accessControl" type="button" role="tab" aria-controls="accessControl" aria-selected="{% if active_tab == 'access_control' %}true{% else %}false{% endif %}">
+            <i class="fas fa-key me-1"></i>Access Control
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link {% if active_tab == 'audit_logs' %}active{% endif %}" id="auditLogs-tab" data-bs-toggle="tab" data-bs-target="#auditLogs" type="button" role="tab" aria-controls="auditLogs" aria-selected="{% if active_tab == 'audit_logs' %}true{% else %}false{% endif %}">
+            <i class="fas fa-history me-1"></i>Audit Logs
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link {% if active_tab == 'compliance_monitoring' %}active{% endif %}" id="complianceMonitoring-tab" data-bs-toggle="tab" data-bs-target="#complianceMonitoring" type="button" role="tab" aria-controls="complianceMonitoring" aria-selected="{% if active_tab == 'compliance_monitoring' %}true{% else %}false{% endif %}">
+            <i class="fas fa-clipboard-check me-1"></i>Compliance Monitoring
+        </button>
+    </li>
+</ul>
+
+<!-- Tab Content -->
+<div class="tab-content" id="securityComplianceTabsContent">
+    <!-- Security Policies Tab -->
+    <div class="tab-pane fade {% if active_tab == 'security_policies' %}show active{% endif %}" id="securityPolicies" role="tabpanel" aria-labelledby="securityPolicies-tab">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                <h6 class="m-0 font-weight-bold text-primary">Security Policies</h6>
+                <div class="dropdown no-arrow">
+                    <a class="dropdown-toggle" href="#" role="button" id="securityPoliciesDropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in" aria-labelledby="securityPoliciesDropdown">
+                        <div class="dropdown-header">Policy Options:</div>
+                        <a class="dropdown-item" href="{{ url_for('add_security_policy') }}">Add New Policy</a>
+                        <a class="dropdown-item" href="{{ url_for('security_policy_templates') }}">Policy Templates</a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" href="{{ url_for('export_security_policies') }}">Export Policies</a>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered" width="100%" cellspacing="0">
+                        <thead>
+                            <tr>
+                                <th>Policy Name</th>
+                                <th>Category</th>
+                                <th>Status</th>
+                                <th>Last Updated</th>
+                                <th>Next Review</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for policy in security_policies %}
+                            <tr>
+                                <td>{{ policy.name }}</td>
+                                <td>{{ policy.category }}</td>
+                                <td>
+                                    {% if policy.status == 'active' %}
+                                        <span class="badge bg-success">Active</span>
+                                    {% elif policy.status == 'draft' %}
+                                        <span class="badge bg-warning">Draft</span>
+                                    {% elif policy.status == 'archived' %}
+                                        <span class="badge bg-secondary">Archived</span>
+                                    {% else %}
+                                        <span class="badge bg-light text-dark">{{ policy.status }}</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ policy.updated_at.strftime('%Y-%m-%d') }}</td>
+                                <td>{{ policy.next_review_date.strftime('%Y-%m-%d') }}</td>
+                                <td>
+                                    <div class="btn-group" role="group">
+                                        <a href="{{ url_for('view_security_policy', policy_id=policy.id) }}" class="btn btn-sm btn-primary" title="View">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <a href="{{ url_for('edit_security_policy', policy_id=policy.id) }}" class="btn btn-sm btn-info" title="Edit">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <button type="button" class="btn btn-sm btn-danger delete-policy" data-id="{{ policy.id }}" data-name="{{ policy.name }}" title="Delete">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="6" class="text-center">No security policies found.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <div class="text-center mt-3">
+                    <a href="{{ url_for('add_security_policy') }}" class="btn btn-primary">Add New Policy</a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Policy Compliance Status</h6>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="chart-area">
+                            <canvas id="policyComplianceChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>Compliance Summary</h6>
+                        <div class="table-responsive">
+                            <table class="table table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th>Category</th>
+                                        <th>Compliance Rate</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for category, rate in policy_compliance_summary %}
+                                    <tr>
+                                        <td>{{ category }}</td>
+                                        <td>
+                                            <div class="progress">
+                                                <div class="progress-bar {% if rate >= 90 %}bg-success{% elif rate >= 70 %}bg-warning{% else %}bg-danger{% endif %}" role="progressbar" style="width: {{ rate }}%;" aria-valuenow="{{ rate }}" aria-valuemin="0" aria-valuemax="100">
+                                                    {{ rate }}%
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Access Control Tab -->
+    <div class="tab-pane fade {% if active_tab == 'access_control' %}show active{% endif %}" id="accessControl" role="tabpanel" aria-labelledby="accessControl-tab">
+        <div class="row mb-4">
+            <div class="col-lg-6">
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">User Access Levels</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-bordered" width="100%" cellspacing="0">
+                                <thead>
+                                    <tr>
+                                        <th>Role</th>
+                                        <th>Users</th>
+                                        <th>Access Level</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for role in user_roles %}
+                                    <tr>
+                                        <td>{{ role.name }}</td>
+                                        <td>{{ role.user_count }}</td>
+                                        <td>
+                                            <div class="progress">
+                                                <div class="progress-bar {% if role.access_level >= 80 %}bg-danger{% elif role.access_level >= 50 %}bg-warning{% else %}bg-success{% endif %}" role="progressbar" style="width: {{ role.access_level }}%;" aria-valuenow="{{ role.access_level }}" aria-valuemin="0" aria-valuemax="100">
+                                                    {{ role.access_level }}%
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <a href="{{ url_for('edit_role_permissions', role_id=role.id) }}" class="btn btn-sm btn-outline-primary">
+                                                Edit Permissions
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-6">
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">Recent Access Requests</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="list-group">
+                            {% for request in recent_access_requests %}
+                            <div class="list-group-item">
+                                <div class="d-flex w-100 justify-content-between">
+                                    <h6 class="mb-1">{{ request.user.full_name }}</h6>
+                                    <small>{{ request.created_at.strftime('%Y-%m-%d %H:%M') }}</small>
+                                </div>
+                                <p class="mb-1">{{ request.resource }} - {{ request.access_type }}</p>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <small>{{ request.reason }}</small>
+                                    <div>
+                                        {% if request.status == 'pending' %}
+                                            <a href="{{ url_for('approve_access_request', request_id=request.id) }}" class="btn btn-sm btn-success">Approve</a>
+                                            <a href="{{ url_for('deny_access_request', request_id=request.id) }}" class="btn btn-sm btn-danger">Deny</a>
+                                        {% elif request.status == 'approved' %}
+                                            <span class="badge bg-success">Approved</span>
+                                        {% elif request.status == 'denied' %}
+                                            <span class="badge bg-danger">Denied</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        <div class="text-center mt-3">
+                            <a href="{{ url_for('access_requests') }}" class="btn btn-sm btn-outline-primary">View All Requests</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Security Settings</h6>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('update_security_settings') }}">
+                    {{ security_settings_form.hidden_tag() }}
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <div class="form-check form-switch">
+                                {{ security_settings_form.two_factor_auth(class="form-check-input") }}
+                                {{ security_settings_form.two_factor_auth.label(class="form-check-label") }}
+                            </div>
+                            <small class="form-text text-muted">Require two-factor authentication for all users.</small>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <div class="form-check form-switch">
+                                {{ security_settings_form.password_expiry(class="form-check-input") }}
+                                {{ security_settings_form.password_expiry.label(class="form-check-label") }}
+                            </div>
+                            <small class="form-text text-muted">Enable password expiry for enhanced security.</small>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <div class="form-check form-switch">
+                                {{ security_settings_form.session_timeout(class="form-check-input") }}
+                                {{ security_settings_form.session_timeout.label(class="form-check-label") }}
+                            </div>
+                            <small class="form-text text-muted">Automatically log out users after a period of inactivity.</small>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <div class="form-check form-switch">
+                                {{ security_settings_form.login_attempts(class="form-check-input") }}
+                                {{ security_settings_form.login_attempts.label(class="form-check-label") }}
+                            </div>
+                            <small class="form-text text-muted">Lock accounts after multiple failed login attempts.</small>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <div class="form-check form-switch">
+                                {{ security_settings_form.data_encryption(class="form-check-input") }}
+                                {{ security_settings_form.data_encryption.label(class="form-check-label") }}
+                            </div>
+                            <small class="form-text text-muted">Encrypt sensitive data at rest and in transit.</small>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <div class="form-check form-switch">
+                                {{ security_settings_form.audit_logging(class="form-check-input") }}
+                                {{ security_settings_form.audit_logging.label(class="form-check-label") }}
+                            </div>
+                            <small class="form-text text-muted">Log all security-related events for auditing purposes.</small>
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex justify-content-end">
+                        <button type="submit" class="btn btn-primary">Update Settings</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Audit Logs Tab -->
+    <div class="tab-pane fade {% if active_tab == 'audit_logs' %}show active{% endif %}" id="auditLogs" role="tabpanel" aria-labelledby="auditLogs-tab">
+        <!-- Filters -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <div class="row align-items-center">
+                    <div class="col">
+                        <h5 class="mb-0">Filter Audit Logs</h5>
+                    </div>
+                    <div class="col-auto">
+                        <button class="btn btn-sm btn-outline-secondary" id="toggleAuditLogFilters">
+                            <i class="fas fa-filter me-1"></i>Toggle Filters
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body" id="auditLogFiltersPanel">
+                <form method="GET" action="{{ url_for('security_compliance', tab='audit_logs') }}">
+                    <div class="row">
+                        <div class="col-md-3 mb-3">
+                            <label for="event_type" class="form-label">Event Type</label>
+                            <select class="form-select" id="event_type" name="event_type">
+                                <option value="">All Types</option>
+                                {% for type in event_types %}
+                                <option value="{{ type }}" {% if type == current_event_type %}selected{% endif %}>{{ type|title }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label for="user_id" class="form-label">User</label>
+                            <select class="form-select" id="user_id" name="user_id">
+                                <option value="">All Users</option>
+                                {% for user in users %}
+                                <option value="{{ user.id }}" {% if user.id == current_user_id %}selected{% endif %}>{{ user.full_name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label for="date_from" class="form-label">Date From</label>
+                            <input type="date" class="form-control" id="date_from" name="date_from" value="{{ current_date_from or '' }}">
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label for="date_to" class="form-label">Date To</label>
+                            <input type="date" class="form-control" id="date_to" name="date_to" value="{{ current_date_to or '' }}">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12 d-flex justify-content-end">
+                            <a href="{{ url_for('security_compliance', tab='audit_logs') }}" class="btn btn-outline-secondary me-2">Clear Filters</a>
+                            <button type="submit" class="btn btn-primary">Apply Filters</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Audit Logs Table -->
+        <div class="card shadow mb-4">
+            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                <h6 class="m-0 font-weight-bold text-primary">Audit Logs</h6>
+                <div class="dropdown no-arrow">
+                    <a class="dropdown-toggle" href="#" role="button" id="auditLogsDropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in" aria-labelledby="auditLogsDropdown">
+                        <div class="dropdown-header">Export Options:</div>
+                        <a class="dropdown-item" href="{{ url_for('export_audit_logs', format='csv') }}">Export as CSV</a>
+                        <a class="dropdown-item" href="{{ url_for('export_audit_logs', format='excel') }}">Export as Excel</a>
+                        <a class="dropdown-item" href="{{ url_for('export_audit_logs', format='pdf') }}">Export as PDF</a>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered" width="100%" cellspacing="0" id="auditLogsTable">
+                        <thead>
+                            <tr>
+                                <th>Timestamp</th>
+                                <th>User</th>
+                                <th>Event Type</th>
+                                <th>Description</th>
+                                <th>IP Address</th>
+                                <th>Details</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for log in audit_logs %}
+                            <tr>
+                                <td>{{ log.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                                <td>{{ log.user.full_name if log.user else 'System' }}</td>
+                                <td>
+                                    {% if log.event_type == 'login' %}
+                                        <span class="badge bg-success">Login</span>
+                                    {% elif log.event_type == 'logout' %}
+                                        <span class="badge bg-secondary">Logout</span>
+                                    {% elif log.event_type == 'failed_login' %}
+                                        <span class="badge bg-danger">Failed Login</span>
+                                    {% elif log.event_type == 'password_change' %}
+                                        <span class="badge bg-info">Password Change</span>
+                                    {% elif log.event_type == 'permission_change' %}
+                                        <span class="badge bg-warning">Permission Change</span>
+                                    {% elif log.event_type == 'data_access' %}
+                                        <span class="badge bg-primary">Data Access</span>
+                                    {% elif log.event_type == 'data_modification' %}
+                                        <span class="badge bg-danger">Data Modification</span>
+                                    {% else %}
+                                        <span class="badge bg-light text-dark">{{ log.event_type }}</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ log.description }}</td>
+                                <td>{{ log.ip_address }}</td>
+                                <td>
+                                    <button type="button" class="btn btn-sm btn-outline-primary view-log-details" data-id="{{ log.id }}" title="View Details">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="6" class="text-center">No audit logs found matching your criteria.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- Pagination -->
+                {% if audit_logs %}
+                <nav aria-label="Audit logs pagination">
+                    <ul class="pagination justify-content-center">
+                        {% if pagination.has_prev %}
+                        <li class="page-item">
+                            <a class="page-link" href="{{ url_for('security_compliance', tab='audit_logs', page=pagination.prev_num, **request.args) }}" aria-label="Previous">
+                                <span aria-hidden="true">&laquo;</span>
+                            </a>
+                        </li>
+                        {% else %}
+                        <li class="page-item disabled">
+                            <a class="page-link" href="#" aria-label="Previous">
+                                <span aria-hidden="true">&laquo;</span>
+                            </a>
+                        </li>
+                        {% endif %}
+                        
+                        {% for page_num in pagination.iter_pages() %}
+                            {% if page_num %}
+                                {% if page_num != pagination.page %}
+                                <li class="page-item">
+                                    <a class="page-link" href="{{ url_for('security_compliance', tab='audit_logs', page=page_num, **request.args) }}">{{ page_num }}</a>
+                                </li>
+                                {% else %}
+                                <li class="page-item active">
+                                    <a class="page-link" href="#">{{ page_num }}</a>
+                                </li>
+                                {% endif %}
+                            {% else %}
+                            <li class="page-item disabled">
+                                <a class="page-link" href="#">...</a>
+                            </li>
+                            {% endif %}
+                        {% endfor %}
+                        
+                        {% if pagination.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="{{ url_for('security_compliance', tab='audit_logs', page=pagination.next_num, **request.args) }}" aria-label="Next">
+                                <span aria-hidden="true">&raquo;</span>
+                            </a>
+                        </li>
+                        {% else %}
+                        <li class="page-item disabled">
+                            <a class="page-link" href="#" aria-label="Next">
+                                <span aria-hidden="true">&raquo;</span>
+                            </a>
+                        </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Compliance Monitoring Tab -->
+    <div class="tab-pane fade {% if active_tab == 'compliance_monitoring' %}show active{% endif %}" id="complianceMonitoring" role="tabpanel" aria-labelledby="complianceMonitoring-tab">
+        <div class="row mb-4">
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="card border-left-primary shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Compliance Score</div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800">{{ compliance_score.overall }}%</div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-clipboard-check fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="card border-left-success shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Active Policies</div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800">{{ compliance_stats.active_policies }}</div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-shield-alt fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="card border-left-info shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Recent Audits</div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800">{{ compliance_stats.recent_audits }}</div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-history fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="card border-left-warning shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Violations</div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800">{{ compliance_stats.violations }}</div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-exclamation-triangle fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Compliance Status by Category</h6>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="chart-area">
+                            <canvas id="complianceStatusChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>Compliance Issues</h6>
+                        <div class="table-responsive">
+                            <table class="table table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th>Category</th>
+                                        <th>Issue</th>
+                                        <th>Severity</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for issue in compliance_issues %}
+                                    <tr>
+                                        <td>{{ issue.category }}</td>
+                                        <td>{{ issue.description }}</td>
+                                        <td>
+                                            {% if issue.severity == 'high' %}
+                                                <span class="badge bg-danger">High</span>
+                                            {% elif issue.severity == 'medium' %}
+                                                <span class="badge bg-warning">Medium</span>
+                                            {% elif issue.severity == 'low' %}
+                                                <span class="badge bg-info">Low</span>
+                                            {% else %}
+                                                <span class="badge bg-secondary">{{ issue.severity }}</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if issue.status == 'open' %}
+                                                <span class="badge bg-danger">Open</span>
+                                            {% elif issue.status == 'in_progress' %}
+                                                <span class="badge bg-warning">In Progress</span>
+                                            {% elif issue.status == 'resolved' %}
+                                                <span class="badge bg-success">Resolved</span>
+                                            {% else %}
+                                                <span class="badge bg-secondary">{{ issue.status }}</span>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Upcoming Compliance Deadlines</h6>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered" width="100%" cellspacing="0">
+                        <thead>
+                            <tr>
+                                <th>Requirement</th>
+                                <th>Regulation</th>
+                                <th>Due Date</th>
+                                <th>Responsible</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for deadline in compliance_deadlines %}
+                            <tr>
+                                <td>{{ deadline.requirement }}</td>
+                                <td>{{ deadline.regulation }}</td>
+                                <td>{{ deadline.due_date.strftime('%Y-%m-%d') }}</td>
+                                <td>{{ deadline.responsible }}</td>
+                                <td>
+                                    {% if deadline.status == 'not_started' %}
+                                        <span class="badge bg-secondary">Not Started</span>
+                                    {% elif deadline.status == 'in_progress' %}
+                                        <span class="badge bg-warning">In Progress</span>
+                                    {% elif deadline.status == 'completed' %}
+                                        <span class="badge bg-success">Completed</span>
+                                    {% elif deadline.status == 'overdue' %}
+                                        <span class="badge bg-danger">Overdue</span>
+                                    {% else %}
+                                        <span class="badge bg-light text-dark">{{ deadline.status }}</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div class="btn-group" role="group">
+                                        <a href="{{ url_for('edit_compliance_deadline', deadline_id=deadline.id) }}" class="btn btn-sm btn-info" title="Edit">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <button type="button" class="btn btn-sm btn-primary mark-complete" data-id="{{ deadline.id }}" title="Mark Complete">
+                                            <i class="fas fa-check"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="6" class="text-center">No upcoming compliance deadlines found.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <div class="text-center mt-3">
+                    <a href="{{ url_for('add_compliance_deadline') }}" class="btn btn-primary">Add Deadline</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Policy Confirmation Modal -->
+<div class="modal fade" id="deletePolicyModal" tabindex="-1" aria-labelledby="deletePolicyModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deletePolicyModalLabel">Confirm Delete</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to delete the security policy "<strong id="deletePolicyName"></strong>"? This action cannot be undone.
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form id="deletePolicyForm" method="POST">
+                    <button type="submit" class="btn btn-danger">Delete</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- View Log Details Modal -->
+<div class="modal fade" id="viewLogDetailsModal" tabindex="-1" aria-labelledby="viewLogDetailsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="viewLogDetailsModalLabel">Audit Log Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="logDetailsContent">
+                <!-- Log details will be loaded here -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    $(document).ready(function() {
+        // Policy Compliance Chart
+        var policyComplianceCtx = document.getElementById('policyComplianceChart').getContext('2d');
+        var policyComplianceChart = new Chart(policyComplianceCtx, {
+            type: 'doughnut',
+            data: {
+                labels: {{ policy_compliance_chart.labels|tojson }},
+                datasets: [{
+                    data: {{ policy_compliance_chart.data|tojson }},
+                    backgroundColor: [
+                        'rgba(28, 200, 138, 0.8)',
+                        'rgba(54, 185, 204, 0.8)',
+                        'rgba(246, 194, 62, 0.8)',
+                        'rgba(231, 74, 59, 0.8)'
+                    ],
+                    hoverBackgroundColor: [
+                        'rgba(28, 200, 138, 1)',
+                        'rgba(54, 185, 204, 1)',
+                        'rgba(246, 194, 62, 1)',
+                        'rgba(231, 74, 59, 1)'
+                    ],
+                    hoverBorderColor: "rgba(234, 236, 244, 1)",
+                }]
+            },
+            options: {
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
+                }
+            }
+        });
+        
+        // Compliance Status Chart
+        var complianceStatusCtx = document.getElementById('complianceStatusChart').getContext('2d');
+        var complianceStatusChart = new Chart(complianceStatusCtx, {
+            type: 'bar',
+            data: {
+                labels: {{ compliance_status_chart.labels|tojson }},
+                datasets: [{
+                    label: 'Compliance %',
+                    data: {{ compliance_status_chart.data|tojson }},
+                    backgroundColor: function(context) {
+                        var value = context.dataset.data[context.dataIndex];
+                        if (value >= 90) {
+                            return 'rgba(28, 200, 138, 0.8)';
+                        } else if (value >= 70) {
+                            return 'rgba(246, 194, 62, 0.8)';
+                        } else {
+                            return 'rgba(231, 74, 59, 0.8)';
+                        }
+                    },
+                    borderColor: function(context) {
+                        var value = context.dataset.data[context.dataIndex];
+                        if (value >= 90) {
+                            return 'rgba(28, 200, 138, 1)';
+                        } else if (value >= 70) {
+                            return 'rgba(246, 194, 62, 1)';
+                        } else {
+                            return 'rgba(231, 74, 59, 1)';
+                        }
+                    },
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100,
+                        ticks: {
+                            callback: function(value) {
+                                return value + '%';
+                            }
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                }
+            }
+        });
+        
+        // Toggle filters panels
+        $('#toggleAuditLogFilters').on('click', function() {
+            $('#auditLogFiltersPanel').slideToggle();
+        });
+        
+        // Delete policy confirmation
+        $('.delete-policy').on('click', function() {
+            var policyId = $(this).data('id');
+            var policyName = $(this).data('name');
+            
+            $('#deletePolicyName').text(policyName);
+            $('#deletePolicyForm').attr('action', '/delete_security_policy/' + policyId);
+            
+            var deletePolicyModal = new bootstrap.Modal(document.getElementById('deletePolicyModal'));
+            deletePolicyModal.show();
+        });
+        
+        // View log details
+        $('.view-log-details').on('click', function() {
+            var logId = $(this).data('id');
+            
+            $.ajax({
+                url: '/api/audit_log_details/' + logId,
+                type: 'GET',
+                success: function(response) {
+                    var detailsHtml = `
+                        <div class="row">
+                            <div class="col-md-6">
+                                <p><strong>Event ID:</strong> ${response.event_id}</p>
+                                <p><strong>Timestamp:</strong> ${response.timestamp}</p>
+                                <p><strong>User:</strong> ${response.user}</p>
+                                <p><strong>Event Type:</strong> ${response.event_type}</p>
+                            </div>
+                            <div class="col-md-6">
+                                <p><strong>IP Address:</strong> ${response.ip_address}</p>
+                                <p><strong>User Agent:</strong> ${response.user_agent}</p>
+                                <p><strong>Resource:</strong> ${response.resource}</p>
+                                <p><strong>Action:</strong> ${response.action}</p>
+                            </div>
+                        </div>
+                        <div class="row mt-3">
+                            <div class="col-12">
+                                <p><strong>Description:</strong> ${response.description}</p>
+                            </div>
+                        </div>
+                        <div class="row mt-3">
+                            <div class="col-12">
+                                <p><strong>Additional Details:</strong></p>
+                                <pre>${JSON.stringify(response.details, null, 2)}</pre>
+                            </div>
+                        </div>
+                    `;
+                    
+                    $('#logDetailsContent').html(detailsHtml);
+                    
+                    var viewLogDetailsModal = new bootstrap.Modal(document.getElementById('viewLogDetailsModal'));
+                    viewLogDetailsModal.show();
+                },
+                error: function() {
+                    alert('Error loading log details. Please try again.');
+                }
+            });
+        });
+        
+        // Mark compliance deadline as complete
+        $('.mark-complete').on('click', function() {
+            var deadlineId = $(this).data('id');
+            
+            $.ajax({
+                url: '/mark_compliance_deadline_complete/' + deadlineId,
+                type: 'POST',
+                success: function(response) {
+                    if (response.success) {
+                        location.reload();
+                    } else {
+                        alert('Error updating deadline: ' + response.message);
+                    }
+                },
+                error: function() {
+                    alert('Error updating deadline. Please try again.');
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}
