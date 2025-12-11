@@ -1,1035 +1,1453 @@
-{% extends "base.html" %}
-
-{% block title %}Onboarding & Support - Law Firm Management System{% endblock %}
-
-{% block content %}
-<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-    <h1 class="h2">Onboarding & Support</h1>
-    <div class="btn-toolbar mb-2 mb-md-0">
-        <div class="btn-group me-2">
-            <a href="{{ url_for('add_onboarding_template') }}" class="btn btn-sm btn-outline-secondary">
-                <i class="fas fa-plus me-1"></i>Add Onboarding Template
-            </a>
-        </div>
-        <div class="btn-group">
-            <a href="{{ url_for='knowledge_base') }}" class="btn btn-sm btn-outline-secondary">
-                <i class="fas fa-book me-1"></i>Knowledge Base
-            </a>
-        </div>
+{% extends "base.html" %} {% block title %}Onboarding & Support - Law Firm
+Management System{% endblock %} {% block content %}
+<div
+  class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom"
+>
+  <h1 class="h2">Onboarding & Support</h1>
+  <div class="btn-toolbar mb-2 mb-md-0">
+    <div class="btn-group me-2">
+      <a
+        href="{{ url_for('add_onboarding_template') }}"
+        class="btn btn-sm btn-outline-secondary"
+      >
+        <i class="fas fa-plus me-1"></i>Add Onboarding Template
+      </a>
     </div>
+    <div class="btn-group">
+      <a
+        href="{{ url_for('knowledge_base') }}"
+        class="btn btn-sm btn-outline-secondary"
+      >
+        <i class="fas fa-book me-1"></i>Knowledge Base
+      </a>
+    </div>
+  </div>
 </div>
 
 <!-- Tabs for Onboarding & Support Navigation -->
 <ul class="nav nav-tabs mb-4" id="onboardingTabs" role="tablist">
-    <li class="nav-item" role="presentation">
-        <button class="nav-link {% if active_tab == 'onboarding' %}active{% endif %}" id="onboarding-tab" data-bs-toggle="tab" data-bs-target="#onboarding" type="button" role="tab" aria-controls="onboarding" aria-selected="{% if active_tab == 'onboarding' %}true{% else %}false{% endif %}">
-            <i class="fas fa-user-plus me-1"></i>Onboarding
-        </button>
-    </li>
-    <li class="nav-item" role="presentation">
-        <button class="nav-link {% if active_tab == 'training' %}active{% endif %}" id="training-tab" data-bs-toggle="tab" data-bs-target="#training" type="button" role="tab" aria-controls="training" aria-selected="{% if active_tab == 'training' %}true{% else %}false{% endif %}">
-            <i class="fas fa-graduation-cap me-1"></i>Training
-        </button>
-    </li>
-    <li class="nav-item" role="presentation">
-        <button class="nav-link {% if active_tab == 'support' %}active{% endif %}" id="support-tab" data-bs-toggle="tab" data-bs-target="#support" type="button" role="tab" aria-controls="support" aria-selected="{% if active_tab == 'support' %}true{% else %}false{% endif %}">
-            <i class="fas fa-life-ring me-1"></i>Support
-        </button>
-    </li>
-    <li class="nav-item" role="presentation">
-        <button class="nav-link {% if active_tab == 'knowledge_base' %}active{% endif %}" id="knowledgeBase-tab" data-bs-toggle="tab" data-bs-target="#knowledgeBase" type="button" role="tab" aria-controls="knowledgeBase" aria-selected="{% if active_tab == 'knowledge_base' %}true{% else %}false{% endif %}">
-            <i class="fas fa-book me-1"></i>Knowledge Base
-        </button>
-    </li>
+  <li class="nav-item" role="presentation">
+    <button
+      class="nav-link {% if active_tab == 'onboarding' %}active{% endif %}"
+      id="onboarding-tab"
+      data-bs-toggle="tab"
+      data-bs-target="#onboarding"
+      type="button"
+      role="tab"
+      aria-controls="onboarding"
+      aria-selected="{% if active_tab == 'onboarding' %}true{% else %}false{% endif %}"
+    >
+      <i class="fas fa-user-plus me-1"></i>Onboarding
+    </button>
+  </li>
+  <li class="nav-item" role="presentation">
+    <button
+      class="nav-link {% if active_tab == 'training' %}active{% endif %}"
+      id="training-tab"
+      data-bs-toggle="tab"
+      data-bs-target="#training"
+      type="button"
+      role="tab"
+      aria-controls="training"
+      aria-selected="{% if active_tab == 'training' %}true{% else %}false{% endif %}"
+    >
+      <i class="fas fa-graduation-cap me-1"></i>Training
+    </button>
+  </li>
+  <li class="nav-item" role="presentation">
+    <button
+      class="nav-link {% if active_tab == 'support' %}active{% endif %}"
+      id="support-tab"
+      data-bs-toggle="tab"
+      data-bs-target="#support"
+      type="button"
+      role="tab"
+      aria-controls="support"
+      aria-selected="{% if active_tab == 'support' %}true{% else %}false{% endif %}"
+    >
+      <i class="fas fa-life-ring me-1"></i>Support
+    </button>
+  </li>
+  <li class="nav-item" role="presentation">
+    <button
+      class="nav-link {% if active_tab == 'knowledge_base' %}active{% endif %}"
+      id="knowledgeBase-tab"
+      data-bs-toggle="tab"
+      data-bs-target="#knowledgeBase"
+      type="button"
+      role="tab"
+      aria-controls="knowledgeBase"
+      aria-selected="{% if active_tab == 'knowledge_base' %}true{% else %}false{% endif %}"
+    >
+      <i class="fas fa-book me-1"></i>Knowledge Base
+    </button>
+  </li>
 </ul>
 
 <!-- Tab Content -->
 <div class="tab-content" id="onboardingTabsContent">
-    <!-- Onboarding Tab -->
-    <div class="tab-pane fade {% if active_tab == 'onboarding' %}show active{% endif %}" id="onboarding" role="tabpanel" aria-labelledby="onboarding-tab">
-        <div class="card shadow mb-4">
-            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                <h6 class="m-0 font-weight-bold text-primary">Onboarding Templates</h6>
-                <div class="dropdown no-arrow">
-                    <a class="dropdown-toggle" href="#" role="button" id="onboardingTemplatesDropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
+  <!-- Onboarding Tab -->
+  <div
+    class="tab-pane fade {% if active_tab == 'onboarding' %}show active{% endif %}"
+    id="onboarding"
+    role="tabpanel"
+    aria-labelledby="onboarding-tab"
+  >
+    <div class="card shadow mb-4">
+      <div
+        class="card-header py-3 d-flex flex-row align-items-center justify-content-between"
+      >
+        <h6 class="m-0 font-weight-bold text-primary">Onboarding Templates</h6>
+        <div class="dropdown no-arrow">
+          <a
+            class="dropdown-toggle"
+            href="#"
+            role="button"
+            id="onboardingTemplatesDropdown"
+            data-bs-toggle="dropdown"
+            aria-haspopup="true"
+            aria-expanded="false"
+          >
+            <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
+          </a>
+          <div
+            class="dropdown-menu dropdown-menu-right shadow animated--fade-in"
+            aria-labelledby="onboardingTemplatesDropdown"
+          >
+            <div class="dropdown-header">Template Options:</div>
+            <a
+              class="dropdown-item"
+              href="{{ url_for('add_onboarding_template') }}"
+              >Add New Template</a
+            >
+            <a
+              class="dropdown-item"
+              href="{{ url_for('import_onboarding_templates') }}"
+              >Import Templates</a
+            >
+            <div class="dropdown-divider"></div>
+            <a
+              class="dropdown-item"
+              href="{{ url_for('export_onboarding_templates') }}"
+              >Export Templates</a
+            >
+          </div>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="table-responsive">
+          <table class="table table-bordered" width="100%" cellspacing="0">
+            <thead>
+              <tr>
+                <th>Template Name</th>
+                <th>User Type</th>
+                <th>Steps</th>
+                <th>Duration</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for template in onboarding_templates %}
+              <tr>
+                <td>{{ template.name }}</td>
+                <td>{{ template.user_type }}</td>
+                <td>{{ template.steps_count }}</td>
+                <td>{{ template.duration }}</td>
+                <td>
+                  {% if template.status == 'active' %}
+                  <span class="badge bg-success">Active</span>
+                  {% elif template.status == 'inactive' %}
+                  <span class="badge bg-secondary">Inactive</span>
+                  {% else %}
+                  <span class="badge bg-light text-dark"
+                    >{{ template.status }}</span
+                  >
+                  {% endif %}
+                </td>
+                <td>
+                  <div class="btn-group" role="group">
+                    <a
+                      href="{{ url_for('view_onboarding_template', template_id=template.id) }}"
+                      class="btn btn-sm btn-info"
+                      title="View"
+                    >
+                      <i class="fas fa-eye"></i>
                     </a>
-                    <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in" aria-labelledby="onboardingTemplatesDropdown">
-                        <div class="dropdown-header">Template Options:</div>
-                        <a class="dropdown-item" href="{{ url_for('add_onboarding_template') }}">Add New Template</a>
-                        <a class="dropdown-item" href="{{ url_for('import_onboarding_templates') }}">Import Templates</a>
-                        <div class="dropdown-divider"></div>
-                        <a class="dropdown-item" href="{{ url_for('export_onboarding_templates') }}">Export Templates</a>
-                    </div>
-                </div>
-            </div>
-            <div class="card-body">
-                <div class="table-responsive">
-                    <table class="table table-bordered" width="100%" cellspacing="0">
-                        <thead>
-                            <tr>
-                                <th>Template Name</th>
-                                <th>User Type</th>
-                                <th>Steps</th>
-                                <th>Duration</th>
-                                <th>Status</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for template in onboarding_templates %}
-                            <tr>
-                                <td>{{ template.name }}</td>
-                                <td>{{ template.user_type }}</td>
-                                <td>{{ template.steps_count }}</td>
-                                <td>{{ template.duration }}</td>
-                                <td>
-                                    {% if template.status == 'active' %}
-                                        <span class="badge bg-success">Active</span>
-                                    {% elif template.status == 'inactive' %}
-                                        <span class="badge bg-secondary">Inactive</span>
-                                    {% else %}
-                                        <span class="badge bg-light text-dark">{{ template.status }}</span>
-                                    {% endif %}
-                                </td>
-                                <td>
-                                    <div class="btn-group" role="group">
-                                        <a href="{{ url_for('view_onboarding_template', template_id=template.id) }}" class="btn btn-sm btn-info" title="View">
-                                            <i class="fas fa-eye"></i>
-                                        </a>
-                                        <a href="{{ url_for('edit_onboarding_template', template_id=template.id) }}" class="btn btn-sm btn-primary" title="Edit">
-                                            <i class="fas fa-edit"></i>
-                                        </a>
-                                        <button type="button" class="btn btn-sm btn-success toggle-template" data-id="{{ template.id }}" data-status="{{ template.status }}" title="Toggle">
-                                            {% if template.status == 'active' %}
-                                                <i class="fas fa-pause"></i>
-                                            {% else %}
-                                                <i class="fas fa-play"></i>
-                                            {% endif %}
-                                        </button>
-                                        <button type="button" class="btn btn-sm btn-danger delete-template" data-id="{{ template.id }}" data-name="{{ template.name }}" title="Delete">
-                                            <i class="fas fa-trash"></i>
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
-                            {% else %}
-                            <tr>
-                                <td colspan="6" class="text-center">No onboarding templates found.</td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-                <div class="text-center mt-3">
-                    <a href="{{ url_for('add_onboarding_template') }}" class="btn btn-primary">Add Onboarding Template</a>
-                </div>
-            </div>
+                    <a
+                      href="{{ url_for('edit_onboarding_template', template_id=template.id) }}"
+                      class="btn btn-sm btn-primary"
+                      title="Edit"
+                    >
+                      <i class="fas fa-edit"></i>
+                    </a>
+                    <button
+                      type="button"
+                      class="btn btn-sm btn-success toggle-template"
+                      data-id="{{ template.id }}"
+                      data-status="{{ template.status }}"
+                      title="Toggle"
+                    >
+                      {% if template.status == 'active' %}
+                      <i class="fas fa-pause"></i>
+                      {% else %}
+                      <i class="fas fa-play"></i>
+                      {% endif %}
+                    </button>
+                    <button
+                      type="button"
+                      class="btn btn-sm btn-danger delete-template"
+                      data-id="{{ template.id }}"
+                      data-name="{{ template.name }}"
+                      title="Delete"
+                    >
+                      <i class="fas fa-trash"></i>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+              {% else %}
+              <tr>
+                <td colspan="6" class="text-center">
+                  No onboarding templates found.
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
         </div>
-        
-        <div class="card shadow mb-4">
-            <div class="card-header py-3">
-                <h6 class="m-0 font-weight-bold text-primary">Onboarding Progress</h6>
-            </div>
-            <div class="card-body">
-                <div class="table-responsive">
-                    <table class="table table-bordered" width="100%" cellspacing="0">
-                        <thead>
-                            <tr>
-                                <th>User</th>
-                                <th>Template</th>
-                                <th>Start Date</th>
-                                <th>Progress</th>
-                                <th>Current Step</th>
-                                <th>Status</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for progress in onboarding_progress %}
-                            <tr>
-                                <td>{{ progress.user_name }}</td>
-                                <td>{{ progress.template_name }}</td>
-                                <td>{{ progress.start_date.strftime('%Y-%m-%d') }}</td>
-                                <td>
-                                    <div class="progress">
-                                        <div class="progress-bar" role="progressbar" style="width: {{ progress.percentage_complete }}%;" aria-valuenow="{{ progress.percentage_complete }}" aria-valuemin="0" aria-valuemax="100">{{ progress.percentage_complete }}%</div>
-                                    </div>
-                                </td>
-                                <td>{{ progress.current_step }}</td>
-                                <td>
-                                    {% if progress.status == 'in_progress' %}
-                                        <span class="badge bg-primary">In Progress</span>
-                                    {% elif progress.status == 'completed' %}
-                                        <span class="badge bg-success">Completed</span>
-                                    {% elif progress.status == 'paused' %}
-                                        <span class="badge bg-warning">Paused</span>
-                                    {% else %}
-                                        <span class="badge bg-light text-dark">{{ progress.status }}</span>
-                                    {% endif %}
-                                </td>
-                                <td>
-                                    <div class="btn-group" role="group">
-                                        <a href="{{ url_for('view_onboarding_progress', progress_id=progress.id) }}" class="btn btn-sm btn-info" title="View">
-                                            <i class="fas fa-eye"></i>
-                                        </a>
-                                        {% if progress.status == 'in_progress' %}
-                                        <button type="button" class="btn btn-sm btn-warning pause-progress" data-id="{{ progress.id }}" title="Pause">
-                                            <i class="fas fa-pause"></i>
-                                        </button>
-                                        {% elif progress.status == 'paused' %}
-                                        <button type="button" class="btn btn-sm btn-success resume-progress" data-id="{{ progress.id }}" title="Resume">
-                                            <i class="fas fa-play"></i>
-                                        </button>
-                                        {% endif %}
-                                    </div>
-                                </td>
-                            </tr>
-                            {% else %}
-                            <tr>
-                                <td colspan="7" class="text-center">No onboarding progress found.</td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+        <div class="text-center mt-3">
+          <a
+            href="{{ url_for('add_onboarding_template') }}"
+            class="btn btn-primary"
+            >Add Onboarding Template</a
+          >
         </div>
+      </div>
     </div>
-    
-    <!-- Training Tab -->
-    <div class="tab-pane fade {% if active_tab == 'training' %}show active{% endif %}" id="training" role="tabpanel" aria-labelledby="training-tab">
-        <div class="card shadow mb-4">
-            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                <h6 class="m-0 font-weight-bold text-primary">Training Courses</h6>
-                <div class="dropdown no-arrow">
-                    <a class="dropdown-toggle" href="#" role="button" id="trainingCoursesDropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
-                    </a>
-                    <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in" aria-labelledby="trainingCoursesDropdown">
-                        <div class="dropdown-header">Course Options:</div>
-                        <a class="dropdown-item" href="{{ url_for('add_training_course') }}">Add New Course</a>
-                        <a class="dropdown-item" href="{{ url_for('import_training_courses') }}">Import Courses</a>
-                        <div class="dropdown-divider"></div>
-                        <a class="dropdown-item" href="{{ url_for('export_training_courses') }}">Export Courses</a>
-                    </div>
-                </div>
-            </div>
-            <div class="card-body">
-                <div class="table-responsive">
-                    <table class="table table-bordered" width="100%" cellspacing="0">
-                        <thead>
-                            <tr>
-                                <th>Course Name</th>
-                                <th>Category</th>
-                                <th>Duration</th>
-                                <th>Difficulty</th>
-                                <th>Status</th>
-                                <th>Enrollments</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for course in training_courses %}
-                            <tr>
-                                <td>{{ course.name }}</td>
-                                <td>{{ course.category }}</td>
-                                <td>{{ course.duration }}</td>
-                                <td>
-                                    {% if course.difficulty == 'beginner' %}
-                                        <span class="badge bg-success">Beginner</span>
-                                    {% elif course.difficulty == 'intermediate' %}
-                                        <span class="badge bg-warning">Intermediate</span>
-                                    {% elif course.difficulty == 'advanced' %}
-                                        <span class="badge bg-danger">Advanced</span>
-                                    {% else %}
-                                        <span class="badge bg-light text-dark">{{ course.difficulty }}</span>
-                                    {% endif %}
-                                </td>
-                                <td>
-                                    {% if course.status == 'published' %}
-                                        <span class="badge bg-success">Published</span>
-                                    {% elif course.status == 'draft' %}
-                                        <span class="badge bg-secondary">Draft</span>
-                                    {% elif course.status == 'archived' %}
-                                        <span class="badge bg-light text-dark">Archived</span>
-                                    {% else %}
-                                        <span class="badge bg-light text-dark">{{ course.status }}</span>
-                                    {% endif %}
-                                </td>
-                                <td>{{ course.enrollments_count }}</td>
-                                <td>
-                                    <div class="btn-group" role="group">
-                                        <a href="{{ url_for('view_training_course', course_id=course.id) }}" class="btn btn-sm btn-info" title="View">
-                                            <i class="fas fa-eye"></i>
-                                        </a>
-                                        <a href="{{ url_for('edit_training_course', course_id=course.id) }}" class="btn btn-sm btn-primary" title="Edit">
-                                            <i class="fas fa-edit"></i>
-                                        </a>
-                                        <button type="button" class="btn btn-sm btn-success toggle-course" data-id="{{ course.id }}" data-status="{{ course.status }}" title="Toggle">
-                                            {% if course.status == 'published' %}
-                                                <i class="fas fa-pause"></i>
-                                            {% else %}
-                                                <i class="fas fa-play"></i>
-                                            {% endif %}
-                                        </button>
-                                        <button type="button" class="btn btn-sm btn-danger delete-course" data-id="{{ course.id }}" data-name="{{ course.name }}" title="Delete">
-                                            <i class="fas fa-trash"></i>
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
-                            {% else %}
-                            <tr>
-                                <td colspan="7" class="text-center">No training courses found.</td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-                <div class="text-center mt-3">
-                    <a href="{{ url_for('add_training_course') }}" class="btn btn-primary">Add Training Course</a>
-                </div>
-            </div>
-        </div>
-        
-        <div class="card shadow mb-4">
-            <div class="card-header py-3">
-                <h6 class="m-0 font-weight-bold text-primary">Training Enrollments</h6>
-            </div>
-            <div class="card-body">
-                <div class="table-responsive">
-                    <table class="table table-bordered" width="100%" cellspacing="0">
-                        <thead>
-                            <tr>
-                                <th>User</th>
-                                <th>Course</th>
-                                <th>Enrollment Date</th>
-                                <th>Progress</th>
-                                <th>Completion Date</th>
-                                <th>Status</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for enrollment in training_enrollments %}
-                            <tr>
-                                <td>{{ enrollment.user_name }}</td>
-                                <td>{{ enrollment.course_name }}</td>
-                                <td>{{ enrollment.enrollment_date.strftime('%Y-%m-%d') }}</td>
-                                <td>
-                                    <div class="progress">
-                                        <div class="progress-bar" role="progressbar" style="width: {{ enrollment.percentage_complete }}%;" aria-valuenow="{{ enrollment.percentage_complete }}" aria-valuemin="0" aria-valuemax="100">{{ enrollment.percentage_complete }}%</div>
-                                    </div>
-                                </td>
-                                <td>{{ enrollment.completion_date.strftime('%Y-%m-%d') if enrollment.completion_date else 'N/A' }}</td>
-                                <td>
-                                    {% if enrollment.status == 'in_progress' %}
-                                        <span class="badge bg-primary">In Progress</span>
-                                    {% elif enrollment.status == 'completed' %}
-                                        <span class="badge bg-success">Completed</span>
-                                    {% elif enrollment.status == 'failed' %}
-                                        <span class="badge bg-danger">Failed</span>
-                                    {% else %}
-                                        <span class="badge bg-light text-dark">{{ enrollment.status }}</span>
-                                    {% endif %}
-                                </td>
-                                <td>
-                                    <div class="btn-group" role="group">
-                                        <a href="{{ url_for('view_training_enrollment', enrollment_id=enrollment.id) }}" class="btn btn-sm btn-info" title="View">
-                                            <i class="fas fa-eye"></i>
-                                        </a>
-                                        {% if enrollment.status == 'in_progress' %}
-                                        <a href="{{ url_for('continue_training', enrollment_id=enrollment.id) }}" class="btn btn-sm btn-primary" title="Continue">
-                                            <i class="fas fa-play"></i>
-                                        </a>
-                                        {% endif %}
-                                    </div>
-                                </td>
-                            </tr>
-                            {% else %}
-                            <tr>
-                                <td colspan="7" class="text-center">No training enrollments found.</td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Support Tab -->
-    <div class="tab-pane fade {% if active_tab == 'support' %}show active{% endif %}" id="support" role="tabpanel" aria-labelledby="support-tab">
-        <div class="card shadow mb-4">
-            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                <h6 class="m-0 font-weight-bold text-primary">Support Tickets</h6>
-                <div class="dropdown no-arrow">
-                    <a class="dropdown-toggle" href="#" role="button" id="supportTicketsDropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
-                    </a>
-                    <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in" aria-labelledby="supportTicketsDropdown">
-                        <div class="dropdown-header">Ticket Options:</div>
-                        <a class="dropdown-item" href="{{ url_for('create_support_ticket') }}">Create New Ticket</a>
-                        <div class="dropdown-divider"></div>
-                        <a class="dropdown-item" href="{{ url_for('export_support_tickets') }}">Export Tickets</a>
-                    </div>
-                </div>
-            </div>
-            <div class="card-body">
-                <div class="table-responsive">
-                    <table class="table table-bordered" width="100%" cellspacing="0">
-                        <thead>
-                            <tr>
-                                <th>Ticket ID</th>
-                                <th>Subject</th>
-                                <th>Created By</th>
-                                <th>Priority</th>
-                                <th>Status</th>
-                                <th>Assigned To</th>
-                                <th>Created Date</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for ticket in support_tickets %}
-                            <tr>
-                                <td>{{ ticket.id }}</td>
-                                <td>{{ ticket.subject }}</td>
-                                <td>{{ ticket.created_by }}</td>
-                                <td>
-                                    {% if ticket.priority == 'low' %}
-                                        <span class="badge bg-info">Low</span>
-                                    {% elif ticket.priority == 'medium' %}
-                                        <span class="badge bg-warning">Medium</span>
-                                    {% elif ticket.priority == 'high' %}
-                                        <span class="badge bg-danger">High</span>
-                                    {% elif ticket.priority == 'critical' %}
-                                        <span class="badge bg-danger">Critical</span>
-                                    {% else %}
-                                        <span class="badge bg-light text-dark">{{ ticket.priority }}</span>
-                                    {% endif %}
-                                </td>
-                                <td>
-                                    {% if ticket.status == 'open' %}
-                                        <span class="badge bg-primary">Open</span>
-                                    {% elif ticket.status == 'in_progress' %}
-                                        <span class="badge bg-warning">In Progress</span>
-                                    {% elif ticket.status == 'resolved' %}
-                                        <span class="badge bg-success">Resolved</span>
-                                    {% elif ticket.status == 'closed' %}
-                                        <span class="badge bg-secondary">Closed</span>
-                                    {% else %}
-                                        <span class="badge bg-light text-dark">{{ ticket.status }}</span>
-                                    {% endif %}
-                                </td>
-                                <td>{{ ticket.assigned_to or 'Unassigned' }}</td>
-                                <td>{{ ticket.created_date.strftime('%Y-%m-%d') }}</td>
-                                <td>
-                                    <div class="btn-group" role="group">
-                                        <a href="{{ url_for('view_support_ticket', ticket_id=ticket.id) }}" class="btn btn-sm btn-info" title="View">
-                                            <i class="fas fa-eye"></i>
-                                        </a>
-                                        <a href="{{ url_for('edit_support_ticket', ticket_id=ticket.id) }}" class="btn btn-sm btn-primary" title="Edit">
-                                            <i class="fas fa-edit"></i>
-                                        </a>
-                                        <button type="button" class="btn btn-sm btn-success assign-ticket" data-id="{{ ticket.id }}" title="Assign">
-                                            <i class="fas fa-user-check"></i>
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
-                            {% else %}
-                            <tr>
-                                <td colspan="8" class="text-center">No support tickets found.</td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-                <div class="text-center mt-3">
-                    <a href="{{ url_for('create_support_ticket') }}" class="btn btn-primary">Create Support Ticket</a>
-                </div>
-            </div>
-        </div>
-        
-        <div class="card shadow mb-4">
-            <div class="card-header py-3">
-                <h6 class="m-0 font-weight-bold text-primary">Support Statistics</h6>
-            </div>
-            <div class="card-body">
-                <div class="row mb-4">
-                    <div class="col-xl-3 col-md-6 mb-4">
-                        <div class="card border-left-primary shadow h-100 py-2">
-                            <div class="card-body">
-                                <div class="row no-gutters align-items-center">
-                                    <div class="col mr-2">
-                                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Open Tickets</div>
-                                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ support_stats.open_tickets }}</div>
-                                    </div>
-                                    <div class="col-auto">
-                                        <i class="fas fa-ticket-alt fa-2x text-gray-300"></i>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
 
-                    <div class="col-xl-3 col-md-6 mb-4">
-                        <div class="card border-left-success shadow h-100 py-2">
-                            <div class="card-body">
-                                <div class="row no-gutters align-items-center">
-                                    <div class="col mr-2">
-                                        <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Resolved Today</div>
-                                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ support_stats.resolved_today }}</div>
-                                    </div>
-                                    <div class="col-auto">
-                                        <i class="fas fa-check-circle fa-2x text-gray-300"></i>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+    <div class="card shadow mb-4">
+      <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Onboarding Progress</h6>
+      </div>
+      <div class="card-body">
+        <div class="table-responsive">
+          <table class="table table-bordered" width="100%" cellspacing="0">
+            <thead>
+              <tr>
+                <th>User</th>
+                <th>Template</th>
+                <th>Start Date</th>
+                <th>Progress</th>
+                <th>Current Step</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for progress in onboarding_progress %}
+              <tr>
+                <td>{{ progress.user_name }}</td>
+                <td>{{ progress.template_name }}</td>
+                <td>{{ progress.start_date.strftime('%Y-%m-%d') }}</td>
+                <td>
+                  <div class="progress">
+                    <div
+                      class="progress-bar"
+                      role="progressbar"
+                      style="width: {{ progress.percentage_complete }}%;"
+                      aria-valuenow="{{ progress.percentage_complete }}"
+                      aria-valuemin="0"
+                      aria-valuemax="100"
+                    >
+                      {{ progress.percentage_complete }}%
                     </div>
-
-                    <div class="col-xl-3 col-md-6 mb-4">
-                        <div class="card border-left-info shadow h-100 py-2">
-                            <div class="card-body">
-                                <div class="row no-gutters align-items-center">
-                                    <div class="col mr-2">
-                                        <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Avg. Response Time</div>
-                                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ support_stats.avg_response_time }}</div>
-                                    </div>
-                                    <div class="col-auto">
-                                        <i class="fas fa-clock fa-2x text-gray-300"></i>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-xl-3 col-md-6 mb-4">
-                        <div class="card border-left-warning shadow h-100 py-2">
-                            <div class="card-body">
-                                <div class="row no-gutters align-items-center">
-                                    <div class="col mr-2">
-                                        <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Customer Satisfaction</div>
-                                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ support_stats.customer_satisfaction|round(1) }}%</div>
-                                    </div>
-                                    <div class="col-auto">
-                                        <i class="fas fa-smile fa-2x text-gray-300"></i>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="row">
-                    <div class="col-lg-8">
-                        <div class="card shadow mb-4">
-                            <div class="card-header py-3">
-                                <h6 class="m-0 font-weight-bold text-primary">Ticket Trends</h6>
-                            </div>
-                            <div class="card-body">
-                                <div class="chart-area">
-                                    <canvas id="ticketTrendsChart"></canvas>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="col-lg-4">
-                        <div class="card shadow mb-4">
-                            <div class="card-header py-3">
-                                <h6 class="m-0 font-weight-bold text-primary">Tickets by Category</h6>
-                            </div>
-                            <div class="card-body">
-                                <div class="chart-pie pt-4 pb-2">
-                                    <canvas id="ticketsByCategoryChart"></canvas>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Knowledge Base Tab -->
-    <div class="tab-pane fade {% if active_tab == 'knowledge_base' %}show active{% endif %}" id="knowledgeBase" role="tabpanel" aria-labelledby="knowledgeBase-tab">
-        <div class="card shadow mb-4">
-            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                <h6 class="m-0 font-weight-bold text-primary">Knowledge Base Articles</h6>
-                <div class="dropdown no-arrow">
-                    <a class="dropdown-toggle" href="#" role="button" id="knowledgeBaseDropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
+                  </div>
+                </td>
+                <td>{{ progress.current_step }}</td>
+                <td>
+                  {% if progress.status == 'in_progress' %}
+                  <span class="badge bg-primary">In Progress</span>
+                  {% elif progress.status == 'completed' %}
+                  <span class="badge bg-success">Completed</span>
+                  {% elif progress.status == 'paused' %}
+                  <span class="badge bg-warning">Paused</span>
+                  {% else %}
+                  <span class="badge bg-light text-dark"
+                    >{{ progress.status }}</span
+                  >
+                  {% endif %}
+                </td>
+                <td>
+                  <div class="btn-group" role="group">
+                    <a
+                      href="{{ url_for('view_onboarding_progress', progress_id=progress.id) }}"
+                      class="btn btn-sm btn-info"
+                      title="View"
+                    >
+                      <i class="fas fa-eye"></i>
                     </a>
-                    <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in" aria-labelledby="knowledgeBaseDropdown">
-                        <div class="dropdown-header">Article Options:</div>
-                        <a class="dropdown-item" href="{{ url_for('add_knowledge_base_article') }}">Add New Article</a>
-                        <a class="dropdown-item" href="{{ url_for('import_knowledge_base_articles') }}">Import Articles</a>
-                        <div class="dropdown-divider"></div>
-                        <a class="dropdown-item" href="{{ url_for('export_knowledge_base_articles') }}">Export Articles</a>
-                    </div>
-                </div>
-            </div>
-            <div class="card-body">
-                <div class="table-responsive">
-                    <table class="table table-bordered" width="100%" cellspacing="0">
-                        <thead>
-                            <tr>
-                                <th>Title</th>
-                                <th>Category</th>
-                                <th>Views</th>
-                                <th>Helpful Votes</th>
-                                <th>Last Updated</th>
-                                <th>Status</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for article in knowledge_base_articles %}
-                            <tr>
-                                <td>{{ article.title }}</td>
-                                <td>{{ article.category }}</td>
-                                <td>{{ article.views }}</td>
-                                <td>{{ article.helpful_votes }}</td>
-                                <td>{{ article.last_updated.strftime('%Y-%m-%d') }}</td>
-                                <td>
-                                    {% if article.status == 'published' %}
-                                        <span class="badge bg-success">Published</span>
-                                    {% elif article.status == 'draft' %}
-                                        <span class="badge bg-secondary">Draft</span>
-                                    {% elif article.status == 'archived' %}
-                                        <span class="badge bg-light text-dark">Archived</span>
-                                    {% else %}
-                                        <span class="badge bg-light text-dark">{{ article.status }}</span>
-                                    {% endif %}
-                                </td>
-                                <td>
-                                    <div class="btn-group" role="group">
-                                        <a href="{{ url_for('view_knowledge_base_article', article_id=article.id) }}" class="btn btn-sm btn-info" title="View">
-                                            <i class="fas fa-eye"></i>
-                                        </a>
-                                        <a href="{{ url_for('edit_knowledge_base_article', article_id=article.id) }}" class="btn btn-sm btn-primary" title="Edit">
-                                            <i class="fas fa-edit"></i>
-                                        </a>
-                                        <button type="button" class="btn btn-sm btn-success toggle-article" data-id="{{ article.id }}" data-status="{{ article.status }}" title="Toggle">
-                                            {% if article.status == 'published' %}
-                                                <i class="fas fa-pause"></i>
-                                            {% else %}
-                                                <i class="fas fa-play"></i>
-                                            {% endif %}
-                                        </button>
-                                        <button type="button" class="btn btn-sm btn-danger delete-article" data-id="{{ article.id }}" data-name="{{ article.title }}" title="Delete">
-                                            <i class="fas fa-trash"></i>
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
-                            {% else %}
-                            <tr>
-                                <td colspan="7" class="text-center">No knowledge base articles found.</td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-                <div class="text-center mt-3">
-                    <a href="{{ url_for('add_knowledge_base_article') }}" class="btn btn-primary">Add Knowledge Base Article</a>
-                </div>
-            </div>
+                    {% if progress.status == 'in_progress' %}
+                    <button
+                      type="button"
+                      class="btn btn-sm btn-warning pause-progress"
+                      data-id="{{ progress.id }}"
+                      title="Pause"
+                    >
+                      <i class="fas fa-pause"></i>
+                    </button>
+                    {% elif progress.status == 'paused' %}
+                    <button
+                      type="button"
+                      class="btn btn-sm btn-success resume-progress"
+                      data-id="{{ progress.id }}"
+                      title="Resume"
+                    >
+                      <i class="fas fa-play"></i>
+                    </button>
+                    {% endif %}
+                  </div>
+                </td>
+              </tr>
+              {% else %}
+              <tr>
+                <td colspan="7" class="text-center">
+                  No onboarding progress found.
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
         </div>
-        
-        <div class="card shadow mb-4">
-            <div class="card-header py-3">
-                <h6 class="m-0 font-weight-bold text-primary">Knowledge Base Categories</h6>
-            </div>
-            <div class="card-body">
-                <div class="row">
-                    {% for category in knowledge_base_categories %}
-                    <div class="col-md-4 mb-4">
-                        <div class="card h-100">
-                            <div class="card-body">
-                                <h5 class="card-title">{{ category.name }}</h5>
-                                <p class="card-text">{{ category.description }}</p>
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <small class="text-muted">{{ category.articles_count }} articles</small>
-                                    <a href="{{ url_for('view_knowledge_base_category', category_id=category.id) }}" class="btn btn-sm btn-outline-primary">View</a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    {% endfor %}
-                </div>
-            </div>
-        </div>
+      </div>
     </div>
+  </div>
+
+  <!-- Training Tab -->
+  <div
+    class="tab-pane fade {% if active_tab == 'training' %}show active{% endif %}"
+    id="training"
+    role="tabpanel"
+    aria-labelledby="training-tab"
+  >
+    <div class="card shadow mb-4">
+      <div
+        class="card-header py-3 d-flex flex-row align-items-center justify-content-between"
+      >
+        <h6 class="m-0 font-weight-bold text-primary">Training Courses</h6>
+        <div class="dropdown no-arrow">
+          <a
+            class="dropdown-toggle"
+            href="#"
+            role="button"
+            id="trainingCoursesDropdown"
+            data-bs-toggle="dropdown"
+            aria-haspopup="true"
+            aria-expanded="false"
+          >
+            <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
+          </a>
+          <div
+            class="dropdown-menu dropdown-menu-right shadow animated--fade-in"
+            aria-labelledby="trainingCoursesDropdown"
+          >
+            <div class="dropdown-header">Course Options:</div>
+            <a class="dropdown-item" href="{{ url_for('add_training_course') }}"
+              >Add New Course</a
+            >
+            <a
+              class="dropdown-item"
+              href="{{ url_for('import_training_courses') }}"
+              >Import Courses</a
+            >
+            <div class="dropdown-divider"></div>
+            <a
+              class="dropdown-item"
+              href="{{ url_for('export_training_courses') }}"
+              >Export Courses</a
+            >
+          </div>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="table-responsive">
+          <table class="table table-bordered" width="100%" cellspacing="0">
+            <thead>
+              <tr>
+                <th>Course Name</th>
+                <th>Category</th>
+                <th>Duration</th>
+                <th>Difficulty</th>
+                <th>Status</th>
+                <th>Enrollments</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for course in training_courses %}
+              <tr>
+                <td>{{ course.name }}</td>
+                <td>{{ course.category }}</td>
+                <td>{{ course.duration }}</td>
+                <td>
+                  {% if course.difficulty == 'beginner' %}
+                  <span class="badge bg-success">Beginner</span>
+                  {% elif course.difficulty == 'intermediate' %}
+                  <span class="badge bg-warning">Intermediate</span>
+                  {% elif course.difficulty == 'advanced' %}
+                  <span class="badge bg-danger">Advanced</span>
+                  {% else %}
+                  <span class="badge bg-light text-dark"
+                    >{{ course.difficulty }}</span
+                  >
+                  {% endif %}
+                </td>
+                <td>
+                  {% if course.status == 'published' %}
+                  <span class="badge bg-success">Published</span>
+                  {% elif course.status == 'draft' %}
+                  <span class="badge bg-secondary">Draft</span>
+                  {% elif course.status == 'archived' %}
+                  <span class="badge bg-light text-dark">Archived</span>
+                  {% else %}
+                  <span class="badge bg-light text-dark"
+                    >{{ course.status }}</span
+                  >
+                  {% endif %}
+                </td>
+                <td>{{ course.enrollments_count }}</td>
+                <td>
+                  <div class="btn-group" role="group">
+                    <a
+                      href="{{ url_for('view_training_course', course_id=course.id) }}"
+                      class="btn btn-sm btn-info"
+                      title="View"
+                    >
+                      <i class="fas fa-eye"></i>
+                    </a>
+                    <a
+                      href="{{ url_for('edit_training_course', course_id=course.id) }}"
+                      class="btn btn-sm btn-primary"
+                      title="Edit"
+                    >
+                      <i class="fas fa-edit"></i>
+                    </a>
+                    <button
+                      type="button"
+                      class="btn btn-sm btn-success toggle-course"
+                      data-id="{{ course.id }}"
+                      data-status="{{ course.status }}"
+                      title="Toggle"
+                    >
+                      {% if course.status == 'published' %}
+                      <i class="fas fa-pause"></i>
+                      {% else %}
+                      <i class="fas fa-play"></i>
+                      {% endif %}
+                    </button>
+                    <button
+                      type="button"
+                      class="btn btn-sm btn-danger delete-course"
+                      data-id="{{ course.id }}"
+                      data-name="{{ course.name }}"
+                      title="Delete"
+                    >
+                      <i class="fas fa-trash"></i>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+              {% else %}
+              <tr>
+                <td colspan="7" class="text-center">
+                  No training courses found.
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        <div class="text-center mt-3">
+          <a href="{{ url_for('add_training_course') }}" class="btn btn-primary"
+            >Add Training Course</a
+          >
+        </div>
+      </div>
+    </div>
+
+    <div class="card shadow mb-4">
+      <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Training Enrollments</h6>
+      </div>
+      <div class="card-body">
+        <div class="table-responsive">
+          <table class="table table-bordered" width="100%" cellspacing="0">
+            <thead>
+              <tr>
+                <th>User</th>
+                <th>Course</th>
+                <th>Enrollment Date</th>
+                <th>Progress</th>
+                <th>Completion Date</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for enrollment in training_enrollments %}
+              <tr>
+                <td>{{ enrollment.user_name }}</td>
+                <td>{{ enrollment.course_name }}</td>
+                <td>{{ enrollment.enrollment_date.strftime('%Y-%m-%d') }}</td>
+                <td>
+                  <div class="progress">
+                    <div
+                      class="progress-bar"
+                      role="progressbar"
+                      style="width: {{ enrollment.percentage_complete }}%;"
+                      aria-valuenow="{{ enrollment.percentage_complete }}"
+                      aria-valuemin="0"
+                      aria-valuemax="100"
+                    >
+                      {{ enrollment.percentage_complete }}%
+                    </div>
+                  </div>
+                </td>
+                <td>
+                  {{ enrollment.completion_date.strftime('%Y-%m-%d') if
+                  enrollment.completion_date else 'N/A' }}
+                </td>
+                <td>
+                  {% if enrollment.status == 'in_progress' %}
+                  <span class="badge bg-primary">In Progress</span>
+                  {% elif enrollment.status == 'completed' %}
+                  <span class="badge bg-success">Completed</span>
+                  {% elif enrollment.status == 'failed' %}
+                  <span class="badge bg-danger">Failed</span>
+                  {% else %}
+                  <span class="badge bg-light text-dark"
+                    >{{ enrollment.status }}</span
+                  >
+                  {% endif %}
+                </td>
+                <td>
+                  <div class="btn-group" role="group">
+                    <a
+                      href="{{ url_for('view_training_enrollment', enrollment_id=enrollment.id) }}"
+                      class="btn btn-sm btn-info"
+                      title="View"
+                    >
+                      <i class="fas fa-eye"></i>
+                    </a>
+                    {% if enrollment.status == 'in_progress' %}
+                    <a
+                      href="{{ url_for('continue_training', enrollment_id=enrollment.id) }}"
+                      class="btn btn-sm btn-primary"
+                      title="Continue"
+                    >
+                      <i class="fas fa-play"></i>
+                    </a>
+                    {% endif %}
+                  </div>
+                </td>
+              </tr>
+              {% else %}
+              <tr>
+                <td colspan="7" class="text-center">
+                  No training enrollments found.
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Support Tab -->
+  <div
+    class="tab-pane fade {% if active_tab == 'support' %}show active{% endif %}"
+    id="support"
+    role="tabpanel"
+    aria-labelledby="support-tab"
+  >
+    <div class="card shadow mb-4">
+      <div
+        class="card-header py-3 d-flex flex-row align-items-center justify-content-between"
+      >
+        <h6 class="m-0 font-weight-bold text-primary">Support Tickets</h6>
+        <div class="dropdown no-arrow">
+          <a
+            class="dropdown-toggle"
+            href="#"
+            role="button"
+            id="supportTicketsDropdown"
+            data-bs-toggle="dropdown"
+            aria-haspopup="true"
+            aria-expanded="false"
+          >
+            <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
+          </a>
+          <div
+            class="dropdown-menu dropdown-menu-right shadow animated--fade-in"
+            aria-labelledby="supportTicketsDropdown"
+          >
+            <div class="dropdown-header">Ticket Options:</div>
+            <a
+              class="dropdown-item"
+              href="{{ url_for('create_support_ticket') }}"
+              >Create New Ticket</a
+            >
+            <div class="dropdown-divider"></div>
+            <a
+              class="dropdown-item"
+              href="{{ url_for('export_support_tickets') }}"
+              >Export Tickets</a
+            >
+          </div>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="table-responsive">
+          <table class="table table-bordered" width="100%" cellspacing="0">
+            <thead>
+              <tr>
+                <th>Ticket ID</th>
+                <th>Subject</th>
+                <th>Created By</th>
+                <th>Priority</th>
+                <th>Status</th>
+                <th>Assigned To</th>
+                <th>Created Date</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for ticket in support_tickets %}
+              <tr>
+                <td>{{ ticket.id }}</td>
+                <td>{{ ticket.subject }}</td>
+                <td>{{ ticket.created_by }}</td>
+                <td>
+                  {% if ticket.priority == 'low' %}
+                  <span class="badge bg-info">Low</span>
+                  {% elif ticket.priority == 'medium' %}
+                  <span class="badge bg-warning">Medium</span>
+                  {% elif ticket.priority == 'high' %}
+                  <span class="badge bg-danger">High</span>
+                  {% elif ticket.priority == 'critical' %}
+                  <span class="badge bg-danger">Critical</span>
+                  {% else %}
+                  <span class="badge bg-light text-dark"
+                    >{{ ticket.priority }}</span
+                  >
+                  {% endif %}
+                </td>
+                <td>
+                  {% if ticket.status == 'open' %}
+                  <span class="badge bg-primary">Open</span>
+                  {% elif ticket.status == 'in_progress' %}
+                  <span class="badge bg-warning">In Progress</span>
+                  {% elif ticket.status == 'resolved' %}
+                  <span class="badge bg-success">Resolved</span>
+                  {% elif ticket.status == 'closed' %}
+                  <span class="badge bg-secondary">Closed</span>
+                  {% else %}
+                  <span class="badge bg-light text-dark"
+                    >{{ ticket.status }}</span
+                  >
+                  {% endif %}
+                </td>
+                <td>{{ ticket.assigned_to or 'Unassigned' }}</td>
+                <td>{{ ticket.created_date.strftime('%Y-%m-%d') }}</td>
+                <td>
+                  <div class="btn-group" role="group">
+                    <a
+                      href="{{ url_for('view_support_ticket', ticket_id=ticket.id) }}"
+                      class="btn btn-sm btn-info"
+                      title="View"
+                    >
+                      <i class="fas fa-eye"></i>
+                    </a>
+                    <a
+                      href="{{ url_for('edit_support_ticket', ticket_id=ticket.id) }}"
+                      class="btn btn-sm btn-primary"
+                      title="Edit"
+                    >
+                      <i class="fas fa-edit"></i>
+                    </a>
+                    <button
+                      type="button"
+                      class="btn btn-sm btn-success assign-ticket"
+                      data-id="{{ ticket.id }}"
+                      title="Assign"
+                    >
+                      <i class="fas fa-user-check"></i>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+              {% else %}
+              <tr>
+                <td colspan="8" class="text-center">
+                  No support tickets found.
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        <div class="text-center mt-3">
+          <a
+            href="{{ url_for('create_support_ticket') }}"
+            class="btn btn-primary"
+            >Create Support Ticket</a
+          >
+        </div>
+      </div>
+    </div>
+
+    <div class="card shadow mb-4">
+      <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Support Statistics</h6>
+      </div>
+      <div class="card-body">
+        <div class="row mb-4">
+          <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-primary shadow h-100 py-2">
+              <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                  <div class="col mr-2">
+                    <div
+                      class="text-xs font-weight-bold text-primary text-uppercase mb-1"
+                    >
+                      Open Tickets
+                    </div>
+                    <div class="h5 mb-0 font-weight-bold text-gray-800">
+                      {{ support_stats.open_tickets }}
+                    </div>
+                  </div>
+                  <div class="col-auto">
+                    <i class="fas fa-ticket-alt fa-2x text-gray-300"></i>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-success shadow h-100 py-2">
+              <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                  <div class="col mr-2">
+                    <div
+                      class="text-xs font-weight-bold text-success text-uppercase mb-1"
+                    >
+                      Resolved Today
+                    </div>
+                    <div class="h5 mb-0 font-weight-bold text-gray-800">
+                      {{ support_stats.resolved_today }}
+                    </div>
+                  </div>
+                  <div class="col-auto">
+                    <i class="fas fa-check-circle fa-2x text-gray-300"></i>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-info shadow h-100 py-2">
+              <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                  <div class="col mr-2">
+                    <div
+                      class="text-xs font-weight-bold text-info text-uppercase mb-1"
+                    >
+                      Avg. Response Time
+                    </div>
+                    <div class="h5 mb-0 font-weight-bold text-gray-800">
+                      {{ support_stats.avg_response_time }}
+                    </div>
+                  </div>
+                  <div class="col-auto">
+                    <i class="fas fa-clock fa-2x text-gray-300"></i>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-warning shadow h-100 py-2">
+              <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                  <div class="col mr-2">
+                    <div
+                      class="text-xs font-weight-bold text-warning text-uppercase mb-1"
+                    >
+                      Customer Satisfaction
+                    </div>
+                    <div class="h5 mb-0 font-weight-bold text-gray-800">
+                      {{ support_stats.customer_satisfaction|round(1) }}%
+                    </div>
+                  </div>
+                  <div class="col-auto">
+                    <i class="fas fa-smile fa-2x text-gray-300"></i>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-lg-8">
+            <div class="card shadow mb-4">
+              <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Ticket Trends</h6>
+              </div>
+              <div class="card-body">
+                <div class="chart-area">
+                  <canvas id="ticketTrendsChart"></canvas>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-lg-4">
+            <div class="card shadow mb-4">
+              <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">
+                  Tickets by Category
+                </h6>
+              </div>
+              <div class="card-body">
+                <div class="chart-pie pt-4 pb-2">
+                  <canvas id="ticketsByCategoryChart"></canvas>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Knowledge Base Tab -->
+  <div
+    class="tab-pane fade {% if active_tab == 'knowledge_base' %}show active{% endif %}"
+    id="knowledgeBase"
+    role="tabpanel"
+    aria-labelledby="knowledgeBase-tab"
+  >
+    <div class="card shadow mb-4">
+      <div
+        class="card-header py-3 d-flex flex-row align-items-center justify-content-between"
+      >
+        <h6 class="m-0 font-weight-bold text-primary">
+          Knowledge Base Articles
+        </h6>
+        <div class="dropdown no-arrow">
+          <a
+            class="dropdown-toggle"
+            href="#"
+            role="button"
+            id="knowledgeBaseDropdown"
+            data-bs-toggle="dropdown"
+            aria-haspopup="true"
+            aria-expanded="false"
+          >
+            <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
+          </a>
+          <div
+            class="dropdown-menu dropdown-menu-right shadow animated--fade-in"
+            aria-labelledby="knowledgeBaseDropdown"
+          >
+            <div class="dropdown-header">Article Options:</div>
+            <a
+              class="dropdown-item"
+              href="{{ url_for('add_knowledge_base_article') }}"
+              >Add New Article</a
+            >
+            <a
+              class="dropdown-item"
+              href="{{ url_for('import_knowledge_base_articles') }}"
+              >Import Articles</a
+            >
+            <div class="dropdown-divider"></div>
+            <a
+              class="dropdown-item"
+              href="{{ url_for('export_knowledge_base_articles') }}"
+              >Export Articles</a
+            >
+          </div>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="table-responsive">
+          <table class="table table-bordered" width="100%" cellspacing="0">
+            <thead>
+              <tr>
+                <th>Title</th>
+                <th>Category</th>
+                <th>Views</th>
+                <th>Helpful Votes</th>
+                <th>Last Updated</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for article in knowledge_base_articles %}
+              <tr>
+                <td>{{ article.title }}</td>
+                <td>{{ article.category }}</td>
+                <td>{{ article.views }}</td>
+                <td>{{ article.helpful_votes }}</td>
+                <td>{{ article.last_updated.strftime('%Y-%m-%d') }}</td>
+                <td>
+                  {% if article.status == 'published' %}
+                  <span class="badge bg-success">Published</span>
+                  {% elif article.status == 'draft' %}
+                  <span class="badge bg-secondary">Draft</span>
+                  {% elif article.status == 'archived' %}
+                  <span class="badge bg-light text-dark">Archived</span>
+                  {% else %}
+                  <span class="badge bg-light text-dark"
+                    >{{ article.status }}</span
+                  >
+                  {% endif %}
+                </td>
+                <td>
+                  <div class="btn-group" role="group">
+                    <a
+                      href="{{ url_for('view_knowledge_base_article', article_id=article.id) }}"
+                      class="btn btn-sm btn-info"
+                      title="View"
+                    >
+                      <i class="fas fa-eye"></i>
+                    </a>
+                    <a
+                      href="{{ url_for('edit_knowledge_base_article', article_id=article.id) }}"
+                      class="btn btn-sm btn-primary"
+                      title="Edit"
+                    >
+                      <i class="fas fa-edit"></i>
+                    </a>
+                    <button
+                      type="button"
+                      class="btn btn-sm btn-success toggle-article"
+                      data-id="{{ article.id }}"
+                      data-status="{{ article.status }}"
+                      title="Toggle"
+                    >
+                      {% if article.status == 'published' %}
+                      <i class="fas fa-pause"></i>
+                      {% else %}
+                      <i class="fas fa-play"></i>
+                      {% endif %}
+                    </button>
+                    <button
+                      type="button"
+                      class="btn btn-sm btn-danger delete-article"
+                      data-id="{{ article.id }}"
+                      data-name="{{ article.title }}"
+                      title="Delete"
+                    >
+                      <i class="fas fa-trash"></i>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+              {% else %}
+              <tr>
+                <td colspan="7" class="text-center">
+                  No knowledge base articles found.
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        <div class="text-center mt-3">
+          <a
+            href="{{ url_for('add_knowledge_base_article') }}"
+            class="btn btn-primary"
+            >Add Knowledge Base Article</a
+          >
+        </div>
+      </div>
+    </div>
+
+    <div class="card shadow mb-4">
+      <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">
+          Knowledge Base Categories
+        </h6>
+      </div>
+      <div class="card-body">
+        <div class="row">
+          {% for category in knowledge_base_categories %}
+          <div class="col-md-4 mb-4">
+            <div class="card h-100">
+              <div class="card-body">
+                <h5 class="card-title">{{ category.name }}</h5>
+                <p class="card-text">{{ category.description }}</p>
+                <div class="d-flex justify-content-between align-items-center">
+                  <small class="text-muted"
+                    >{{ category.articles_count }} articles</small
+                  >
+                  <a
+                    href="{{ url_for('view_knowledge_base_category', category_id=category.id) }}"
+                    class="btn btn-sm btn-outline-primary"
+                    >View</a
+                  >
+                </div>
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 
 <!-- Delete Template Confirmation Modal -->
-<div class="modal fade" id="deleteTemplateModal" tabindex="-1" aria-labelledby="deleteTemplateModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="deleteTemplateModalLabel">Confirm Delete</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                Are you sure you want to delete the onboarding template "<strong id="deleteTemplateName"></strong>"? This action cannot be undone.
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <form id="deleteTemplateForm" method="POST">
-                    <button type="submit" class="btn btn-danger">Delete</button>
-                </form>
-            </div>
-        </div>
+<div
+  class="modal fade"
+  id="deleteTemplateModal"
+  tabindex="-1"
+  aria-labelledby="deleteTemplateModalLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="deleteTemplateModalLabel">
+          Confirm Delete
+        </h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+        ></button>
+      </div>
+      <div class="modal-body">
+        Are you sure you want to delete the onboarding template "<strong
+          id="deleteTemplateName"
+        ></strong
+        >"? This action cannot be undone.
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+          Cancel
+        </button>
+        <form id="deleteTemplateForm" method="POST">
+          <button type="submit" class="btn btn-danger">Delete</button>
+        </form>
+      </div>
     </div>
+  </div>
 </div>
 
 <!-- Delete Course Confirmation Modal -->
-<div class="modal fade" id="deleteCourseModal" tabindex="-1" aria-labelledby="deleteCourseModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="deleteCourseModalLabel">Confirm Delete</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                Are you sure you want to delete the training course "<strong id="deleteCourseName"></strong>"? This action cannot be undone.
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <form id="deleteCourseForm" method="POST">
-                    <button type="submit" class="btn btn-danger">Delete</button>
-                </form>
-            </div>
-        </div>
+<div
+  class="modal fade"
+  id="deleteCourseModal"
+  tabindex="-1"
+  aria-labelledby="deleteCourseModalLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="deleteCourseModalLabel">Confirm Delete</h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+        ></button>
+      </div>
+      <div class="modal-body">
+        Are you sure you want to delete the training course "<strong
+          id="deleteCourseName"
+        ></strong
+        >"? This action cannot be undone.
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+          Cancel
+        </button>
+        <form id="deleteCourseForm" method="POST">
+          <button type="submit" class="btn btn-danger">Delete</button>
+        </form>
+      </div>
     </div>
+  </div>
 </div>
 
 <!-- Delete Article Confirmation Modal -->
-<div class="modal fade" id="deleteArticleModal" tabindex="-1" aria-labelledby="deleteArticleModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="deleteArticleModalLabel">Confirm Delete</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                Are you sure you want to delete the knowledge base article "<strong id="deleteArticleName"></strong>"? This action cannot be undone.
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <form id="deleteArticleForm" method="POST">
-                    <button type="submit" class="btn btn-danger">Delete</button>
-                </form>
-            </div>
-        </div>
+<div
+  class="modal fade"
+  id="deleteArticleModal"
+  tabindex="-1"
+  aria-labelledby="deleteArticleModalLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="deleteArticleModalLabel">Confirm Delete</h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+        ></button>
+      </div>
+      <div class="modal-body">
+        Are you sure you want to delete the knowledge base article "<strong
+          id="deleteArticleName"
+        ></strong
+        >"? This action cannot be undone.
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+          Cancel
+        </button>
+        <form id="deleteArticleForm" method="POST">
+          <button type="submit" class="btn btn-danger">Delete</button>
+        </form>
+      </div>
     </div>
+  </div>
 </div>
 
 <!-- Assign Ticket Modal -->
-<div class="modal fade" id="assignTicketModal" tabindex="-1" aria-labelledby="assignTicketModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="assignTicketModalLabel">Assign Support Ticket</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <form id="assignTicketForm">
-                    <div class="mb-3">
-                        <label for="assignTo" class="form-label">Assign To</label>
-                        <select class="form-select" id="assignTo" required>
-                            {% for user in support_users %}
-                            <option value="{{ user.id }}">{{ user.name }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label for="assignComment" class="form-label">Comment</label>
-                        <textarea class="form-control" id="assignComment" rows="3"></textarea>
-                    </div>
-                    <input type="hidden" id="assignTicketId">
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-primary" id="assignTicketBtn">Assign Ticket</button>
-            </div>
-        </div>
+<div
+  class="modal fade"
+  id="assignTicketModal"
+  tabindex="-1"
+  aria-labelledby="assignTicketModalLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="assignTicketModalLabel">
+          Assign Support Ticket
+        </h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+        ></button>
+      </div>
+      <div class="modal-body">
+        <form id="assignTicketForm">
+          <div class="mb-3">
+            <label for="assignTo" class="form-label">Assign To</label>
+            <select class="form-select" id="assignTo" required>
+              {% for user in support_users %}
+              <option value="{{ user.id }}">{{ user.name }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="mb-3">
+            <label for="assignComment" class="form-label">Comment</label>
+            <textarea
+              class="form-control"
+              id="assignComment"
+              rows="3"
+            ></textarea>
+          </div>
+          <input type="hidden" id="assignTicketId" />
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+          Cancel
+        </button>
+        <button type="button" class="btn btn-primary" id="assignTicketBtn">
+          Assign Ticket
+        </button>
+      </div>
     </div>
+  </div>
 </div>
-{% endblock %}
-
-{% block scripts %}
+{% endblock %} {% block scripts %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-    $(document).ready(function() {
-        // Ticket Trends Chart
-        var ticketTrendsCtx = document.getElementById('ticketTrendsChart').getContext('2d');
-        var ticketTrendsChart = new Chart(ticketTrendsCtx, {
-            type: 'line',
-            data: {
-                labels: {{ ticket_trends_chart.labels|tojson }},
-                datasets: [{
-                    label: 'New Tickets',
-                    data: {{ ticket_trends_chart.new_tickets_data|tojson }},
-                    backgroundColor: 'rgba(54, 185, 204, 0.2)',
-                    borderColor: 'rgba(54, 185, 204, 1)',
-                    pointBackgroundColor: 'rgba(54, 185, 204, 1)',
-                    pointBorderColor: '#fff',
-                    pointHoverBackgroundColor: '#fff',
-                    pointHoverBorderColor: 'rgba(54, 185, 204, 1)',
-                    tension: 0.3,
-                    fill: true
-                }, {
-                    label: 'Resolved Tickets',
-                    data: {{ ticket_trends_chart.resolved_tickets_data|tojson }},
-                    backgroundColor: 'rgba(28, 200, 138, 0.2)',
-                    borderColor: 'rgba(28, 200, 138, 1)',
-                    pointBackgroundColor: 'rgba(28, 200, 138, 1)',
-                    pointBorderColor: '#fff',
-                    pointHoverBackgroundColor: '#fff',
-                    pointHoverBorderColor: 'rgba(28, 200, 138, 1)',
-                    tension: 0.3,
-                    fill: true
-                }]
-            },
-            options: {
-                maintainAspectRatio: false,
-                scales: {
-                    y: {
-                        beginAtZero: true
-                    }
-                }
-            }
-        });
-        
-        // Tickets by Category Chart
-        var ticketsByCategoryCtx = document.getElementById('ticketsByCategoryChart').getContext('2d');
-        var ticketsByCategoryChart = new Chart(ticketsByCategoryCtx, {
-            type: 'doughnut',
-            data: {
-                labels: {{ tickets_by_category_chart.labels|tojson }},
-                datasets: [{
-                    data: {{ tickets_by_category_chart.data|tojson }},
-                    backgroundColor: [
-                        'rgba(54, 185, 204, 0.8)',
-                        'rgba(28, 200, 138, 0.8)',
-                        'rgba(246, 194, 62, 0.8)',
-                        'rgba(231, 74, 59, 0.8)',
-                        'rgba(155, 89, 182, 0.8)'
-                    ],
-                    hoverBackgroundColor: [
-                        'rgba(54, 185, 204, 1)',
-                        'rgba(28, 200, 138, 1)',
-                        'rgba(246, 194, 62, 1)',
-                        'rgba(231, 74, 59, 1)',
-                        'rgba(155, 89, 182, 1)'
-                    ],
-                    hoverBorderColor: "rgba(234, 236, 244, 1)",
-                }]
-            },
-            options: {
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        position: 'bottom'
-                    }
-                }
-            }
-        });
-        
-        // Toggle onboarding template status
-        $('.toggle-template').on('click', function() {
-            var templateId = $(this).data('id');
-            var currentStatus = $(this).data('status');
-            var newStatus = currentStatus === 'active' ? 'inactive' : 'active';
-            
-            $.ajax({
-                url: '/toggle_onboarding_template/' + templateId,
-                type: 'POST',
-                data: {
-                    status: newStatus
-                },
-                success: function(response) {
-                    if (response.success) {
-                        location.reload();
-                    } else {
-                        alert('Error updating template status: ' + response.message);
-                    }
-                },
-                error: function() {
-                    alert('Error updating template status. Please try again.');
-                }
-            });
-        });
-        
-        // Delete onboarding template confirmation
-        $('.delete-template').on('click', function() {
-            var templateId = $(this).data('id');
-            var templateName = $(this).data('name');
-            
-            $('#deleteTemplateName').text(templateName);
-            $('#deleteTemplateForm').attr('action', '/delete_onboarding_template/' + templateId);
-            
-            var deleteTemplateModal = new bootstrap.Modal(document.getElementById('deleteTemplateModal'));
-            deleteTemplateModal.show();
-        });
-        
-        // Pause onboarding progress
-        $('.pause-progress').on('click', function() {
-            var progressId = $(this).data('id');
-            
-            $.ajax({
-                url: '/pause_onboarding_progress/' + progressId,
-                type: 'POST',
-                success: function(response) {
-                    if (response.success) {
-                        location.reload();
-                    } else {
-                        alert('Error pausing progress: ' + response.message);
-                    }
-                },
-                error: function() {
-                    alert('Error pausing progress. Please try again.');
-                }
-            });
-        });
-        
-        // Resume onboarding progress
-        $('.resume-progress').on('click', function() {
-            var progressId = $(this).data('id');
-            
-            $.ajax({
-                url: '/resume_onboarding_progress/' + progressId,
-                type: 'POST',
-                success: function(response) {
-                    if (response.success) {
-                        location.reload();
-                    } else {
-                        alert('Error resuming progress: ' + response.message);
-                    }
-                },
-                error: function() {
-                    alert('Error resuming progress. Please try again.');
-                }
-            });
-        });
-        
-        // Toggle training course status
-        $('.toggle-course').on('click', function() {
-            var courseId = $(this).data('id');
-            var currentStatus = $(this).data('status');
-            var newStatus = currentStatus === 'published' ? 'draft' : 'published';
-            
-            $.ajax({
-                url: '/toggle_training_course/' + courseId,
-                type: 'POST',
-                data: {
-                    status: newStatus
-                },
-                success: function(response) {
-                    if (response.success) {
-                        location.reload();
-                    } else {
-                        alert('Error updating course status: ' + response.message);
-                    }
-                },
-                error: function() {
-                    alert('Error updating course status. Please try again.');
-                }
-            });
-        });
-        
-        // Delete training course confirmation
-        $('.delete-course').on('click', function() {
-            var courseId = $(this).data('id');
-            var courseName = $(this).data('name');
-            
-            $('#deleteCourseName').text(courseName);
-            $('#deleteCourseForm').attr('action', '/delete_training_course/' + courseId);
-            
-            var deleteCourseModal = new bootstrap.Modal(document.getElementById('deleteCourseModal'));
-            deleteCourseModal.show();
-        });
-        
-        // Assign support ticket
-        $('.assign-ticket').on('click', function() {
-            var ticketId = $(this).data('id');
-            $('#assignTicketId').val(ticketId);
-            
-            var assignTicketModal = new bootstrap.Modal(document.getElementById('assignTicketModal'));
-            assignTicketModal.show();
-        });
-        
-        // Assign ticket button
-        $('#assignTicketBtn').on('click', function() {
-            var ticketId = $('#assignTicketId').val();
-            var assignTo = $('#assignTo').val();
-            var assignComment = $('#assignComment').val();
-            
-            $.ajax({
-                url: '/assign_support_ticket/' + ticketId,
-                type: 'POST',
-                data: {
-                    assign_to: assignTo,
-                    comment: assignComment
-                },
-                success: function(response) {
-                    if (response.success) {
-                        alert('Ticket assigned successfully!');
-                        bootstrap.Modal.getInstance(document.getElementById('assignTicketModal')).hide();
-                        location.reload();
-                    } else {
-                        alert('Error assigning ticket: ' + response.message);
-                    }
-                },
-                error: function() {
-                    alert('Error assigning ticket. Please try again.');
-                }
-            });
-        });
-        
-        // Toggle knowledge base article status
-        $('.toggle-article').on('click', function() {
-            var articleId = $(this).data('id');
-            var currentStatus = $(this).data('status');
-            var newStatus = currentStatus === 'published' ? 'draft' : 'published';
-            
-            $.ajax({
-                url: '/toggle_knowledge_base_article/' + articleId,
-                type: 'POST',
-                data: {
-                    status: newStatus
-                },
-                success: function(response) {
-                    if (response.success) {
-                        location.reload();
-                    } else {
-                        alert('Error updating article status: ' + response.message);
-                    }
-                },
-                error: function() {
-                    alert('Error updating article status. Please try again.');
-                }
-            });
-        });
-        
-        // Delete knowledge base article confirmation
-        $('.delete-article').on('click', function() {
-            var articleId = $(this).data('id');
-            var articleName = $(this).data('name');
-            
-            $('#deleteArticleName').text(articleName);
-            $('#deleteArticleForm').attr('action', '/delete_knowledge_base_article/' + articleId);
-            
-            var deleteArticleModal = new bootstrap.Modal(document.getElementById('deleteArticleModal'));
-            deleteArticleModal.show();
-        });
-    });
+  $(document).ready(function() {
+      // Ticket Trends Chart
+      var ticketTrendsCtx = document.getElementById('ticketTrendsChart').getContext('2d');
+      var ticketTrendsChart = new Chart(ticketTrendsCtx, {
+          type: 'line',
+          data: {
+              labels: {{ ticket_trends_chart.labels|tojson }},
+              datasets: [{
+                  label: 'New Tickets',
+                  data: {{ ticket_trends_chart.new_tickets_data|tojson }},
+                  backgroundColor: 'rgba(54, 185, 204, 0.2)',
+                  borderColor: 'rgba(54, 185, 204, 1)',
+                  pointBackgroundColor: 'rgba(54, 185, 204, 1)',
+                  pointBorderColor: '#fff',
+                  pointHoverBackgroundColor: '#fff',
+                  pointHoverBorderColor: 'rgba(54, 185, 204, 1)',
+                  tension: 0.3,
+                  fill: true
+              }, {
+                  label: 'Resolved Tickets',
+                  data: {{ ticket_trends_chart.resolved_tickets_data|tojson }},
+                  backgroundColor: 'rgba(28, 200, 138, 0.2)',
+                  borderColor: 'rgba(28, 200, 138, 1)',
+                  pointBackgroundColor: 'rgba(28, 200, 138, 1)',
+                  pointBorderColor: '#fff',
+                  pointHoverBackgroundColor: '#fff',
+                  pointHoverBorderColor: 'rgba(28, 200, 138, 1)',
+                  tension: 0.3,
+                  fill: true
+              }]
+          },
+          options: {
+              maintainAspectRatio: false,
+              scales: {
+                  y: {
+                      beginAtZero: true
+                  }
+              }
+          }
+      });
+
+      // Tickets by Category Chart
+      var ticketsByCategoryCtx = document.getElementById('ticketsByCategoryChart').getContext('2d');
+      var ticketsByCategoryChart = new Chart(ticketsByCategoryCtx, {
+          type: 'doughnut',
+          data: {
+              labels: {{ tickets_by_category_chart.labels|tojson }},
+              datasets: [{
+                  data: {{ tickets_by_category_chart.data|tojson }},
+                  backgroundColor: [
+                      'rgba(54, 185, 204, 0.8)',
+                      'rgba(28, 200, 138, 0.8)',
+                      'rgba(246, 194, 62, 0.8)',
+                      'rgba(231, 74, 59, 0.8)',
+                      'rgba(155, 89, 182, 0.8)'
+                  ],
+                  hoverBackgroundColor: [
+                      'rgba(54, 185, 204, 1)',
+                      'rgba(28, 200, 138, 1)',
+                      'rgba(246, 194, 62, 1)',
+                      'rgba(231, 74, 59, 1)',
+                      'rgba(155, 89, 182, 1)'
+                  ],
+                  hoverBorderColor: "rgba(234, 236, 244, 1)",
+              }]
+          },
+          options: {
+              maintainAspectRatio: false,
+              plugins: {
+                  legend: {
+                      position: 'bottom'
+                  }
+              }
+          }
+      });
+
+      // Toggle onboarding template status
+      $('.toggle-template').on('click', function() {
+          var templateId = $(this).data('id');
+          var currentStatus = $(this).data('status');
+          var newStatus = currentStatus === 'active' ? 'inactive' : 'active';
+
+          $.ajax({
+              url: '/toggle_onboarding_template/' + templateId,
+              type: 'POST',
+              data: {
+                  status: newStatus
+              },
+              success: function(response) {
+                  if (response.success) {
+                      location.reload();
+                  } else {
+                      alert('Error updating template status: ' + response.message);
+                  }
+              },
+              error: function() {
+                  alert('Error updating template status. Please try again.');
+              }
+          });
+      });
+
+      // Delete onboarding template confirmation
+      $('.delete-template').on('click', function() {
+          var templateId = $(this).data('id');
+          var templateName = $(this).data('name');
+
+          $('#deleteTemplateName').text(templateName);
+          $('#deleteTemplateForm').attr('action', '/delete_onboarding_template/' + templateId);
+
+          var deleteTemplateModal = new bootstrap.Modal(document.getElementById('deleteTemplateModal'));
+          deleteTemplateModal.show();
+      });
+
+      // Pause onboarding progress
+      $('.pause-progress').on('click', function() {
+          var progressId = $(this).data('id');
+
+          $.ajax({
+              url: '/pause_onboarding_progress/' + progressId,
+              type: 'POST',
+              success: function(response) {
+                  if (response.success) {
+                      location.reload();
+                  } else {
+                      alert('Error pausing progress: ' + response.message);
+                  }
+              },
+              error: function() {
+                  alert('Error pausing progress. Please try again.');
+              }
+          });
+      });
+
+      // Resume onboarding progress
+      $('.resume-progress').on('click', function() {
+          var progressId = $(this).data('id');
+
+          $.ajax({
+              url: '/resume_onboarding_progress/' + progressId,
+              type: 'POST',
+              success: function(response) {
+                  if (response.success) {
+                      location.reload();
+                  } else {
+                      alert('Error resuming progress: ' + response.message);
+                  }
+              },
+              error: function() {
+                  alert('Error resuming progress. Please try again.');
+              }
+          });
+      });
+
+      // Toggle training course status
+      $('.toggle-course').on('click', function() {
+          var courseId = $(this).data('id');
+          var currentStatus = $(this).data('status');
+          var newStatus = currentStatus === 'published' ? 'draft' : 'published';
+
+          $.ajax({
+              url: '/toggle_training_course/' + courseId,
+              type: 'POST',
+              data: {
+                  status: newStatus
+              },
+              success: function(response) {
+                  if (response.success) {
+                      location.reload();
+                  } else {
+                      alert('Error updating course status: ' + response.message);
+                  }
+              },
+              error: function() {
+                  alert('Error updating course status. Please try again.');
+              }
+          });
+      });
+
+      // Delete training course confirmation
+      $('.delete-course').on('click', function() {
+          var courseId = $(this).data('id');
+          var courseName = $(this).data('name');
+
+          $('#deleteCourseName').text(courseName);
+          $('#deleteCourseForm').attr('action', '/delete_training_course/' + courseId);
+
+          var deleteCourseModal = new bootstrap.Modal(document.getElementById('deleteCourseModal'));
+          deleteCourseModal.show();
+      });
+
+      // Assign support ticket
+      $('.assign-ticket').on('click', function() {
+          var ticketId = $(this).data('id');
+          $('#assignTicketId').val(ticketId);
+
+          var assignTicketModal = new bootstrap.Modal(document.getElementById('assignTicketModal'));
+          assignTicketModal.show();
+      });
+
+      // Assign ticket button
+      $('#assignTicketBtn').on('click', function() {
+          var ticketId = $('#assignTicketId').val();
+          var assignTo = $('#assignTo').val();
+          var assignComment = $('#assignComment').val();
+
+          $.ajax({
+              url: '/assign_support_ticket/' + ticketId,
+              type: 'POST',
+              data: {
+                  assign_to: assignTo,
+                  comment: assignComment
+              },
+              success: function(response) {
+                  if (response.success) {
+                      alert('Ticket assigned successfully!');
+                      bootstrap.Modal.getInstance(document.getElementById('assignTicketModal')).hide();
+                      location.reload();
+                  } else {
+                      alert('Error assigning ticket: ' + response.message);
+                  }
+              },
+              error: function() {
+                  alert('Error assigning ticket. Please try again.');
+              }
+          });
+      });
+
+      // Toggle knowledge base article status
+      $('.toggle-article').on('click', function() {
+          var articleId = $(this).data('id');
+          var currentStatus = $(this).data('status');
+          var newStatus = currentStatus === 'published' ? 'draft' : 'published';
+
+          $.ajax({
+              url: '/toggle_knowledge_base_article/' + articleId,
+              type: 'POST',
+              data: {
+                  status: newStatus
+              },
+              success: function(response) {
+                  if (response.success) {
+                      location.reload();
+                  } else {
+                      alert('Error updating article status: ' + response.message);
+                  }
+              },
+              error: function() {
+                  alert('Error updating article status. Please try again.');
+              }
+          });
+      });
+
+      // Delete knowledge base article confirmation
+      $('.delete-article').on('click', function() {
+          var articleId = $(this).data('id');
+          var articleName = $(this).data('name');
+
+          $('#deleteArticleName').text(articleName);
+          $('#deleteArticleForm').attr('action', '/delete_knowledge_base_article/' + articleId);
+
+          var deleteArticleModal = new bootstrap.Modal(document.getElementById('deleteArticleModal'));
+          deleteArticleModal.show();
+      });
+  });
 </script>
 {% endblock %}

@@ -1,0 +1,676 @@
+{% extends "base.html" %} {% block title %}Contact Us - LawEdge{% endblock %} {%
+block head %}
+<style>
+  .enquiry-section {
+    background: linear-gradient(135deg, var(--legal-navy) 0%, #2c5282 100%);
+    min-height: 100vh;
+    padding: 4rem 0;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .enquiry-section::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="1"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+    opacity: 0.3;
+  }
+
+  .enquiry-container {
+    position: relative;
+    z-index: 2;
+  }
+
+  .enquiry-card {
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .enquiry-header {
+    background: linear-gradient(135deg, var(--legal-gold) 0%, #b7791f 100%);
+    color: white;
+    padding: 2rem;
+    text-align: center;
+  }
+
+  .enquiry-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+  }
+
+  .enquiry-subtitle {
+    font-size: 1.2rem;
+    opacity: 0.9;
+  }
+
+  .enquiry-body {
+    padding: 3rem 2rem;
+  }
+
+  .form-group {
+    margin-bottom: 1.5rem;
+  }
+
+  .form-label {
+    font-weight: 600;
+    color: var(--legal-navy);
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .form-label .required {
+    color: #dc3545;
+  }
+
+  .form-control,
+  .form-select {
+    border: 2px solid #e9ecef;
+    border-radius: 10px;
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+  }
+
+  .form-control:focus,
+  .form-select:focus {
+    border-color: var(--legal-gold);
+    box-shadow: 0 0 0 0.2rem rgba(214, 158, 46, 0.25);
+    outline: none;
+  }
+
+  .form-control.is-invalid {
+    border-color: #dc3545;
+    background-image: none;
+  }
+
+  .invalid-feedback {
+    color: #dc3545;
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+  }
+
+  .btn-enquiry {
+    background: linear-gradient(135deg, var(--legal-gold) 0%, #b7791f 100%);
+    color: white;
+    border: none;
+    padding: 1rem 2rem;
+    font-size: 1.1rem;
+    font-weight: 600;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    min-width: 200px;
+  }
+
+  .btn-enquiry:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 30px rgba(214, 158, 46, 0.3);
+    color: white;
+  }
+
+  .btn-enquiry:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  .contact-info {
+    background: var(--surface-secondary);
+    border-radius: 15px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+  }
+
+  .contact-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .contact-item:last-child {
+    margin-bottom: 0;
+  }
+
+  .contact-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: linear-gradient(
+      135deg,
+      var(--legal-navy),
+      var(--primary-hover)
+    );
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+  }
+
+  .contact-text h4 {
+    color: var(--legal-navy);
+    margin-bottom: 0.25rem;
+  }
+
+  .contact-text p {
+    color: var(--text-secondary);
+    margin: 0;
+  }
+
+  .urgency-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.875rem;
+    font-weight: 500;
+  }
+
+  .urgency-low {
+    background: #d4edda;
+    color: #155724;
+  }
+
+  .urgency-medium {
+    background: #fff3cd;
+    color: #856404;
+  }
+
+  .urgency-high {
+    background: #f8d7da;
+    color: #721c24;
+  }
+
+  .urgency-urgent {
+    background: #f5c6cb;
+    color: #721c24;
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0% {
+      box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.7);
+    }
+    70% {
+      box-shadow: 0 0 0 10px rgba(220, 53, 69, 0);
+    }
+    100% {
+      box-shadow: 0 0 0 0 rgba(220, 53, 69, 0);
+    }
+  }
+
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+  }
+
+  @media (max-width: 768px) {
+    .form-row {
+      grid-template-columns: 1fr;
+    }
+
+    .enquiry-title {
+      font-size: 2rem;
+    }
+
+    .enquiry-body {
+      padding: 2rem 1rem;
+    }
+  }
+
+  .loading-spinner {
+    display: none;
+    width: 20px;
+    height: 20px;
+    border: 3px solid rgba(255, 255, 255, 0.3);
+    border-top: 3px solid white;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+
+  @keyframes spin {
+    0% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(360deg);
+    }
+  }
+
+  .btn-enquiry.loading .loading-spinner {
+    display: inline-block;
+  }
+
+  .btn-enquiry.loading .btn-text {
+    display: none;
+  }
+</style>
+{% endblock %} {% block content %}
+<section class="enquiry-section">
+  <div class="container enquiry-container">
+    <div class="enquiry-card">
+      <div class="enquiry-header">
+        <h1 class="enquiry-title">Get in Touch</h1>
+        <p class="enquiry-subtitle">
+          Our legal experts are ready to help you with your legal needs
+        </p>
+      </div>
+
+      <div class="enquiry-body">
+        <div class="row">
+          <div class="col-lg-8">
+            <form id="enquiryForm" method="POST" novalidate>
+              {{ form.hidden_tag() }}
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="name" class="form-label">
+                    <i class="fas fa-user"></i>
+                    Full Name
+                    <span class="required">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="name"
+                    name="name"
+                    required
+                    placeholder="John Doe"
+                  />
+                  <div class="invalid-feedback">
+                    Please enter your full name
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label for="email" class="form-label">
+                    <i class="fas fa-envelope"></i>
+                    Email Address
+                    <span class="required">*</span>
+                  </label>
+                  <input
+                    type="email"
+                    class="form-control"
+                    id="email"
+                    name="email"
+                    required
+                    placeholder="john@example.com"
+                  />
+                  <div class="invalid-feedback">
+                    Please enter a valid email address
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="phone" class="form-label">
+                    <i class="fas fa-phone"></i>
+                    Phone Number
+                  </label>
+                  <input
+                    type="tel"
+                    class="form-control"
+                    id="phone"
+                    name="phone"
+                    placeholder="+1 (555) 123-4567"
+                  />
+                </div>
+
+                <div class="form-group">
+                  <label for="practice_area" class="form-label">
+                    <i class="fas fa-briefcase"></i>
+                    Practice Area
+                  </label>
+                  <select
+                    class="form-select"
+                    id="practice_area"
+                    name="practice_area"
+                  >
+                    <option value="">Select a practice area</option>
+                    <option value="family_law">Family Law</option>
+                    <option value="criminal_law">Criminal Law</option>
+                    <option value="corporate_law">Corporate Law</option>
+                    <option value="property_law">Property Law</option>
+                    <option value="immigration_law">Immigration Law</option>
+                    <option value="employment_law">Employment Law</option>
+                    <option value="intellectual_property">
+                      Intellectual Property
+                    </option>
+                    <option value="tax_law">Tax Law</option>
+                    <option value="environmental_law">Environmental Law</option>
+                    <option value="other">Other</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="subject" class="form-label">
+                  <i class="fas fa-heading"></i>
+                  Subject
+                  <span class="required">*</span>
+                </label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="subject"
+                  name="subject"
+                  required
+                  placeholder="Brief description of your legal matter"
+                />
+                <div class="invalid-feedback">Please enter a subject</div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="urgency_level" class="form-label">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    Urgency Level
+                  </label>
+                  <select
+                    class="form-select"
+                    id="urgency_level"
+                    name="urgency_level"
+                  >
+                    <option value="low">Low - General consultation</option>
+                    <option value="medium" selected>
+                      Medium - Planning needed
+                    </option>
+                    <option value="high">High - Time-sensitive matter</option>
+                    <option value="urgent">
+                      Urgent - Immediate assistance required
+                    </option>
+                  </select>
+                  <div
+                    class="urgency-indicator urgency-low"
+                    id="urgencyIndicator"
+                  >
+                    <i class="fas fa-clock"></i>
+                    <span>Low Priority</span>
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label for="preferred_contact" class="form-label">
+                    <i class="fas fa-comments"></i>
+                    Preferred Contact Method
+                  </label>
+                  <select
+                    class="form-select"
+                    id="preferred_contact"
+                    name="preferred_contact"
+                  >
+                    <option value="email">Email</option>
+                    <option value="phone">Phone</option>
+                    <option value="both" selected>Both</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="message" class="form-label">
+                  <i class="fas fa-message"></i>
+                  Message
+                  <span class="required">*</span>
+                </label>
+                <textarea
+                  class="form-control"
+                  id="message"
+                  name="message"
+                  rows="6"
+                  required
+                  placeholder="Please provide details about your legal matter..."
+                ></textarea>
+                <div class="invalid-feedback">Please enter your message</div>
+                <small class="text-muted">
+                  <i class="fas fa-shield-alt"></i>
+                  Your information is kept confidential and secure
+                </small>
+              </div>
+
+              <div class="text-center">
+                <button type="submit" class="btn btn-enquiry">
+                  <span class="btn-text">
+                    <i class="fas fa-paper-plane me-2"></i>
+                    Send Enquiry
+                  </span>
+                  <div class="loading-spinner"></div>
+                </button>
+              </div>
+            </form>
+          </div>
+
+          <div class="col-lg-4">
+            <div class="contact-info">
+              <h3 class="mb-4 text-center">Contact Information</h3>
+
+              <div class="contact-item">
+                <div class="contact-icon">
+                  <i class="fas fa-phone"></i>
+                </div>
+                <div class="contact-text">
+                  <h4>Phone</h4>
+                  <p>1-800-LAWEDGE</p>
+                </div>
+              </div>
+
+              <div class="contact-item">
+                <div class="contact-icon">
+                  <i class="fas fa-envelope"></i>
+                </div>
+                <div class="contact-text">
+                  <h4>Email</h4>
+                  <p>info@lawedge.com</p>
+                </div>
+              </div>
+
+              <div class="contact-item">
+                <div class="contact-icon">
+                  <i class="fas fa-map-marker-alt"></i>
+                </div>
+                <div class="contact-text">
+                  <h4>Office</h4>
+                  <p>123 Legal Street<br />New York, NY 10001</p>
+                </div>
+              </div>
+
+              <div class="contact-item">
+                <div class="contact-icon">
+                  <i class="fas fa-clock"></i>
+                </div>
+                <div class="contact-text">
+                  <h4>Business Hours</h4>
+                  <p>
+                    Mon - Fri: 9:00 AM - 6:00 PM<br />Sat: 9:00 AM - 2:00 PM
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div class="contact-info">
+              <h4 class="mb-3">Why Choose LawEdge?</h4>
+              <ul class="list-unstyled">
+                <li class="mb-2">
+                  <i class="fas fa-check text-success me-2"></i>
+                  Experienced legal professionals
+                </li>
+                <li class="mb-2">
+                  <i class="fas fa-check text-success me-2"></i>
+                  Confidential consultation guaranteed
+                </li>
+                <li class="mb-2">
+                  <i class="fas fa-check text-success me-2"></i>
+                  Prompt response to all enquiries
+                </li>
+                <li class="mb-2">
+                  <i class="fas fa-check text-success me-2"></i>
+                  Transparent fee structure
+                </li>
+                <li class="mb-2">
+                  <i class="fas fa-check text-success me-2"></i>
+                  Client-centered approach
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const form = document.getElementById("enquiryForm");
+    const urgencySelect = document.getElementById("urgency_level");
+    const urgencyIndicator = document.getElementById("urgencyIndicator");
+    const submitBtn = form.querySelector(".btn-enquiry");
+
+    // Update urgency indicator
+    urgencySelect.addEventListener("change", function () {
+      const value = this.value;
+      urgencyIndicator.className = "urgency-indicator";
+
+      const urgencyData = {
+        low: { class: "urgency-low", text: "Low Priority", icon: "clock" },
+        medium: {
+          class: "urgency-medium",
+          text: "Medium Priority",
+          icon: "clock",
+        },
+        high: {
+          class: "urgency-high",
+          text: "High Priority",
+          icon: "exclamation-triangle",
+        },
+        urgent: {
+          class: "urgency-urgent",
+          text: "Urgent - Immediate Attention",
+          icon: "exclamation-circle",
+        },
+      };
+
+      const data = urgencyData[value] || urgencyData["medium"];
+      urgencyIndicator.classList.add(data.class);
+      urgencyIndicator.innerHTML = `<i class="fas fa-${data.icon}"></i><span>${data.text}</span>`;
+    });
+
+    // Form validation and submission
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+
+      // Reset validation states
+      form
+        .querySelectorAll(".is-invalid")
+        .forEach((el) => el.classList.remove("is-invalid"));
+
+      let isValid = true;
+
+      // Validate required fields
+      const requiredFields = ["name", "email", "subject", "message"];
+      requiredFields.forEach((fieldName) => {
+        const field = form.querySelector(`[name="${fieldName}"]`);
+        if (!field.value.trim()) {
+          field.classList.add("is-invalid");
+          isValid = false;
+        }
+      });
+
+      // Validate email format
+      const emailField = form.querySelector('[name="email"]');
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (emailField.value && !emailRegex.test(emailField.value)) {
+        emailField.classList.add("is-invalid");
+        isValid = false;
+      }
+
+      if (!isValid) {
+        return;
+      }
+
+      // Show loading state
+      submitBtn.classList.add("loading");
+      submitBtn.disabled = true;
+
+      // Create form data
+      const formData = new FormData(form);
+
+      // Submit form via fetch
+      fetch('{{ url_for("submit_enquiry") }}', {
+        method: "POST",
+        body: formData,
+        headers: {
+          "X-Requested-With": "XMLHttpRequest",
+        },
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          if (data.success) {
+            // Show success message
+            window.location.href = '{{ url_for("enquiry_success") }}';
+          } else {
+            // Show error message
+            showAlert(
+              data.message || "An error occurred. Please try again.",
+              "danger"
+            );
+            submitBtn.classList.remove("loading");
+            submitBtn.disabled = false;
+          }
+        })
+        .catch((error) => {
+          console.error("Error:", error);
+          showAlert("An error occurred. Please try again.", "danger");
+          submitBtn.classList.remove("loading");
+          submitBtn.disabled = false;
+        });
+    });
+
+    // Helper function to show alerts
+    function showAlert(message, type) {
+      const alertHtml = `
+        <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+          ${message}
+          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+      `;
+
+      const alertContainer = document.createElement("div");
+      alertContainer.innerHTML = alertHtml;
+      form.insertBefore(alertContainer.firstElementChild, form);
+    }
+
+    // Phone number formatting
+    const phoneField = document.querySelector('[name="phone"]');
+    phoneField.addEventListener("input", function (e) {
+      let value = e.target.value.replace(/\D/g, "");
+      if (value.length > 0) {
+        if (value.length <= 3) {
+          value = `(${value}`;
+        } else if (value.length <= 6) {
+          value = `(${value.slice(0, 3)}) ${value.slice(3)}`;
+        } else {
+          value = `(${value.slice(0, 3)}) ${value.slice(3, 6)}-${value.slice(
+            6,
+            10
+          )}`;
+        }
+      }
+      e.target.value = value;
+    });
+  });
+</script>
+{% endblock %}

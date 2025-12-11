@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+
+{% block title %}Assign Role Permission{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>Assign Role Permission</h1>
+    <a href="{{ url_for('role_permissions') }}" class="btn btn-secondary">
+        <i class="fas fa-arrow-left"></i> Back to Role Permissions
+    </a>
+</div>
+
+<div class="card">
+    <div class="card-header bg-primary text-white">
+        <h5 class="mb-0">Role Permission Assignment</h5>
+    </div>
+    <div class="card-body">
+        <form method="POST">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="role">Role <span class="text-danger">*</span></label>
+                        <select class="form-control" id="role" name="role" required>
+                            <option value="">Select Role</option>
+                            {% for role in roles %}
+                            <option value="{{ role }}">{{ role|title }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="permission_id">Permission <span class="text-danger">*</span></label>
+                        <select class="form-control" id="permission_id" name="permission_id" required>
+                            <option value="">Select Permission</option>
+                            {% for permission in permissions %}
+                            <option value="{{ permission.id }}">{{ permission.name }} ({{ permission.module|title }})</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card mt-3">
+                <div class="card-header">
+                    <h5 class="mb-0">Permission Details</h5>
+                </div>
+                <div class="card-body">
+                    <div id="permission-details">
+                        <p class="text-muted">Select a permission to view its details</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-group mt-4">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i> Assign Permission
+                </button>
+                <a href="{{ url_for('role_permissions') }}" class="btn btn-secondary">
+                    <i class="fas fa-times"></i> Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const permissionSelect = document.getElementById('permission_id');
+        const permissionDetails = document.getElementById('permission-details');
+        
+        // Store permission details
+        const permissionData = {
+            {% for permission in permissions %}
+            {{ permission.id }}: {
+                name: "{{ permission.name }}",
+                description: "{{ permission.description }}",
+                module: "{{ permission.module }}"
+            },
+            {% endfor %}
+        };
+        
+        permissionSelect.addEventListener('change', function() {
+            const permissionId = this.value;
+            if (permissionId && permissionData[permissionId]) {
+                const permission = permissionData[permissionId];
+                permissionDetails.innerHTML = `
+                    <div class="row">
+                        <div class="col-md-4">
+                            <strong>Name:</strong> ${permission.name}
+                        </div>
+                        <div class="col-md-4">
+                            <strong>Module:</strong> ${permission.module.charAt(0).toUpperCase() + permission.module.slice(1)}
+                        </div>
+                        <div class="col-md-12 mt-2">
+                            <strong>Description:</strong> ${permission.description}
+                        </div>
+                    </div>
+                `;
+            } else {
+                permissionDetails.innerHTML = '<p class="text-muted">Select a permission to view its details</p>';
+            }
+        });
+    });
+</script>
+{% endblock %}
+{% endblock %}

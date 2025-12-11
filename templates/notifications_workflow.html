@@ -1,926 +1,1358 @@
-{% extends "base.html" %}
-
-{% block title %}Notifications & Workflow Automation - Law Firm Management System{% endblock %}
-
-{% block content %}
-<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-    <h1 class="h2">Notifications & Workflow Automation</h1>
-    <div class="btn-toolbar mb-2 mb-md-0">
-        <div class="btn-group me-2">
-            <a href="{{ url_for('add_workflow_rule') }}" class="btn btn-sm btn-outline-secondary">
-                <i class="fas fa-plus me-1"></i>Add Workflow Rule
-            </a>
-        </div>
-        <div class="btn-group">
-            <a href="{{ url_for='notification_logs') }}" class="btn btn-sm btn-outline-secondary">
-                <i class="fas fa-history me-1"></i>Notification Logs
-            </a>
-        </div>
+{% extends "base.html" %} {% block title %}Notifications & Workflow Automation -
+Law Firm Management System{% endblock %} {% block content %}
+<div
+  class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom"
+>
+  <h1 class="h2">Notifications & Workflow Automation</h1>
+  <div class="btn-toolbar mb-2 mb-md-0">
+    <div class="btn-group me-2">
+      <a
+        href="{{ url_for('add_workflow_rule') }}"
+        class="btn btn-sm btn-outline-secondary"
+      >
+        <i class="fas fa-plus me-1"></i>Add Workflow Rule
+      </a>
     </div>
+    <div class="btn-group">
+      <a
+        href="{{ url_for('notification_logs') }}"
+        class="btn btn-sm btn-outline-secondary"
+      >
+        <i class="fas fa-history me-1"></i>Notification Logs
+      </a>
+    </div>
+  </div>
 </div>
 
 <!-- Tabs for Notifications & Workflow Automation Navigation -->
 <ul class="nav nav-tabs mb-4" id="notificationsTabs" role="tablist">
-    <li class="nav-item" role="presentation">
-        <button class="nav-link {% if active_tab == 'notifications' %}active{% endif %}" id="notifications-tab" data-bs-toggle="tab" data-bs-target="#notifications" type="button" role="tab" aria-controls="notifications" aria-selected="{% if active_tab == 'notifications' %}true{% else %}false{% endif %}">
-            <i class="fas fa-bell me-1"></i>Notifications
-        </button>
-    </li>
-    <li class="nav-item" role="presentation">
-        <button class="nav-link {% if active_tab == 'workflow_rules' %}active{% endif %}" id="workflowRules-tab" data-bs-toggle="tab" data-bs-target="#workflowRules" type="button" role="tab" aria-controls="workflowRules" aria-selected="{% if active_tab == 'workflow_rules' %}true{% else %}false{% endif %}">
-            <i class="fas fa-project-diagram me-1"></i>Workflow Rules
-        </button>
-    </li>
-    <li class="nav-item" role="presentation">
-        <button class="nav-link {% if active_tab == 'templates' %}active{% endif %}" id="templates-tab" data-bs-toggle="tab" data-bs-target="#templates" type="button" role="tab" aria-controls="templates" aria-selected="{% if active_tab == 'templates' %}true{% else %}false{% endif %}">
-            <i class="fas fa-file-alt me-1"></i>Templates
-        </button>
-    </li>
-    <li class="nav-item" role="presentation">
-        <button class="nav-link {% if active_tab == 'settings' %}active{% endif %}" id="settings-tab" data-bs-toggle="tab" data-bs-target="#settings" type="button" role="tab" aria-controls="settings" aria-selected="{% if active_tab == 'settings' %}true{% else %}false{% endif %}">
-            <i class="fas fa-cog me-1"></i>Settings
-        </button>
-    </li>
+  <li class="nav-item" role="presentation">
+    <button
+      class="nav-link {% if active_tab == 'notifications' %}active{% endif %}"
+      id="notifications-tab"
+      data-bs-toggle="tab"
+      data-bs-target="#notifications"
+      type="button"
+      role="tab"
+      aria-controls="notifications"
+      aria-selected="{% if active_tab == 'notifications' %}true{% else %}false{% endif %}"
+    >
+      <i class="fas fa-bell me-1"></i>Notifications
+    </button>
+  </li>
+  <li class="nav-item" role="presentation">
+    <button
+      class="nav-link {% if active_tab == 'workflow_rules' %}active{% endif %}"
+      id="workflowRules-tab"
+      data-bs-toggle="tab"
+      data-bs-target="#workflowRules"
+      type="button"
+      role="tab"
+      aria-controls="workflowRules"
+      aria-selected="{% if active_tab == 'workflow_rules' %}true{% else %}false{% endif %}"
+    >
+      <i class="fas fa-project-diagram me-1"></i>Workflow Rules
+    </button>
+  </li>
+  <li class="nav-item" role="presentation">
+    <button
+      class="nav-link {% if active_tab == 'templates' %}active{% endif %}"
+      id="templates-tab"
+      data-bs-toggle="tab"
+      data-bs-target="#templates"
+      type="button"
+      role="tab"
+      aria-controls="templates"
+      aria-selected="{% if active_tab == 'templates' %}true{% else %}false{% endif %}"
+    >
+      <i class="fas fa-file-alt me-1"></i>Templates
+    </button>
+  </li>
+  <li class="nav-item" role="presentation">
+    <button
+      class="nav-link {% if active_tab == 'settings' %}active{% endif %}"
+      id="settings-tab"
+      data-bs-toggle="tab"
+      data-bs-target="#settings"
+      type="button"
+      role="tab"
+      aria-controls="settings"
+      aria-selected="{% if active_tab == 'settings' %}true{% else %}false{% endif %}"
+    >
+      <i class="fas fa-cog me-1"></i>Settings
+    </button>
+  </li>
 </ul>
 
 <!-- Tab Content -->
 <div class="tab-content" id="notificationsTabsContent">
-    <!-- Notifications Tab -->
-    <div class="tab-pane fade {% if active_tab == 'notifications' %}show active{% endif %}" id="notifications" role="tabpanel" aria-labelledby="notifications-tab">
-        <div class="card shadow mb-4">
-            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                <h6 class="m-0 font-weight-bold text-primary">Recent Notifications</h6>
-                <div class="dropdown no-arrow">
-                    <a class="dropdown-toggle" href="#" role="button" id="notificationsDropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
-                    </a>
-                    <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in" aria-labelledby="notificationsDropdown">
-                        <div class="dropdown-header">Notification Options:</div>
-                        <a class="dropdown-item" href="{{ url_for('mark_all_notifications_read') }}">Mark All as Read</a>
-                        <a class="dropdown-item" href="{{ url_for('clear_all_notifications') }}">Clear All</a>
-                        <div class="dropdown-divider"></div>
-                        <a class="dropdown-item" href="{{ url_for('export_notifications') }}">Export Notifications</a>
-                    </div>
-                </div>
-            </div>
-            <div class="card-body">
-                <div class="list-group">
-                    {% for notification in notifications %}
-                    <div class="list-group-item list-group-item-action {% if not notification.read %}list-group-item-primary{% endif %}">
-                        <div class="d-flex w-100 justify-content-between">
-                            <h6 class="mb-1">{{ notification.title }}</h6>
-                            <div>
-                                <small class="text-muted">{{ notification.created_at.strftime('%Y-%m-%d %H:%M') }}</small>
-                                {% if not notification.read %}
-                                    <span class="badge bg-primary ms-2">New</span>
-                                {% endif %}
-                            </div>
-                        </div>
-                        <p class="mb-1">{{ notification.message }}</p>
-                        <div class="d-flex justify-content-between align-items-center">
-                            <small class="text-muted">{{ notification.category }}</small>
-                            <div>
-                                <a href="{{ notification.action_url }}" class="btn btn-sm btn-outline-primary">View Details</a>
-                                {% if not notification.read %}
-                                    <button type="button" class="btn btn-sm btn-outline-secondary mark-read" data-id="{{ notification.id }}">Mark as Read</button>
-                                {% endif %}
-                            </div>
-                        </div>
-                    </div>
-                    {% else %}
-                    <div class="list-group-item text-center">
-                        <p class="mb-0">No notifications found.</p>
-                    </div>
-                    {% endfor %}
-                </div>
-                
-                <!-- Pagination -->
-                {% if notifications %}
-                <nav aria-label="Notifications pagination">
-                    <ul class="pagination justify-content-center">
-                        {% if pagination.has_prev %}
-                        <li class="page-item">
-                            <a class="page-link" href="{{ url_for('notifications_workflow', tab='notifications', page=pagination.prev_num) }}" aria-label="Previous">
-                                <span aria-hidden="true">&laquo;</span>
-                            </a>
-                        </li>
-                        {% else %}
-                        <li class="page-item disabled">
-                            <a class="page-link" href="#" aria-label="Previous">
-                                <span aria-hidden="true">&laquo;</span>
-                            </a>
-                        </li>
-                        {% endif %}
-                        
-                        {% for page_num in pagination.iter_pages() %}
-                            {% if page_num %}
-                                {% if page_num != pagination.page %}
-                                <li class="page-item">
-                                    <a class="page-link" href="{{ url_for('notifications_workflow', tab='notifications', page=page_num) }}">{{ page_num }}</a>
-                                </li>
-                                {% else %}
-                                <li class="page-item active">
-                                    <a class="page-link" href="#">{{ page_num }}</a>
-                                </li>
-                                {% endif %}
-                            {% else %}
-                            <li class="page-item disabled">
-                                <a class="page-link" href="#">...</a>
-                            </li>
-                            {% endif %}
-                        {% endfor %}
-                        
-                        {% if pagination.has_next %}
-                        <li class="page-item">
-                            <a class="page-link" href="{{ url_for('notifications_workflow', tab='notifications', page=pagination.next_num) }}" aria-label="Next">
-                                <span aria-hidden="true">&raquo;</span>
-                            </a>
-                        </li>
-                        {% else %}
-                        <li class="page-item disabled">
-                            <a class="page-link" href="#" aria-label="Next">
-                                <span aria-hidden="true">&raquo;</span>
-                            </a>
-                        </li>
-                        {% endif %}
-                    </ul>
-                </nav>
+  <!-- Notifications Tab -->
+  <div
+    class="tab-pane fade {% if active_tab == 'notifications' %}show active{% endif %}"
+    id="notifications"
+    role="tabpanel"
+    aria-labelledby="notifications-tab"
+  >
+    <div class="card shadow mb-4">
+      <div
+        class="card-header py-3 d-flex flex-row align-items-center justify-content-between"
+      >
+        <h6 class="m-0 font-weight-bold text-primary">Recent Notifications</h6>
+        <div class="dropdown no-arrow">
+          <a
+            class="dropdown-toggle"
+            href="#"
+            role="button"
+            id="notificationsDropdown"
+            data-bs-toggle="dropdown"
+            aria-haspopup="true"
+            aria-expanded="false"
+          >
+            <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
+          </a>
+          <div
+            class="dropdown-menu dropdown-menu-right shadow animated--fade-in"
+            aria-labelledby="notificationsDropdown"
+          >
+            <div class="dropdown-header">Notification Options:</div>
+            <a
+              class="dropdown-item"
+              href="{{ url_for('mark_all_notifications_read') }}"
+              >Mark All as Read</a
+            >
+            <a
+              class="dropdown-item"
+              href="{{ url_for('clear_all_notifications') }}"
+              >Clear All</a
+            >
+            <div class="dropdown-divider"></div>
+            <a
+              class="dropdown-item"
+              href="{{ url_for('export_notifications') }}"
+              >Export Notifications</a
+            >
+          </div>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="list-group">
+          {% for notification in notifications %}
+          <div
+            class="list-group-item list-group-item-action {% if not notification.read %}list-group-item-primary{% endif %}"
+          >
+            <div class="d-flex w-100 justify-content-between">
+              <h6 class="mb-1">{{ notification.title }}</h6>
+              <div>
+                <small class="text-muted"
+                  >{{ notification.created_at.strftime('%Y-%m-%d %H:%M')
+                  }}</small
+                >
+                {% if not notification.read %}
+                <span class="badge bg-primary ms-2">New</span>
                 {% endif %}
+              </div>
             </div>
+            <p class="mb-1">{{ notification.message }}</p>
+            <div class="d-flex justify-content-between align-items-center">
+              <small class="text-muted">{{ notification.category }}</small>
+              <div>
+                <a
+                  href="{{ notification.action_url }}"
+                  class="btn btn-sm btn-outline-primary"
+                  >View Details</a
+                >
+                {% if not notification.read %}
+                <button
+                  type="button"
+                  class="btn btn-sm btn-outline-secondary mark-read"
+                  data-id="{{ notification.id }}"
+                >
+                  Mark as Read
+                </button>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+          {% else %}
+          <div class="list-group-item text-center">
+            <p class="mb-0">No notifications found.</p>
+          </div>
+          {% endfor %}
         </div>
-        
-        <div class="card shadow mb-4">
-            <div class="card-header py-3">
-                <h6 class="m-0 font-weight-bold text-primary">Notification Preferences</h6>
-            </div>
-            <div class="card-body">
-                <form method="POST" action="{{ url_for('update_notification_preferences') }}">
-                    {{ notification_preferences_form.hidden_tag() }}
-                    
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <h6 class="text-primary">Email Notifications</h6>
-                            <div class="form-check form-switch mb-2">
-                                {{ notification_preferences_form.email_new_case(class="form-check-input") }}
-                                {{ notification_preferences_form.email_new_case.label(class="form-check-label") }}
-                            </div>
-                            <div class="form-check form-switch mb-2">
-                                {{ notification_preferences_form.email_appointment_reminder(class="form-check-input") }}
-                                {{ notification_preferences_form.email_appointment_reminder.label(class="form-check-label") }}
-                            </div>
-                            <div class="form-check form-switch mb-2">
-                                {{ notification_preferences_form.email_invoice_sent(class="form-check-input") }}
-                                {{ notification_preferences_form.email_invoice_sent.label(class="form-check-label") }}
-                            </div>
-                            <div class="form-check form-switch mb-2">
-                                {{ notification_preferences_form.email_payment_received(class="form-check-input") }}
-                                {{ notification_preferences_form.email_payment_received.label(class="form-check-label") }}
-                            </div>
-                            <div class="form-check form-switch mb-2">
-                                {{ notification_preferences_form.email_document_shared(class="form-check-input") }}
-                                {{ notification_preferences_form.email_document_shared.label(class="form-check-label") }}
-                            </div>
-                        </div>
-                        
-                        <div class="col-md-6 mb-3">
-                            <h6 class="text-primary">In-App Notifications</h6>
-                            <div class="form-check form-switch mb-2">
-                                {{ notification_preferences_form.in_app_new_case(class="form-check-input") }}
-                                {{ notification_preferences_form.in_app_new_case.label(class="form-check-label") }}
-                            </div>
-                            <div class="form-check form-switch mb-2">
-                                {{ notification_preferences_form.in_app_appointment_reminder(class="form-check-input") }}
-                                {{ notification_preferences_form.in_app_appointment_reminder.label(class="form-check-label") }}
-                            </div>
-                            <div class="form-check form-switch mb-2">
-                                {{ notification_preferences_form.in_app_invoice_sent(class="form-check-input") }}
-                                {{ notification_preferences_form.in_app_invoice_sent.label(class="form-check-label") }}
-                            </div>
-                            <div class="form-check form-switch mb-2">
-                                {{ notification_preferences_form.in_app_payment_received(class="form-check-input") }}
-                                {{ notification_preferences_form.in_app_payment_received.label(class="form-check-label") }}
-                            </div>
-                            <div class="form-check form-switch mb-2">
-                                {{ notification_preferences_form.in_app_document_shared(class="form-check-input") }}
-                                {{ notification_preferences_form.in_app_document_shared.label(class="form-check-label") }}
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <h6 class="text-primary">Push Notifications</h6>
-                            <div class="form-check form-switch mb-2">
-                                {{ notification_preferences_form.push_new_case(class="form-check-input") }}
-                                {{ notification_preferences_form.push_new_case.label(class="form-check-label") }}
-                            </div>
-                            <div class="form-check form-switch mb-2">
-                                {{ notification_preferences_form.push_appointment_reminder(class="form-check-input") }}
-                                {{ notification_preferences_form.push_appointment_reminder.label(class="form-check-label") }}
-                            </div>
-                            <div class="form-check form-switch mb-2">
-                                {{ notification_preferences_form.push_invoice_sent(class="form-check-input") }}
-                                {{ notification_preferences_form.push_invoice_sent.label(class="form-check-label") }}
-                            </div>
-                            <div class="form-check form-switch mb-2">
-                                {{ notification_preferences_form.push_payment_received(class="form-check-input") }}
-                                {{ notification_preferences_form.push_payment_received.label(class="form-check-label") }}
-                            </div>
-                            <div class="form-check form-switch mb-2">
-                                {{ notification_preferences_form.push_document_shared(class="form-check-input") }}
-                                {{ notification_preferences_form.push_document_shared.label(class="form-check-label") }}
-                            </div>
-                        </div>
-                        
-                        <div class="col-md-6 mb-3">
-                            <h6 class="text-primary">SMS Notifications</h6>
-                            <div class="form-check form-switch mb-2">
-                                {{ notification_preferences_form.sms_appointment_reminder(class="form-check-input") }}
-                                {{ notification_preferences_form.sms_appointment_reminder.label(class="form-check-label") }}
-                            </div>
-                            <div class="form-check form-switch mb-2">
-                                {{ notification_preferences_form.sms_payment_received(class="form-check-input") }}
-                                {{ notification_preferences_form.sms_payment_received.label(class="form-check-label") }}
-                            </div>
-                            <div class="mb-3">
-                                {{ notification_preferences_form.sms_phone_number.label(class="form-label") }}
-                                {{ notification_preferences_form.sms_phone_number(class="form-control") }}
-                                {% if notification_preferences_form.sms_phone_number.errors %}
-                                    <div class="text-danger">
-                                        {% for error in notification_preferences_form.sms_phone_number.errors %}
-                                            <small>{{ error }}</small>
-                                        {% endfor %}
-                                    </div>
-                                {% endif %}
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="d-flex justify-content-end">
-                        <button type="submit" class="btn btn-primary">Update Preferences</button>
-                    </div>
-                </form>
-            </div>
-        </div>
+
+        <!-- Pagination -->
+        {% if notifications %}
+        <nav aria-label="Notifications pagination">
+          <ul class="pagination justify-content-center">
+            {% if pagination.has_prev %}
+            <li class="page-item">
+              <a
+                class="page-link"
+                href="{{ url_for('notifications_workflow', tab='notifications', page=pagination.prev_num) }}"
+                aria-label="Previous"
+              >
+                <span aria-hidden="true">&laquo;</span>
+              </a>
+            </li>
+            {% else %}
+            <li class="page-item disabled">
+              <a class="page-link" href="#" aria-label="Previous">
+                <span aria-hidden="true">&laquo;</span>
+              </a>
+            </li>
+            {% endif %} {% for page_num in pagination.iter_pages() %} {% if
+            page_num %} {% if page_num != pagination.page %}
+            <li class="page-item">
+              <a
+                class="page-link"
+                href="{{ url_for('notifications_workflow', tab='notifications', page=page_num) }}"
+                >{{ page_num }}</a
+              >
+            </li>
+            {% else %}
+            <li class="page-item active">
+              <a class="page-link" href="#">{{ page_num }}</a>
+            </li>
+            {% endif %} {% else %}
+            <li class="page-item disabled">
+              <a class="page-link" href="#">...</a>
+            </li>
+            {% endif %} {% endfor %} {% if pagination.has_next %}
+            <li class="page-item">
+              <a
+                class="page-link"
+                href="{{ url_for('notifications_workflow', tab='notifications', page=pagination.next_num) }}"
+                aria-label="Next"
+              >
+                <span aria-hidden="true">&raquo;</span>
+              </a>
+            </li>
+            {% else %}
+            <li class="page-item disabled">
+              <a class="page-link" href="#" aria-label="Next">
+                <span aria-hidden="true">&raquo;</span>
+              </a>
+            </li>
+            {% endif %}
+          </ul>
+        </nav>
+        {% endif %}
+      </div>
     </div>
-    
-    <!-- Workflow Rules Tab -->
-    <div class="tab-pane fade {% if active_tab == 'workflow_rules' %}show active{% endif %}" id="workflowRules" role="tabpanel" aria-labelledby="workflowRules-tab">
-        <div class="card shadow mb-4">
-            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                <h6 class="m-0 font-weight-bold text-primary">Workflow Rules</h6>
-                <div class="dropdown no-arrow">
-                    <a class="dropdown-toggle" href="#" role="button" id="workflowRulesDropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
-                    </a>
-                    <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in" aria-labelledby="workflowRulesDropdown">
-                        <div class="dropdown-header">Rule Options:</div>
-                        <a class="dropdown-item" href="{{ url_for('add_workflow_rule') }}">Add New Rule</a>
-                        <a class="dropdown-item" href="{{ url_for('workflow_rule_templates') }}">Rule Templates</a>
-                        <div class="dropdown-divider"></div>
-                        <a class="dropdown-item" href="{{ url_for('export_workflow_rules') }}">Export Rules</a>
-                    </div>
-                </div>
+
+    <div class="card shadow mb-4">
+      <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">
+          Notification Preferences
+        </h6>
+      </div>
+      <div class="card-body">
+        <form
+          method="POST"
+          action="{{ url_for('update_notification_preferences') }}"
+        >
+          {{ notification_preferences_form.hidden_tag() }}
+
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <h6 class="text-primary">Email Notifications</h6>
+              <div class="form-check form-switch mb-2">
+                {{
+                notification_preferences_form.email_new_case(class="form-check-input")
+                }} {{
+                notification_preferences_form.email_new_case.label(class="form-check-label")
+                }}
+              </div>
+              <div class="form-check form-switch mb-2">
+                {{
+                notification_preferences_form.email_appointment_reminder(class="form-check-input")
+                }} {{
+                notification_preferences_form.email_appointment_reminder.label(class="form-check-label")
+                }}
+              </div>
+              <div class="form-check form-switch mb-2">
+                {{
+                notification_preferences_form.email_invoice_sent(class="form-check-input")
+                }} {{
+                notification_preferences_form.email_invoice_sent.label(class="form-check-label")
+                }}
+              </div>
+              <div class="form-check form-switch mb-2">
+                {{
+                notification_preferences_form.email_payment_received(class="form-check-input")
+                }} {{
+                notification_preferences_form.email_payment_received.label(class="form-check-label")
+                }}
+              </div>
+              <div class="form-check form-switch mb-2">
+                {{
+                notification_preferences_form.email_document_shared(class="form-check-input")
+                }} {{
+                notification_preferences_form.email_document_shared.label(class="form-check-label")
+                }}
+              </div>
             </div>
-            <div class="card-body">
-                <div class="table-responsive">
-                    <table class="table table-bordered" width="100%" cellspacing="0">
-                        <thead>
-                            <tr>
-                                <th>Rule Name</th>
-                                <th>Trigger</th>
-                                <th>Action</th>
-                                <th>Status</th>
-                                <th>Last Run</th>
-                                <th>Next Run</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for rule in workflow_rules %}
-                            <tr>
-                                <td>{{ rule.name }}</td>
-                                <td>{{ rule.trigger }}</td>
-                                <td>{{ rule.action }}</td>
-                                <td>
-                                    {% if rule.status == 'active' %}
-                                        <span class="badge bg-success">Active</span>
-                                    {% elif rule.status == 'inactive' %}
-                                        <span class="badge bg-secondary">Inactive</span>
-                                    {% elif rule.status == 'error' %}
-                                        <span class="badge bg-danger">Error</span>
-                                    {% else %}
-                                        <span class="badge bg-light text-dark">{{ rule.status }}</span>
-                                    {% endif %}
-                                </td>
-                                <td>{{ rule.last_run.strftime('%Y-%m-%d %H:%M') if rule.last_run else 'Never' }}</td>
-                                <td>{{ rule.next_run.strftime('%Y-%m-%d %H:%M') if rule.next_run else 'N/A' }}</td>
-                                <td>
-                                    <div class="btn-group" role="group">
-                                        <a href="{{ url_for('edit_workflow_rule', rule_id=rule.id) }}" class="btn btn-sm btn-info" title="Edit">
-                                            <i class="fas fa-edit"></i>
-                                        </a>
-                                        <button type="button" class="btn btn-sm btn-success toggle-rule" data-id="{{ rule.id }}" data-status="{{ rule.status }}" title="Toggle">
-                                            {% if rule.status == 'active' %}
-                                                <i class="fas fa-pause"></i>
-                                            {% else %}
-                                                <i class="fas fa-play"></i>
-                                            {% endif %}
-                                        </button>
-                                        <button type="button" class="btn btn-sm btn-primary run-rule" data-id="{{ rule.id }}" title="Run Now">
-                                            <i class="fas fa-play-circle"></i>
-                                        </button>
-                                        <button type="button" class="btn btn-sm btn-danger delete-rule" data-id="{{ rule.id }}" data-name="{{ rule.name }}" title="Delete">
-                                            <i class="fas fa-trash"></i>
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
-                            {% else %}
-                            <tr>
-                                <td colspan="7" class="text-center">No workflow rules found.</td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-                <div class="text-center mt-3">
-                    <a href="{{ url_for('add_workflow_rule') }}" class="btn btn-primary">Add New Rule</a>
-                </div>
+
+            <div class="col-md-6 mb-3">
+              <h6 class="text-primary">In-App Notifications</h6>
+              <div class="form-check form-switch mb-2">
+                {{
+                notification_preferences_form.in_app_new_case(class="form-check-input")
+                }} {{
+                notification_preferences_form.in_app_new_case.label(class="form-check-label")
+                }}
+              </div>
+              <div class="form-check form-switch mb-2">
+                {{
+                notification_preferences_form.in_app_appointment_reminder(class="form-check-input")
+                }} {{
+                notification_preferences_form.in_app_appointment_reminder.label(class="form-check-label")
+                }}
+              </div>
+              <div class="form-check form-switch mb-2">
+                {{
+                notification_preferences_form.in_app_invoice_sent(class="form-check-input")
+                }} {{
+                notification_preferences_form.in_app_invoice_sent.label(class="form-check-label")
+                }}
+              </div>
+              <div class="form-check form-switch mb-2">
+                {{
+                notification_preferences_form.in_app_payment_received(class="form-check-input")
+                }} {{
+                notification_preferences_form.in_app_payment_received.label(class="form-check-label")
+                }}
+              </div>
+              <div class="form-check form-switch mb-2">
+                {{
+                notification_preferences_form.in_app_document_shared(class="form-check-input")
+                }} {{
+                notification_preferences_form.in_app_document_shared.label(class="form-check-label")
+                }}
+              </div>
             </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <h6 class="text-primary">Push Notifications</h6>
+              <div class="form-check form-switch mb-2">
+                {{
+                notification_preferences_form.push_new_case(class="form-check-input")
+                }} {{
+                notification_preferences_form.push_new_case.label(class="form-check-label")
+                }}
+              </div>
+              <div class="form-check form-switch mb-2">
+                {{
+                notification_preferences_form.push_appointment_reminder(class="form-check-input")
+                }} {{
+                notification_preferences_form.push_appointment_reminder.label(class="form-check-label")
+                }}
+              </div>
+              <div class="form-check form-switch mb-2">
+                {{
+                notification_preferences_form.push_invoice_sent(class="form-check-input")
+                }} {{
+                notification_preferences_form.push_invoice_sent.label(class="form-check-label")
+                }}
+              </div>
+              <div class="form-check form-switch mb-2">
+                {{
+                notification_preferences_form.push_payment_received(class="form-check-input")
+                }} {{
+                notification_preferences_form.push_payment_received.label(class="form-check-label")
+                }}
+              </div>
+              <div class="form-check form-switch mb-2">
+                {{
+                notification_preferences_form.push_document_shared(class="form-check-input")
+                }} {{
+                notification_preferences_form.push_document_shared.label(class="form-check-label")
+                }}
+              </div>
+            </div>
+
+            <div class="col-md-6 mb-3">
+              <h6 class="text-primary">SMS Notifications</h6>
+              <div class="form-check form-switch mb-2">
+                {{
+                notification_preferences_form.sms_appointment_reminder(class="form-check-input")
+                }} {{
+                notification_preferences_form.sms_appointment_reminder.label(class="form-check-label")
+                }}
+              </div>
+              <div class="form-check form-switch mb-2">
+                {{
+                notification_preferences_form.sms_payment_received(class="form-check-input")
+                }} {{
+                notification_preferences_form.sms_payment_received.label(class="form-check-label")
+                }}
+              </div>
+              <div class="mb-3">
+                {{
+                notification_preferences_form.sms_phone_number.label(class="form-label")
+                }} {{
+                notification_preferences_form.sms_phone_number(class="form-control")
+                }} {% if notification_preferences_form.sms_phone_number.errors
+                %}
+                <div class="text-danger">
+                  {% for error in
+                  notification_preferences_form.sms_phone_number.errors %}
+                  <small>{{ error }}</small>
+                  {% endfor %}
+                </div>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+
+          <div class="d-flex justify-content-end">
+            <button type="submit" class="btn btn-primary">
+              Update Preferences
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Workflow Rules Tab -->
+  <div
+    class="tab-pane fade {% if active_tab == 'workflow_rules' %}show active{% endif %}"
+    id="workflowRules"
+    role="tabpanel"
+    aria-labelledby="workflowRules-tab"
+  >
+    <div class="card shadow mb-4">
+      <div
+        class="card-header py-3 d-flex flex-row align-items-center justify-content-between"
+      >
+        <h6 class="m-0 font-weight-bold text-primary">Workflow Rules</h6>
+        <div class="dropdown no-arrow">
+          <a
+            class="dropdown-toggle"
+            href="#"
+            role="button"
+            id="workflowRulesDropdown"
+            data-bs-toggle="dropdown"
+            aria-haspopup="true"
+            aria-expanded="false"
+          >
+            <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
+          </a>
+          <div
+            class="dropdown-menu dropdown-menu-right shadow animated--fade-in"
+            aria-labelledby="workflowRulesDropdown"
+          >
+            <div class="dropdown-header">Rule Options:</div>
+            <a class="dropdown-item" href="{{ url_for('add_workflow_rule') }}"
+              >Add New Rule</a
+            >
+            <a
+              class="dropdown-item"
+              href="{{ url_for('workflow_rule_templates') }}"
+              >Rule Templates</a
+            >
+            <div class="dropdown-divider"></div>
+            <a
+              class="dropdown-item"
+              href="{{ url_for('export_workflow_rules') }}"
+              >Export Rules</a
+            >
+          </div>
         </div>
-        
-        <div class="card shadow mb-4">
-            <div class="card-header py-3">
-                <h6 class="m-0 font-weight-bold text-primary">Workflow Templates</h6>
+      </div>
+      <div class="card-body">
+        <div class="table-responsive">
+          <table class="table table-bordered" width="100%" cellspacing="0">
+            <thead>
+              <tr>
+                <th>Rule Name</th>
+                <th>Trigger</th>
+                <th>Action</th>
+                <th>Status</th>
+                <th>Last Run</th>
+                <th>Next Run</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for rule in workflow_rules %}
+              <tr>
+                <td>{{ rule.name }}</td>
+                <td>{{ rule.trigger }}</td>
+                <td>{{ rule.action }}</td>
+                <td>
+                  {% if rule.status == 'active' %}
+                  <span class="badge bg-success">Active</span>
+                  {% elif rule.status == 'inactive' %}
+                  <span class="badge bg-secondary">Inactive</span>
+                  {% elif rule.status == 'error' %}
+                  <span class="badge bg-danger">Error</span>
+                  {% else %}
+                  <span class="badge bg-light text-dark"
+                    >{{ rule.status }}</span
+                  >
+                  {% endif %}
+                </td>
+                <td>
+                  {{ rule.last_run.strftime('%Y-%m-%d %H:%M') if rule.last_run
+                  else 'Never' }}
+                </td>
+                <td>
+                  {{ rule.next_run.strftime('%Y-%m-%d %H:%M') if rule.next_run
+                  else 'N/A' }}
+                </td>
+                <td>
+                  <div class="btn-group" role="group">
+                    <a
+                      href="{{ url_for('edit_workflow_rule', rule_id=rule.id) }}"
+                      class="btn btn-sm btn-info"
+                      title="Edit"
+                    >
+                      <i class="fas fa-edit"></i>
+                    </a>
+                    <button
+                      type="button"
+                      class="btn btn-sm btn-success toggle-rule"
+                      data-id="{{ rule.id }}"
+                      data-status="{{ rule.status }}"
+                      title="Toggle"
+                    >
+                      {% if rule.status == 'active' %}
+                      <i class="fas fa-pause"></i>
+                      {% else %}
+                      <i class="fas fa-play"></i>
+                      {% endif %}
+                    </button>
+                    <button
+                      type="button"
+                      class="btn btn-sm btn-primary run-rule"
+                      data-id="{{ rule.id }}"
+                      title="Run Now"
+                    >
+                      <i class="fas fa-play-circle"></i>
+                    </button>
+                    <button
+                      type="button"
+                      class="btn btn-sm btn-danger delete-rule"
+                      data-id="{{ rule.id }}"
+                      data-name="{{ rule.name }}"
+                      title="Delete"
+                    >
+                      <i class="fas fa-trash"></i>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+              {% else %}
+              <tr>
+                <td colspan="7" class="text-center">
+                  No workflow rules found.
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        <div class="text-center mt-3">
+          <a href="{{ url_for('add_workflow_rule') }}" class="btn btn-primary"
+            >Add New Rule</a
+          >
+        </div>
+      </div>
+    </div>
+
+    <div class="card shadow mb-4">
+      <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Workflow Templates</h6>
+      </div>
+      <div class="card-body">
+        <div class="row">
+          {% for template in workflow_templates %}
+          <div class="col-md-4 mb-4">
+            <div class="card h-100">
+              <div class="card-body">
+                <h5 class="card-title">{{ template.name }}</h5>
+                <p class="card-text">{{ template.description }}</p>
+                <div class="d-flex justify-content-between align-items-center">
+                  <small class="text-muted">{{ template.category }}</small>
+                  <a
+                    href="{{ url_for('create_rule_from_template', template_id=template.id) }}"
+                    class="btn btn-sm btn-primary"
+                    >Use Template</a
+                  >
+                </div>
+              </div>
             </div>
-            <div class="card-body">
-                <div class="row">
-                    {% for template in workflow_templates %}
-                    <div class="col-md-4 mb-4">
-                        <div class="card h-100">
-                            <div class="card-body">
-                                <h5 class="card-title">{{ template.name }}</h5>
-                                <p class="card-text">{{ template.description }}</p>
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <small class="text-muted">{{ template.category }}</small>
-                                    <a href="{{ url_for('create_rule_from_template', template_id=template.id) }}" class="btn btn-sm btn-primary">Use Template</a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Templates Tab -->
+  <div
+    class="tab-pane fade {% if active_tab == 'templates' %}show active{% endif %}"
+    id="templates"
+    role="tabpanel"
+    aria-labelledby="templates-tab"
+  >
+    <div class="card shadow mb-4">
+      <div
+        class="card-header py-3 d-flex flex-row align-items-center justify-content-between"
+      >
+        <h6 class="m-0 font-weight-bold text-primary">
+          Notification Templates
+        </h6>
+        <div class="dropdown no-arrow">
+          <a
+            class="dropdown-toggle"
+            href="#"
+            role="button"
+            id="templatesDropdown"
+            data-bs-toggle="dropdown"
+            aria-haspopup="true"
+            aria-expanded="false"
+          >
+            <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
+          </a>
+          <div
+            class="dropdown-menu dropdown-menu-right shadow animated--fade-in"
+            aria-labelledby="templatesDropdown"
+          >
+            <div class="dropdown-header">Template Options:</div>
+            <a
+              class="dropdown-item"
+              href="{{ url_for('add_notification_template') }}"
+              >Add New Template</a
+            >
+            <a
+              class="dropdown-item"
+              href="{{ url_for('reset_notification_templates') }}"
+              >Reset to Default</a
+            >
+            <div class="dropdown-divider"></div>
+            <a
+              class="dropdown-item"
+              href="{{ url_for('export_notification_templates') }}"
+              >Export Templates</a
+            >
+          </div>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="table-responsive">
+          <table class="table table-bordered" width="100%" cellspacing="0">
+            <thead>
+              <tr>
+                <th>Template Name</th>
+                <th>Subject</th>
+                <th>Category</th>
+                <th>Channels</th>
+                <th>Last Modified</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for template in notification_templates %}
+              <tr>
+                <td>{{ template.name }}</td>
+                <td>{{ template.subject }}</td>
+                <td>{{ template.category }}</td>
+                <td>
+                  <div class="d-flex flex-wrap">
+                    {% for channel in template.channels %}
+                    <span class="badge bg-primary me-1 mb-1"
+                      >{{ channel }}</span
+                    >
                     {% endfor %}
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Templates Tab -->
-    <div class="tab-pane fade {% if active_tab == 'templates' %}show active{% endif %}" id="templates" role="tabpanel" aria-labelledby="templates-tab">
-        <div class="card shadow mb-4">
-            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                <h6 class="m-0 font-weight-bold text-primary">Notification Templates</h6>
-                <div class="dropdown no-arrow">
-                    <a class="dropdown-toggle" href="#" role="button" id="templatesDropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
+                  </div>
+                </td>
+                <td>{{ template.last_modified.strftime('%Y-%m-%d %H:%M') }}</td>
+                <td>
+                  {% if template.status == 'active' %}
+                  <span class="badge bg-success">Active</span>
+                  {% elif template.status == 'inactive' %}
+                  <span class="badge bg-secondary">Inactive</span>
+                  {% else %}
+                  <span class="badge bg-light text-dark"
+                    >{{ template.status }}</span
+                  >
+                  {% endif %}
+                </td>
+                <td>
+                  <div class="btn-group" role="group">
+                    <a
+                      href="{{ url_for('edit_notification_template', template_id=template.id) }}"
+                      class="btn btn-sm btn-info"
+                      title="Edit"
+                    >
+                      <i class="fas fa-edit"></i>
                     </a>
-                    <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in" aria-labelledby="templatesDropdown">
-                        <div class="dropdown-header">Template Options:</div>
-                        <a class="dropdown-item" href="{{ url_for('add_notification_template') }}">Add New Template</a>
-                        <a class="dropdown-item" href="{{ url_for('reset_notification_templates') }}">Reset to Default</a>
-                        <div class="dropdown-divider"></div>
-                        <a class="dropdown-item" href="{{ url_for('export_notification_templates') }}">Export Templates</a>
-                    </div>
-                </div>
-            </div>
-            <div class="card-body">
-                <div class="table-responsive">
-                    <table class="table table-bordered" width="100%" cellspacing="0">
-                        <thead>
-                            <tr>
-                                <th>Template Name</th>
-                                <th>Subject</th>
-                                <th>Category</th>
-                                <th>Channels</th>
-                                <th>Last Modified</th>
-                                <th>Status</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for template in notification_templates %}
-                            <tr>
-                                <td>{{ template.name }}</td>
-                                <td>{{ template.subject }}</td>
-                                <td>{{ template.category }}</td>
-                                <td>
-                                    <div class="d-flex flex-wrap">
-                                        {% for channel in template.channels %}
-                                        <span class="badge bg-primary me-1 mb-1">{{ channel }}</span>
-                                        {% endfor %}
-                                    </div>
-                                </td>
-                                <td>{{ template.last_modified.strftime('%Y-%m-%d %H:%M') }}</td>
-                                <td>
-                                    {% if template.status == 'active' %}
-                                        <span class="badge bg-success">Active</span>
-                                    {% elif template.status == 'inactive' %}
-                                        <span class="badge bg-secondary">Inactive</span>
-                                    {% else %}
-                                        <span class="badge bg-light text-dark">{{ template.status }}</span>
-                                    {% endif %}
-                                </td>
-                                <td>
-                                    <div class="btn-group" role="group">
-                                        <a href="{{ url_for('edit_notification_template', template_id=template.id) }}" class="btn btn-sm btn-info" title="Edit">
-                                            <i class="fas fa-edit"></i>
-                                        </a>
-                                        <button type="button" class="btn btn-sm btn-primary test-template" data-id="{{ template.id }}" title="Test">
-                                            <i class="fas fa-paper-plane"></i>
-                                        </button>
-                                        <button type="button" class="btn btn-sm btn-warning toggle-template" data-id="{{ template.id }}" data-status="{{ template.status }}" title="Toggle">
-                                            {% if template.status == 'active' %}
-                                                <i class="fas fa-pause"></i>
-                                            {% else %}
-                                                <i class="fas fa-play"></i>
-                                            {% endif %}
-                                        </button>
-                                        <button type="button" class="btn btn-sm btn-danger delete-template" data-id="{{ template.id }}" data-name="{{ template.name }}" title="Delete">
-                                            <i class="fas fa-trash"></i>
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
-                            {% else %}
-                            <tr>
-                                <td colspan="7" class="text-center">No notification templates found.</td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-                <div class="text-center mt-3">
-                    <a href="{{ url_for('add_notification_template') }}" class="btn btn-primary">Add New Template</a>
-                </div>
-            </div>
+                    <button
+                      type="button"
+                      class="btn btn-sm btn-primary test-template"
+                      data-id="{{ template.id }}"
+                      title="Test"
+                    >
+                      <i class="fas fa-paper-plane"></i>
+                    </button>
+                    <button
+                      type="button"
+                      class="btn btn-sm btn-warning toggle-template"
+                      data-id="{{ template.id }}"
+                      data-status="{{ template.status }}"
+                      title="Toggle"
+                    >
+                      {% if template.status == 'active' %}
+                      <i class="fas fa-pause"></i>
+                      {% else %}
+                      <i class="fas fa-play"></i>
+                      {% endif %}
+                    </button>
+                    <button
+                      type="button"
+                      class="btn btn-sm btn-danger delete-template"
+                      data-id="{{ template.id }}"
+                      data-name="{{ template.name }}"
+                      title="Delete"
+                    >
+                      <i class="fas fa-trash"></i>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+              {% else %}
+              <tr>
+                <td colspan="7" class="text-center">
+                  No notification templates found.
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
         </div>
+        <div class="text-center mt-3">
+          <a
+            href="{{ url_for('add_notification_template') }}"
+            class="btn btn-primary"
+            >Add New Template</a
+          >
+        </div>
+      </div>
     </div>
-    
-    <!-- Settings Tab -->
-    <div class="tab-pane fade {% if active_tab == 'settings' %}show active{% endif %}" id="settings" role="tabpanel" aria-labelledby="settings-tab">
-        <div class="card shadow mb-4">
-            <div class="card-header py-3">
-                <h6 class="m-0 font-weight-bold text-primary">Notification Settings</h6>
+  </div>
+
+  <!-- Settings Tab -->
+  <div
+    class="tab-pane fade {% if active_tab == 'settings' %}show active{% endif %}"
+    id="settings"
+    role="tabpanel"
+    aria-labelledby="settings-tab"
+  >
+    <div class="card shadow mb-4">
+      <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Notification Settings</h6>
+      </div>
+      <div class="card-body">
+        <form
+          method="POST"
+          action="{{ url_for('update_notification_settings') }}"
+        >
+          {{ notification_settings_form.hidden_tag() }}
+
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <h6 class="text-primary">General Settings</h6>
+              <div class="form-check form-switch mb-2">
+                {{
+                notification_settings_form.enable_notifications(class="form-check-input")
+                }} {{
+                notification_settings_form.enable_notifications.label(class="form-check-label")
+                }}
+              </div>
+              <div class="form-check form-switch mb-2">
+                {{
+                notification_settings_form.enable_sound(class="form-check-input")
+                }} {{
+                notification_settings_form.enable_sound.label(class="form-check-label")
+                }}
+              </div>
+              <div class="form-check form-switch mb-2">
+                {{
+                notification_settings_form.enable_desktop_notifications(class="form-check-input")
+                }} {{
+                notification_settings_form.enable_desktop_notifications.label(class="form-check-label")
+                }}
+              </div>
+              <div class="mb-3">
+                {{
+                notification_settings_form.default_notification_sound.label(class="form-label")
+                }} {{
+                notification_settings_form.default_notification_sound(class="form-control")
+                }} {% if
+                notification_settings_form.default_notification_sound.errors %}
+                <div class="text-danger">
+                  {% for error in
+                  notification_settings_form.default_notification_sound.errors
+                  %}
+                  <small>{{ error }}</small>
+                  {% endfor %}
+                </div>
+                {% endif %}
+              </div>
             </div>
-            <div class="card-body">
-                <form method="POST" action="{{ url_for('update_notification_settings') }}">
-                    {{ notification_settings_form.hidden_tag() }}
-                    
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <h6 class="text-primary">General Settings</h6>
-                            <div class="form-check form-switch mb-2">
-                                {{ notification_settings_form.enable_notifications(class="form-check-input") }}
-                                {{ notification_settings_form.enable_notifications.label(class="form-check-label") }}
-                            </div>
-                            <div class="form-check form-switch mb-2">
-                                {{ notification_settings_form.enable_sound(class="form-check-input") }}
-                                {{ notification_settings_form.enable_sound.label(class="form-check-label") }}
-                            </div>
-                            <div class="form-check form-switch mb-2">
-                                {{ notification_settings_form.enable_desktop_notifications(class="form-check-input") }}
-                                {{ notification_settings_form.enable_desktop_notifications.label(class="form-check-label") }}
-                            </div>
-                            <div class="mb-3">
-                                {{ notification_settings_form.default_notification_sound.label(class="form-label") }}
-                                {{ notification_settings_form.default_notification_sound(class="form-control") }}
-                                {% if notification_settings_form.default_notification_sound.errors %}
-                                    <div class="text-danger">
-                                        {% for error in notification_settings_form.default_notification_sound.errors %}
-                                            <small>{{ error }}</small>
-                                        {% endfor %}
-                                    </div>
-                                {% endif %}
-                            </div>
-                        </div>
-                        
-                        <div class="col-md-6 mb-3">
-                            <h6 class="text-primary">Email Settings</h6>
-                            <div class="form-check form-switch mb-2">
-                                {{ notification_settings_form.enable_email_notifications(class="form-check-input") }}
-                                {{ notification_settings_form.enable_email_notifications.label(class="form-check-label") }}
-                            </div>
-                            <div class="mb-3">
-                                {{ notification_settings_form.email_from_name.label(class="form-label") }}
-                                {{ notification_settings_form.email_from_name(class="form-control") }}
-                                {% if notification_settings_form.email_from_name.errors %}
-                                    <div class="text-danger">
-                                        {% for error in notification_settings_form.email_from_name.errors %}
-                                            <small>{{ error }}</small>
-                                        {% endfor %}
-                                    </div>
-                                {% endif %}
-                            </div>
-                            <div class="mb-3">
-                                {{ notification_settings_form.email_from_address.label(class="form-label") }}
-                                {{ notification_settings_form.email_from_address(class="form-control") }}
-                                {% if notification_settings_form.email_from_address.errors %}
-                                    <div class="text-danger">
-                                        {% for error in notification_settings_form.email_from_address.errors %}
-                                            <small>{{ error }}</small>
-                                        {% endfor %}
-                                    </div>
-                                {% endif %}
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <h6 class="text-primary">Push Notification Settings</h6>
-                            <div class="form-check form-switch mb-2">
-                                {{ notification_settings_form.enable_push_notifications(class="form-check-input") }}
-                                {{ notification_settings_form.enable_push_notifications.label(class="form-check-label") }}
-                            </div>
-                            <div class="mb-3">
-                                {{ notification_settings_form.firebase_api_key.label(class="form-label") }}
-                                {{ notification_settings_form.firebase_api_key(class="form-control") }}
-                                {% if notification_settings_form.firebase_api_key.errors %}
-                                    <div class="text-danger">
-                                        {% for error in notification_settings_form.firebase_api_key.errors %}
-                                            <small>{{ error }}</small>
-                                        {% endfor %}
-                                    </div>
-                                {% endif %}
-                            </div>
-                            <div class="mb-3">
-                                {{ notification_settings_form.firebase_auth_domain.label(class="form-label") }}
-                                {{ notification_settings_form.firebase_auth_domain(class="form-control") }}
-                                {% if notification_settings_form.firebase_auth_domain.errors %}
-                                    <div class="text-danger">
-                                        {% for error in notification_settings_form.firebase_auth_domain.errors %}
-                                            <small>{{ error }}</small>
-                                        {% endfor %}
-                                    </div>
-                                {% endif %}
-                            </div>
-                        </div>
-                        
-                        <div class="col-md-6 mb-3">
-                            <h6 class="text-primary">SMS Settings</h6>
-                            <div class="form-check form-switch mb-2">
-                                {{ notification_settings_form.enable_sms_notifications(class="form-check-input") }}
-                                {{ notification_settings_form.enable_sms_notifications.label(class="form-check-label") }}
-                            </div>
-                            <div class="mb-3">
-                                {{ notification_settings_form.sms_provider.label(class="form-label") }}
-                                {{ notification_settings_form.sms_provider(class="form-control") }}
-                                {% if notification_settings_form.sms_provider.errors %}
-                                    <div class="text-danger">
-                                        {% for error in notification_settings_form.sms_provider.errors %}
-                                            <small>{{ error }}</small>
-                                        {% endfor %}
-                                    </div>
-                                {% endif %}
-                            </div>
-                            <div class="mb-3">
-                                {{ notification_settings_form.sms_api_key.label(class="form-label") }}
-                                {{ notification_settings_form.sms_api_key(class="form-control") }}
-                                {% if notification_settings_form.sms_api_key.errors %}
-                                    <div class="text-danger">
-                                        {% for error in notification_settings_form.sms_api_key.errors %}
-                                            <small>{{ error }}</small>
-                                        {% endfor %}
-                                    </div>
-                                {% endif %}
-                            </div>
-                            <div class="mb-3">
-                                {{ notification_settings_form.sms_from_number.label(class="form-label") }}
-                                {{ notification_settings_form.sms_from_number(class="form-control") }}
-                                {% if notification_settings_form.sms_from_number.errors %}
-                                    <div class="text-danger">
-                                        {% for error in notification_settings_form.sms_from_number.errors %}
-                                            <small>{{ error }}</small>
-                                        {% endfor %}
-                                    </div>
-                                {% endif %}
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="d-flex justify-content-end">
-                        <button type="submit" class="btn btn-primary">Update Settings</button>
-                    </div>
-                </form>
+
+            <div class="col-md-6 mb-3">
+              <h6 class="text-primary">Email Settings</h6>
+              <div class="form-check form-switch mb-2">
+                {{
+                notification_settings_form.enable_email_notifications(class="form-check-input")
+                }} {{
+                notification_settings_form.enable_email_notifications.label(class="form-check-label")
+                }}
+              </div>
+              <div class="mb-3">
+                {{
+                notification_settings_form.email_from_name.label(class="form-label")
+                }} {{
+                notification_settings_form.email_from_name(class="form-control")
+                }} {% if notification_settings_form.email_from_name.errors %}
+                <div class="text-danger">
+                  {% for error in
+                  notification_settings_form.email_from_name.errors %}
+                  <small>{{ error }}</small>
+                  {% endfor %}
+                </div>
+                {% endif %}
+              </div>
+              <div class="mb-3">
+                {{
+                notification_settings_form.email_from_address.label(class="form-label")
+                }} {{
+                notification_settings_form.email_from_address(class="form-control")
+                }} {% if notification_settings_form.email_from_address.errors %}
+                <div class="text-danger">
+                  {% for error in
+                  notification_settings_form.email_from_address.errors %}
+                  <small>{{ error }}</small>
+                  {% endfor %}
+                </div>
+                {% endif %}
+              </div>
             </div>
-        </div>
-        
-        <div class="card shadow mb-4">
-            <div class="card-header py-3">
-                <h6 class="m-0 font-weight-bold text-primary">Workflow Automation Settings</h6>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <h6 class="text-primary">Push Notification Settings</h6>
+              <div class="form-check form-switch mb-2">
+                {{
+                notification_settings_form.enable_push_notifications(class="form-check-input")
+                }} {{
+                notification_settings_form.enable_push_notifications.label(class="form-check-label")
+                }}
+              </div>
+              <div class="mb-3">
+                {{
+                notification_settings_form.firebase_api_key.label(class="form-label")
+                }} {{
+                notification_settings_form.firebase_api_key(class="form-control")
+                }} {% if notification_settings_form.firebase_api_key.errors %}
+                <div class="text-danger">
+                  {% for error in
+                  notification_settings_form.firebase_api_key.errors %}
+                  <small>{{ error }}</small>
+                  {% endfor %}
+                </div>
+                {% endif %}
+              </div>
+              <div class="mb-3">
+                {{
+                notification_settings_form.firebase_auth_domain.label(class="form-label")
+                }} {{
+                notification_settings_form.firebase_auth_domain(class="form-control")
+                }} {% if notification_settings_form.firebase_auth_domain.errors
+                %}
+                <div class="text-danger">
+                  {% for error in
+                  notification_settings_form.firebase_auth_domain.errors %}
+                  <small>{{ error }}</small>
+                  {% endfor %}
+                </div>
+                {% endif %}
+              </div>
             </div>
-            <div class="card-body">
-                <form method="POST" action="{{ url_for('update_workflow_settings') }}">
-                    {{ workflow_settings_form.hidden_tag() }}
-                    
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <h6 class="text-primary">General Settings</h6>
-                            <div class="form-check form-switch mb-2">
-                                {{ workflow_settings_form.enable_workflow_automation(class="form-check-input") }}
-                                {{ workflow_settings_form.enable_workflow_automation.label(class="form-check-label") }}
-                            </div>
-                            <div class="form-check form-switch mb-2">
-                                {{ workflow_settings_form.enable_rule_execution_logging(class="form-check-input") }}
-                                {{ workflow_settings_form.enable_rule_execution_logging.label(class="form-check-label") }}
-                            </div>
-                            <div class="form-check form-switch mb-2">
-                                {{ workflow_settings_form.enable_error_notifications(class="form-check-input") }}
-                                {{ workflow_settings_form.enable_error_notifications.label(class="form-check-label") }}
-                            </div>
-                            <div class="mb-3">
-                                {{ workflow_settings_form.max_concurrent_executions.label(class="form-label") }}
-                                {{ workflow_settings_form.max_concurrent_executions(class="form-control") }}
-                                {% if workflow_settings_form.max_concurrent_executions.errors %}
-                                    <div class="text-danger">
-                                        {% for error in workflow_settings_form.max_concurrent_executions.errors %}
-                                            <small>{{ error }}</small>
-                                        {% endfor %}
-                                    </div>
-                                {% endif %}
-                            </div>
-                        </div>
-                        
-                        <div class="col-md-6 mb-3">
-                            <h6 class="text-primary">Scheduling Settings</h6>
-                            <div class="form-check form-switch mb-2">
-                                {{ workflow_settings_form.enable_scheduled_rules(class="form-check-input") }}
-                                {{ workflow_settings_form.enable_scheduled_rules.label(class="form-check-label") }}
-                            </div>
-                            <div class="mb-3">
-                                {{ workflow_settings_form.default_schedule_timezone.label(class="form-label") }}
-                                {{ workflow_settings_form.default_schedule_timezone(class="form-control") }}
-                                {% if workflow_settings_form.default_schedule_timezone.errors %}
-                                    <div class="text-danger">
-                                        {% for error in workflow_settings_form.default_schedule_timezone.errors %}
-                                            <small>{{ error }}</small>
-                                        {% endfor %}
-                                    </div>
-                                {% endif %}
-                            </div>
-                            <div class="mb-3">
-                                {{ workflow_settings_form.rule_execution_timeout.label(class="form-label") }}
-                                {{ workflow_settings_form.rule_execution_timeout(class="form-control") }}
-                                {% if workflow_settings_form.rule_execution_timeout.errors %}
-                                    <div class="text-danger">
-                                        {% for error in workflow_settings_form.rule_execution_timeout.errors %}
-                                            <small>{{ error }}</small>
-                                        {% endfor %}
-                                    </div>
-                                {% endif %}
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="d-flex justify-content-end">
-                        <button type="submit" class="btn btn-primary">Update Settings</button>
-                    </div>
-                </form>
+
+            <div class="col-md-6 mb-3">
+              <h6 class="text-primary">SMS Settings</h6>
+              <div class="form-check form-switch mb-2">
+                {{
+                notification_settings_form.enable_sms_notifications(class="form-check-input")
+                }} {{
+                notification_settings_form.enable_sms_notifications.label(class="form-check-label")
+                }}
+              </div>
+              <div class="mb-3">
+                {{
+                notification_settings_form.sms_provider.label(class="form-label")
+                }} {{
+                notification_settings_form.sms_provider(class="form-control") }}
+                {% if notification_settings_form.sms_provider.errors %}
+                <div class="text-danger">
+                  {% for error in notification_settings_form.sms_provider.errors
+                  %}
+                  <small>{{ error }}</small>
+                  {% endfor %}
+                </div>
+                {% endif %}
+              </div>
+              <div class="mb-3">
+                {{
+                notification_settings_form.sms_api_key.label(class="form-label")
+                }} {{
+                notification_settings_form.sms_api_key(class="form-control") }}
+                {% if notification_settings_form.sms_api_key.errors %}
+                <div class="text-danger">
+                  {% for error in notification_settings_form.sms_api_key.errors
+                  %}
+                  <small>{{ error }}</small>
+                  {% endfor %}
+                </div>
+                {% endif %}
+              </div>
+              <div class="mb-3">
+                {{
+                notification_settings_form.sms_from_number.label(class="form-label")
+                }} {{
+                notification_settings_form.sms_from_number(class="form-control")
+                }} {% if notification_settings_form.sms_from_number.errors %}
+                <div class="text-danger">
+                  {% for error in
+                  notification_settings_form.sms_from_number.errors %}
+                  <small>{{ error }}</small>
+                  {% endfor %}
+                </div>
+                {% endif %}
+              </div>
             </div>
-        </div>
+          </div>
+
+          <div class="d-flex justify-content-end">
+            <button type="submit" class="btn btn-primary">
+              Update Settings
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
+
+    <div class="card shadow mb-4">
+      <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">
+          Workflow Automation Settings
+        </h6>
+      </div>
+      <div class="card-body">
+        <form method="POST" action="{{ url_for('update_workflow_settings') }}">
+          {{ workflow_settings_form.hidden_tag() }}
+
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <h6 class="text-primary">General Settings</h6>
+              <div class="form-check form-switch mb-2">
+                {{
+                workflow_settings_form.enable_workflow_automation(class="form-check-input")
+                }} {{
+                workflow_settings_form.enable_workflow_automation.label(class="form-check-label")
+                }}
+              </div>
+              <div class="form-check form-switch mb-2">
+                {{
+                workflow_settings_form.enable_rule_execution_logging(class="form-check-input")
+                }} {{
+                workflow_settings_form.enable_rule_execution_logging.label(class="form-check-label")
+                }}
+              </div>
+              <div class="form-check form-switch mb-2">
+                {{
+                workflow_settings_form.enable_error_notifications(class="form-check-input")
+                }} {{
+                workflow_settings_form.enable_error_notifications.label(class="form-check-label")
+                }}
+              </div>
+              <div class="mb-3">
+                {{
+                workflow_settings_form.max_concurrent_executions.label(class="form-label")
+                }} {{
+                workflow_settings_form.max_concurrent_executions(class="form-control")
+                }} {% if workflow_settings_form.max_concurrent_executions.errors
+                %}
+                <div class="text-danger">
+                  {% for error in
+                  workflow_settings_form.max_concurrent_executions.errors %}
+                  <small>{{ error }}</small>
+                  {% endfor %}
+                </div>
+                {% endif %}
+              </div>
+            </div>
+
+            <div class="col-md-6 mb-3">
+              <h6 class="text-primary">Scheduling Settings</h6>
+              <div class="form-check form-switch mb-2">
+                {{
+                workflow_settings_form.enable_scheduled_rules(class="form-check-input")
+                }} {{
+                workflow_settings_form.enable_scheduled_rules.label(class="form-check-label")
+                }}
+              </div>
+              <div class="mb-3">
+                {{
+                workflow_settings_form.default_schedule_timezone.label(class="form-label")
+                }} {{
+                workflow_settings_form.default_schedule_timezone(class="form-control")
+                }} {% if workflow_settings_form.default_schedule_timezone.errors
+                %}
+                <div class="text-danger">
+                  {% for error in
+                  workflow_settings_form.default_schedule_timezone.errors %}
+                  <small>{{ error }}</small>
+                  {% endfor %}
+                </div>
+                {% endif %}
+              </div>
+              <div class="mb-3">
+                {{
+                workflow_settings_form.rule_execution_timeout.label(class="form-label")
+                }} {{
+                workflow_settings_form.rule_execution_timeout(class="form-control")
+                }} {% if workflow_settings_form.rule_execution_timeout.errors %}
+                <div class="text-danger">
+                  {% for error in
+                  workflow_settings_form.rule_execution_timeout.errors %}
+                  <small>{{ error }}</small>
+                  {% endfor %}
+                </div>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+
+          <div class="d-flex justify-content-end">
+            <button type="submit" class="btn btn-primary">
+              Update Settings
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
 </div>
 
 <!-- Delete Rule Confirmation Modal -->
-<div class="modal fade" id="deleteRuleModal" tabindex="-1" aria-labelledby="deleteRuleModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="deleteRuleModalLabel">Confirm Delete</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                Are you sure you want to delete the workflow rule "<strong id="deleteRuleName"></strong>"? This action cannot be undone.
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <form id="deleteRuleForm" method="POST">
-                    <button type="submit" class="btn btn-danger">Delete</button>
-                </form>
-            </div>
-        </div>
+<div
+  class="modal fade"
+  id="deleteRuleModal"
+  tabindex="-1"
+  aria-labelledby="deleteRuleModalLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="deleteRuleModalLabel">Confirm Delete</h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+        ></button>
+      </div>
+      <div class="modal-body">
+        Are you sure you want to delete the workflow rule "<strong
+          id="deleteRuleName"
+        ></strong
+        >"? This action cannot be undone.
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+          Cancel
+        </button>
+        <form id="deleteRuleForm" method="POST">
+          <button type="submit" class="btn btn-danger">Delete</button>
+        </form>
+      </div>
     </div>
+  </div>
 </div>
 
 <!-- Delete Template Confirmation Modal -->
-<div class="modal fade" id="deleteTemplateModal" tabindex="-1" aria-labelledby="deleteTemplateModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="deleteTemplateModalLabel">Confirm Delete</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                Are you sure you want to delete the notification template "<strong id="deleteTemplateName"></strong>"? This action cannot be undone.
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <form id="deleteTemplateForm" method="POST">
-                    <button type="submit" class="btn btn-danger">Delete</button>
-                </form>
-            </div>
-        </div>
+<div
+  class="modal fade"
+  id="deleteTemplateModal"
+  tabindex="-1"
+  aria-labelledby="deleteTemplateModalLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="deleteTemplateModalLabel">
+          Confirm Delete
+        </h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+        ></button>
+      </div>
+      <div class="modal-body">
+        Are you sure you want to delete the notification template "<strong
+          id="deleteTemplateName"
+        ></strong
+        >"? This action cannot be undone.
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+          Cancel
+        </button>
+        <form id="deleteTemplateForm" method="POST">
+          <button type="submit" class="btn btn-danger">Delete</button>
+        </form>
+      </div>
     </div>
+  </div>
 </div>
 
 <!-- Test Template Modal -->
-<div class="modal fade" id="testTemplateModal" tabindex="-1" aria-labelledby="testTemplateModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="testTemplateModalLabel">Test Notification Template</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <form id="testTemplateForm">
-                    <div class="mb-3">
-                        <label for="testChannel" class="form-label">Channel</label>
-                        <select class="form-select" id="testChannel" required>
-                            <option value="email">Email</option>
-                            <option value="sms">SMS</option>
-                            <option value="push">Push Notification</option>
-                            <option value="in_app">In-App</option>
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label for="testRecipient" class="form-label">Recipient</label>
-                        <input type="text" class="form-control" id="testRecipient" required>
-                    </div>
-                    <input type="hidden" id="testTemplateId">
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-primary" id="sendTestNotificationBtn">Send Test Notification</button>
-            </div>
-        </div>
+<div
+  class="modal fade"
+  id="testTemplateModal"
+  tabindex="-1"
+  aria-labelledby="testTemplateModalLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="testTemplateModalLabel">
+          Test Notification Template
+        </h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+        ></button>
+      </div>
+      <div class="modal-body">
+        <form id="testTemplateForm">
+          <div class="mb-3">
+            <label for="testChannel" class="form-label">Channel</label>
+            <select class="form-select" id="testChannel" required>
+              <option value="email">Email</option>
+              <option value="sms">SMS</option>
+              <option value="push">Push Notification</option>
+              <option value="in_app">In-App</option>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label for="testRecipient" class="form-label">Recipient</label>
+            <input
+              type="text"
+              class="form-control"
+              id="testRecipient"
+              required
+            />
+          </div>
+          <input type="hidden" id="testTemplateId" />
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+          Cancel
+        </button>
+        <button
+          type="button"
+          class="btn btn-primary"
+          id="sendTestNotificationBtn"
+        >
+          Send Test Notification
+        </button>
+      </div>
     </div>
+  </div>
 </div>
-{% endblock %}
-
-{% block scripts %}
+{% endblock %} {% block scripts %}
 <script>
-    $(document).ready(function() {
-        // Mark notification as read
-        $('.mark-read').on('click', function() {
-            var notificationId = $(this).data('id');
-            
-            $.ajax({
-                url: '/mark_notification_read/' + notificationId,
-                type: 'POST',
-                success: function(response) {
-                    if (response.success) {
-                        location.reload();
-                    } else {
-                        alert('Error marking notification as read: ' + response.message);
-                    }
-                },
-                error: function() {
-                    alert('Error marking notification as read. Please try again.');
-                }
-            });
-        });
-        
-        // Toggle workflow rule status
-        $('.toggle-rule').on('click', function() {
-            var ruleId = $(this).data('id');
-            var currentStatus = $(this).data('status');
-            var newStatus = currentStatus === 'active' ? 'inactive' : 'active';
-            
-            $.ajax({
-                url: '/toggle_workflow_rule/' + ruleId,
-                type: 'POST',
-                data: {
-                    status: newStatus
-                },
-                success: function(response) {
-                    if (response.success) {
-                        location.reload();
-                    } else {
-                        alert('Error updating rule status: ' + response.message);
-                    }
-                },
-                error: function() {
-                    alert('Error updating rule status. Please try again.');
-                }
-            });
-        });
-        
-        // Run workflow rule now
-        $('.run-rule').on('click', function() {
-            var ruleId = $(this).data('id');
-            
-            $.ajax({
-                url: '/run_workflow_rule/' + ruleId,
-                type: 'POST',
-                success: function(response) {
-                    if (response.success) {
-                        alert('Rule executed successfully!');
-                        location.reload();
-                    } else {
-                        alert('Error executing rule: ' + response.message);
-                    }
-                },
-                error: function() {
-                    alert('Error executing rule. Please try again.');
-                }
-            });
-        });
-        
-        // Delete workflow rule confirmation
-        $('.delete-rule').on('click', function() {
-            var ruleId = $(this).data('id');
-            var ruleName = $(this).data('name');
-            
-            $('#deleteRuleName').text(ruleName);
-            $('#deleteRuleForm').attr('action', '/delete_workflow_rule/' + ruleId);
-            
-            var deleteRuleModal = new bootstrap.Modal(document.getElementById('deleteRuleModal'));
-            deleteRuleModal.show();
-        });
-        
-        // Toggle notification template status
-        $('.toggle-template').on('click', function() {
-            var templateId = $(this).data('id');
-            var currentStatus = $(this).data('status');
-            var newStatus = currentStatus === 'active' ? 'inactive' : 'active';
-            
-            $.ajax({
-                url: '/toggle_notification_template/' + templateId,
-                type: 'POST',
-                data: {
-                    status: newStatus
-                },
-                success: function(response) {
-                    if (response.success) {
-                        location.reload();
-                    } else {
-                        alert('Error updating template status: ' + response.message);
-                    }
-                },
-                error: function() {
-                    alert('Error updating template status. Please try again.');
-                }
-            });
-        });
-        
-        // Test notification template
-        $('.test-template').on('click', function() {
-            var templateId = $(this).data('id');
-            $('#testTemplateId').val(templateId);
-            
-            var testTemplateModal = new bootstrap.Modal(document.getElementById('testTemplateModal'));
-            testTemplateModal.show();
-        });
-        
-        // Send test notification
-        $('#sendTestNotificationBtn').on('click', function() {
-            var templateId = $('#testTemplateId').val();
-            var channel = $('#testChannel').val();
-            var recipient = $('#testRecipient').val();
-            
-            $.ajax({
-                url: '/test_notification_template/' + templateId,
-                type: 'POST',
-                data: {
-                    channel: channel,
-                    recipient: recipient
-                },
-                success: function(response) {
-                    if (response.success) {
-                        alert('Test notification sent successfully!');
-                        bootstrap.Modal.getInstance(document.getElementById('testTemplateModal')).hide();
-                    } else {
-                        alert('Error sending test notification: ' + response.message);
-                    }
-                },
-                error: function() {
-                    alert('Error sending test notification. Please try again.');
-                }
-            });
-        });
-        
-        // Delete notification template confirmation
-        $('.delete-template').on('click', function() {
-            var templateId = $(this).data('id');
-            var templateName = $(this).data('name');
-            
-            $('#deleteTemplateName').text(templateName);
-            $('#deleteTemplateForm').attr('action', '/delete_notification_template/' + templateId);
-            
-            var deleteTemplateModal = new bootstrap.Modal(document.getElementById('deleteTemplateModal'));
-            deleteTemplateModal.show();
-        });
+  $(document).ready(function () {
+    // Mark notification as read
+    $(".mark-read").on("click", function () {
+      var notificationId = $(this).data("id");
+
+      $.ajax({
+        url: "/mark_notification_read/" + notificationId,
+        type: "POST",
+        success: function (response) {
+          if (response.success) {
+            location.reload();
+          } else {
+            alert("Error marking notification as read: " + response.message);
+          }
+        },
+        error: function () {
+          alert("Error marking notification as read. Please try again.");
+        },
+      });
     });
+
+    // Toggle workflow rule status
+    $(".toggle-rule").on("click", function () {
+      var ruleId = $(this).data("id");
+      var currentStatus = $(this).data("status");
+      var newStatus = currentStatus === "active" ? "inactive" : "active";
+
+      $.ajax({
+        url: "/toggle_workflow_rule/" + ruleId,
+        type: "POST",
+        data: {
+          status: newStatus,
+        },
+        success: function (response) {
+          if (response.success) {
+            location.reload();
+          } else {
+            alert("Error updating rule status: " + response.message);
+          }
+        },
+        error: function () {
+          alert("Error updating rule status. Please try again.");
+        },
+      });
+    });
+
+    // Run workflow rule now
+    $(".run-rule").on("click", function () {
+      var ruleId = $(this).data("id");
+
+      $.ajax({
+        url: "/run_workflow_rule/" + ruleId,
+        type: "POST",
+        success: function (response) {
+          if (response.success) {
+            alert("Rule executed successfully!");
+            location.reload();
+          } else {
+            alert("Error executing rule: " + response.message);
+          }
+        },
+        error: function () {
+          alert("Error executing rule. Please try again.");
+        },
+      });
+    });
+
+    // Delete workflow rule confirmation
+    $(".delete-rule").on("click", function () {
+      var ruleId = $(this).data("id");
+      var ruleName = $(this).data("name");
+
+      $("#deleteRuleName").text(ruleName);
+      $("#deleteRuleForm").attr("action", "/delete_workflow_rule/" + ruleId);
+
+      var deleteRuleModal = new bootstrap.Modal(
+        document.getElementById("deleteRuleModal")
+      );
+      deleteRuleModal.show();
+    });
+
+    // Toggle notification template status
+    $(".toggle-template").on("click", function () {
+      var templateId = $(this).data("id");
+      var currentStatus = $(this).data("status");
+      var newStatus = currentStatus === "active" ? "inactive" : "active";
+
+      $.ajax({
+        url: "/toggle_notification_template/" + templateId,
+        type: "POST",
+        data: {
+          status: newStatus,
+        },
+        success: function (response) {
+          if (response.success) {
+            location.reload();
+          } else {
+            alert("Error updating template status: " + response.message);
+          }
+        },
+        error: function () {
+          alert("Error updating template status. Please try again.");
+        },
+      });
+    });
+
+    // Test notification template
+    $(".test-template").on("click", function () {
+      var templateId = $(this).data("id");
+      $("#testTemplateId").val(templateId);
+
+      var testTemplateModal = new bootstrap.Modal(
+        document.getElementById("testTemplateModal")
+      );
+      testTemplateModal.show();
+    });
+
+    // Send test notification
+    $("#sendTestNotificationBtn").on("click", function () {
+      var templateId = $("#testTemplateId").val();
+      var channel = $("#testChannel").val();
+      var recipient = $("#testRecipient").val();
+
+      $.ajax({
+        url: "/test_notification_template/" + templateId,
+        type: "POST",
+        data: {
+          channel: channel,
+          recipient: recipient,
+        },
+        success: function (response) {
+          if (response.success) {
+            alert("Test notification sent successfully!");
+            bootstrap.Modal.getInstance(
+              document.getElementById("testTemplateModal")
+            ).hide();
+          } else {
+            alert("Error sending test notification: " + response.message);
+          }
+        },
+        error: function () {
+          alert("Error sending test notification. Please try again.");
+        },
+      });
+    });
+
+    // Delete notification template confirmation
+    $(".delete-template").on("click", function () {
+      var templateId = $(this).data("id");
+      var templateName = $(this).data("name");
+
+      $("#deleteTemplateName").text(templateName);
+      $("#deleteTemplateForm").attr(
+        "action",
+        "/delete_notification_template/" + templateId
+      );
+
+      var deleteTemplateModal = new bootstrap.Modal(
+        document.getElementById("deleteTemplateModal")
+      );
+      deleteTemplateModal.show();
+    });
+  });
 </script>
 {% endblock %}

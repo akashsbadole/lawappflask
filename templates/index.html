@@ -1,119 +1,1121 @@
-{% extends "base.html" %}
+{% extends "base.html" %} {% block title %}LawEdge - Modern Law Firm Management
+System{% endblock %} {% block head %}
+<style>
+  /* Hero Section Styles */
+  .hero-section {
+    background: linear-gradient(
+      135deg,
+      var(--legal-navy) 0%,
+      #2c5282 50%,
+      #1a365d 100%
+    );
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+  }
 
-{% block title %}Law Firm Management System - Home{% endblock %}
+  .hero-section::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="1"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+    opacity: 0.3;
+  }
 
-{% block content %}
-<div class="row">
-    <div class="col-lg-8 mx-auto">
-        <div class="jumbotron bg-primary text-white p-5 rounded mb-5">
-            <h1 class="display-4">Welcome to LawEdge</h1>
-            <p class="lead">Complete Law Firm Management System</p>
-            <hr class="my-4">
-            <p>A comprehensive solution for managing cases, clients, appointments, billing, and more.</p>
-            <a class="btn btn-light btn-lg" href="{{ url_for('login') }}" role="button">Get Started</a>
-        </div>
-    </div>
-</div>
+  .hero-content {
+    position: relative;
+    z-index: 2;
+  }
 
-<div class="row">
-    <div class="col-md-4 mb-4">
-        <div class="card h-100">
-            <div class="card-body text-center">
-                <i class="fas fa-users fa-3x text-primary mb-3"></i>
-                <h5 class="card-title">Client Management</h5>
-                <p class="card-text">Complete client profiles with contact information, case history, and communication logs.</p>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-4 mb-4">
-        <div class="card h-100">
-            <div class="card-body text-center">
-                <i class="fas fa-briefcase fa-3x text-success mb-3"></i>
-                <h5 class="card-title">Case Management</h5>
-                <p class="card-text">Track cases from intake to closure with detailed notes and document management.</p>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-4 mb-4">
-        <div class="card h-100">
-            <div class="card-body text-center">
-                <i class="fas fa-calendar-alt fa-3x text-info mb-3"></i>
-                <h5 class="card-title">Appointment Scheduling</h5>
-                <p class="card-text">Schedule and manage appointments with automated reminders and calendar integration.</p>
-            </div>
-        </div>
-    </div>
-</div>
+  .hero-title {
+    font-size: 3.5rem;
+    font-weight: 700;
+    color: white;
+    margin-bottom: 1.5rem;
+    line-height: 1.2;
+    animation: fadeInUp 1s ease-out;
+  }
 
-<div class="row">
-    <div class="col-md-4 mb-4">
-        <div class="card h-100">
-            <div class="card-body text-center">
-                <i class="fas fa-file-alt fa-3x text-warning mb-3"></i>
-                <h5 class="card-title">Document Management</h5>
-                <p class="card-text">Secure document storage with version control and AI-powered search capabilities.</p>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-4 mb-4">
-        <div class="card h-100">
-            <div class="card-body text-center">
-                <i class="fas fa-clock fa-3x text-danger mb-3"></i>
-                <h5 class="card-title">Time Tracking</h5>
-                <p class="card-text">Track billable hours and expenses with detailed reporting and analytics.</p>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-4 mb-4">
-        <div class="card h-100">
-            <div class="card-body text-center">
-                <i class="fas fa-rupee-sign fa-3x text-secondary mb-3"></i>
-                <h5 class="card-title">Billing & Invoicing</h5>
-                <p class="card-text">Automated invoice generation with payment tracking and financial reporting.</p>
-            </div>
-        </div>
-    </div>
-</div>
+  .hero-subtitle {
+    font-size: 1.5rem;
+    color: rgba(255, 255, 255, 0.9);
+    margin-bottom: 2rem;
+    animation: fadeInUp 1s ease-out 0.2s backwards;
+  }
 
-<div class="row mt-5">
-    <div class="col-12 text-center">
-        <h2>Test Credentials</h2>
-        <p>Use the following credentials to test the system:</p>
-        <div class="row mt-4">
-            <div class="col-md-4 mb-3">
-                <div class="card">
-                    <div class="card-header bg-primary text-white">
-                        <strong>Admin User</strong>
-                    </div>
-                    <div class="card-body">
-                        <p>Username: <code>admin</code></p>
-                        <p>Password: <code>admin123</code></p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4 mb-3">
-                <div class="card">
-                    <div class="card-header bg-success text-white">
-                        <strong>Lawyer User</strong>
-                    </div>
-                    <div class="card-body">
-                        <p>Username: <code>jdoe</code></p>
-                        <p>Password: <code>lawyer123</code></p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4 mb-3">
-                <div class="card">
-                    <div class="card-header bg-info text-white">
-                        <strong>Staff User</strong>
-                    </div>
-                    <div class="card-body">
-                        <p>Username: <code>msmith</code></p>
-                        <p>Password: <code>staff123</code></p>
-                    </div>
-                </div>
-            </div>
+  .hero-description {
+    font-size: 1.1rem;
+    color: rgba(255, 255, 255, 0.8);
+    margin-bottom: 3rem;
+    max-width: 600px;
+    animation: fadeInUp 1s ease-out 0.4s backwards;
+  }
+
+  .hero-buttons {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    animation: fadeInUp 1s ease-out 0.6s backwards;
+  }
+
+  .btn-hero {
+    padding: 1rem 2rem;
+    font-size: 1.1rem;
+    font-weight: 600;
+    border-radius: 50px;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .btn-hero-primary {
+    background: linear-gradient(135deg, var(--legal-gold) 0%, #b7791f 100%);
+    color: white;
+    box-shadow: 0 10px 30px rgba(214, 158, 46, 0.3);
+  }
+
+  .btn-hero-primary:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 15px 40px rgba(214, 158, 46, 0.4);
+    color: white;
+  }
+
+  .btn-hero-secondary {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    backdrop-filter: blur(10px);
+  }
+
+  .btn-hero-secondary:hover {
+    background: rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 255, 255, 0.5);
+    color: white;
+    transform: translateY(-3px);
+  }
+
+  /* Feature Cards Enhancement */
+  .feature-card {
+    background: white;
+    border-radius: 20px;
+    padding: 2rem;
+    height: 100%;
+    transition: all 0.3s ease;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .feature-card::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--legal-navy), var(--legal-gold));
+  }
+
+  .feature-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+  }
+
+  .feature-icon {
+    width: 80px;
+    height: 80px;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1.5rem;
+    font-size: 2rem;
+    background: linear-gradient(135deg, var(--primary-50), var(--primary-100));
+    color: var(--legal-navy);
+    transition: all 0.3s ease;
+  }
+
+  .feature-card:hover .feature-icon {
+    transform: scale(1.1);
+    background: linear-gradient(
+      135deg,
+      var(--legal-navy),
+      var(--primary-hover)
+    );
+    color: white;
+  }
+
+  .feature-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--legal-navy);
+    margin-bottom: 1rem;
+  }
+
+  p.feature-description {
+    color: blue !important;
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+  }
+
+  .feature-card ul li,
+  ol li {
+    color: blue !important;
+  }
+
+  .demo-title {
+    color: white !important;
+  }
+  .testimonial-card p.testimonial-text {
+    color: blue !important;
+  }
+
+  .feature-link {
+    color: var(--legal-navy);
+    font-weight: 600;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.3s ease;
+  }
+
+  .feature-link:hover {
+    color: var(--legal-gold);
+    gap: 0.75rem;
+  }
+
+  /* Stats Section */
+  .stats-section {
+    background: linear-gradient(
+      135deg,
+      var(--primary-50) 0%,
+      var(--primary-100) 100%
+    );
+    padding: 4rem 0;
+    margin: 4rem 0;
+  }
+
+  .stat-item {
+    text-align: center;
+    padding: 2rem;
+  }
+
+  .stat-number {
+    font-size: 3rem;
+    font-weight: 700;
+    color: var(--legal-navy);
+    margin-bottom: 0.5rem;
+  }
+
+  .stat-label {
+    font-size: 1.1rem;
+    color: var(--text-secondary);
+    font-weight: 500;
+  }
+
+  /* Testimonials Section */
+  .testimonials-section {
+    padding: 4rem 0;
+    background: var(--surface-secondary);
+  }
+
+  .testimonial-card {
+    background: white;
+    border-radius: 20px;
+    padding: 2rem;
+    margin: 1rem;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    position: relative;
+  }
+
+  .testimonial-card::before {
+    content: '"';
+    position: absolute;
+    top: -20px;
+    left: 30px;
+    font-size: 4rem;
+    color: var(--legal-gold);
+    font-family: serif;
+  }
+
+  .testimonial-text {
+    font-style: italic;
+    color: var(--text-secondary);
+    margin-bottom: 1.5rem;
+    line-height: 1.6;
+  }
+
+  .testimonial-author {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .testimonial-avatar {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--legal-navy), var(--legal-gold));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 600;
+  }
+
+  .testimonial-name {
+    font-weight: 600;
+    color: var(--legal-navy);
+    margin-bottom: 0.25rem;
+  }
+
+  .testimonial-role {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+  }
+
+  /* CTA Section */
+  .cta-section {
+    background: linear-gradient(135deg, var(--legal-navy) 0%, #2c5282 100%);
+    padding: 4rem 0;
+    text-align: center;
+    color: white;
+  }
+
+  .cta-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+  }
+
+  .cta-description {
+    font-size: 1.2rem;
+    color: rgba(255, 255, 255, 0.9);
+    margin-bottom: 2rem;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  /* Demo Credentials Enhancement */
+  .demo-section {
+    background: var(--surface-secondary);
+    padding: 3rem 0;
+    border-radius: 20px;
+    margin: 3rem 0;
+  }
+
+  .demo-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--legal-navy);
+    margin-bottom: 1rem;
+    text-align: center;
+  }
+
+  .demo-subtitle {
+    text-align: center;
+    color: var(--text-secondary);
+    margin-bottom: 2rem;
+  }
+
+  .demo-card {
+    background: white;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+  }
+
+  .demo-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+  }
+
+  .demo-header {
+    padding: 1rem 1.5rem;
+    color: white;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .demo-body {
+    padding: 1.5rem;
+  }
+
+  .demo-credential {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .demo-credential:last-child {
+    border-bottom: none;
+  }
+
+  .demo-label {
+    font-weight: 500;
+    color: var(--text-secondary);
+  }
+
+  .demo-value {
+    font-family: "Courier New", monospace;
+    background: var(--surface-hover);
+    padding: 0.25rem 0.5rem;
+    border-radius: 5px;
+    font-size: 0.9rem;
+  }
+
+  .btn-demo {
+    width: 100%;
+    margin-top: 1rem;
+    padding: 0.75rem;
+    border-radius: 10px;
+    font-weight: 600;
+    text-decoration: none;
+    display: inline-block;
+    text-align: center;
+    transition: all 0.3s ease;
+  }
+
+  /* Animations */
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* Responsive Design */
+  @media (max-width: 768px) {
+    .hero-title {
+      font-size: 2.5rem;
+    }
+
+    .hero-subtitle {
+      font-size: 1.2rem;
+    }
+
+    .hero-buttons {
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .btn-hero {
+      width: 100%;
+      justify-content: center;
+    }
+
+    .stat-number {
+      font-size: 2rem;
+    }
+
+    .feature-card {
+      margin-bottom: 2rem;
+    }
+  }
+
+  /* Enhanced Navigation Menu Styles */
+  .nav-enhanced {
+    background: rgba(26, 54, 93, 0.95);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .nav-enhanced .navbar-brand {
+    font-size: 1.75rem;
+    font-weight: 700;
+  }
+
+  .nav-enhanced .navbar-nav .nav-link {
+    color: rgba(255, 255, 255, 0.9) !important;
+    font-weight: 500;
+    padding: 0.75rem 1rem;
+    margin: 0 0.25rem;
+    border-radius: 10px;
+    transition: all 0.3s ease;
+  }
+
+  .nav-enhanced .navbar-nav .nav-link:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: white !important;
+    transform: translateY(-2px);
+  }
+
+  .nav-enhanced .navbar-nav .nav-link.active {
+    background: rgba(255, 255, 255, 0.15);
+    color: white !important;
+  }
+
+  /* Public Menu Items */
+  .public-menu {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .public-menu .nav-link {
+    color: rgba(255, 255, 255, 0.9) !important;
+    font-weight: 500;
+    padding: 0.75rem 1rem;
+    border-radius: 10px;
+    transition: all 0.3s ease;
+  }
+
+  .public-menu .nav-link:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: white !important;
+    transform: translateY(-2px);
+  }
+</style>
+{% endblock %} {% block content %}
+<!-- Enhanced Hero Section -->
+<section class="hero-section">
+  <div class="container">
+    <div class="row align-items-center min-vh-100">
+      <div class="col-lg-6 hero-content">
+        <h1 class="hero-title">Transform Your Law Firm with LawEdge</h1>
+        <p class="hero-subtitle">
+          The Complete Legal Practice Management Solution
+        </p>
+        <p class="hero-description">
+          Streamline your entire legal practice with our comprehensive suite of
+          tools. Manage cases, clients, documents, billing, and more - all in
+          one powerful platform.
+        </p>
+        <div class="hero-buttons">
+          <a href="{{ url_for('login') }}" class="btn-hero btn-hero-primary">
+            <i class="fas fa-rocket"></i>
+            Get Started Free
+          </a>
+          <a href="#features" class="btn-hero btn-hero-secondary">
+            <i class="fas fa-play-circle"></i>
+            Watch Demo
+          </a>
         </div>
+      </div>
+      <div class="col-lg-6">
+        <div class="hero-image text-center">
+          <i
+            class="fas fa-balance-scale"
+            style="font-size: 15rem; color: rgba(255, 255, 255, 0.1)"
+          ></i>
+        </div>
+      </div>
     </div>
-</div>
+  </div>
+</section>
+
+<!-- Stats Section -->
+<section class="stats-section">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-3 col-6">
+        <div class="stat-item">
+          <div class="stat-number" data-count="1000">0</div>
+          <div class="stat-label">Law Firms</div>
+        </div>
+      </div>
+      <div class="col-md-3 col-6">
+        <div class="stat-item">
+          <div class="stat-number" data-count="50000">0</div>
+          <div class="stat-label">Cases Managed</div>
+        </div>
+      </div>
+      <div class="col-md-3 col-6">
+        <div class="stat-item">
+          <div class="stat-number" data-count="99">0</div>
+          <div class="stat-label">% Satisfaction</div>
+        </div>
+      </div>
+      <div class="col-md-3 col-6">
+        <div class="stat-item">
+          <div class="stat-number" data-count="24">0</div>
+          <div class="stat-label">/7 Support</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Enhanced Features Section -->
+<section id="features" class="py-5">
+  <div class="container">
+    <div class="text-center mb-5">
+      <h2 class="display-4 text-primary mb-3">
+        Powerful Features for Modern Law Firms
+      </h2>
+      <p class="lead text-secondary">
+        Everything you need to run your practice efficiently
+      </p>
+    </div>
+
+    <div class="row">
+      <div class="col-lg-4 col-md-6 mb-4">
+        <div class="feature-card">
+          <div class="feature-icon">
+            <i class="fas fa-users"></i>
+          </div>
+          <h3 class="feature-title">Client Management</h3>
+          <p class="feature-description">
+            Complete client profiles with contact information, case history,
+            communication logs, and document management. Build stronger client
+            relationships.
+          </p>
+          <a href="#" class="feature-link">
+            Learn more <i class="fas fa-arrow-right"></i>
+          </a>
+        </div>
+      </div>
+
+      <div class="col-lg-4 col-md-6 mb-4">
+        <div class="feature-card">
+          <div class="feature-icon">
+            <i class="fas fa-briefcase"></i>
+          </div>
+          <h3 class="feature-title">Case Management</h3>
+          <p class="feature-description">
+            Track cases from intake to closure with detailed notes, document
+            management, deadlines, and comprehensive case analytics.
+          </p>
+          <a href="#" class="feature-link">
+            Learn more <i class="fas fa-arrow-right"></i>
+          </a>
+        </div>
+      </div>
+
+      <div class="col-lg-4 col-md-6 mb-4">
+        <div class="feature-card">
+          <div class="feature-icon">
+            <i class="fas fa-calendar-alt"></i>
+          </div>
+          <h3 class="feature-title">Smart Calendar</h3>
+          <p class="feature-description">
+            Schedule appointments, court dates, and deadlines with automated
+            reminders and seamless calendar integration.
+          </p>
+          <a href="#" class="feature-link">
+            Learn more <i class="fas fa-arrow-right"></i>
+          </a>
+        </div>
+      </div>
+
+      <div class="col-lg-4 col-md-6 mb-4">
+        <div class="feature-card">
+          <div class="feature-icon">
+            <i class="fas fa-file-alt"></i>
+          </div>
+          <h3 class="feature-title">Document Management</h3>
+          <p class="feature-description">
+            Secure document storage with version control, AI-powered search, and
+            automated document generation.
+          </p>
+          <a href="#" class="feature-link">
+            Learn more <i class="fas fa-arrow-right"></i>
+          </a>
+        </div>
+      </div>
+
+      <div class="col-lg-4 col-md-6 mb-4">
+        <div class="feature-card">
+          <div class="feature-icon">
+            <i class="fas fa-clock"></i>
+          </div>
+          <h3 class="feature-title">Time Tracking</h3>
+          <p class="feature-description">
+            Track billable hours accurately with detailed reporting, expense
+            tracking, and automated invoicing.
+          </p>
+          <a href="#" class="feature-link">
+            Learn more <i class="fas fa-arrow-right"></i>
+          </a>
+        </div>
+      </div>
+
+      <div class="col-lg-4 col-md-6 mb-4">
+        <div class="feature-card">
+          <div class="feature-icon">
+            <i class="fas fa-dollar-sign"></i>
+          </div>
+          <h3 class="feature-title">Billing & Invoicing</h3>
+          <p class="feature-description">
+            Automated invoice generation, payment tracking, trust accounting,
+            and comprehensive financial reporting.
+          </p>
+          <a href="#" class="feature-link">
+            Learn more <i class="fas fa-arrow-right"></i>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Testimonials Section -->
+<section class="testimonials-section">
+  <div class="container">
+    <div class="text-center mb-5">
+      <h2 class="display-4 text-primary mb-3">
+        Trusted by Legal Professionals
+      </h2>
+      <p class="lead text-secondary">
+        See what our users have to say about LawEdge
+      </p>
+    </div>
+
+    <div class="row">
+      <div class="col-lg-4 col-md-6">
+        <div class="testimonial-card">
+          <p class="testimonial-text">
+            "LawEdge has transformed how we manage our practice. The intuitive
+            interface and powerful features have saved us countless hours."
+          </p>
+          <div class="testimonial-author">
+            <div class="testimonial-avatar">JD</div>
+            <div>
+              <div class="testimonial-name">John Doe</div>
+              <div class="testimonial-role">
+                Senior Partner, Doe & Associates
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-4 col-md-6">
+        <div class="testimonial-card">
+          <p class="testimonial-text">
+            "The best investment we've made for our firm. The case management
+            features are unparalleled, and the support is exceptional."
+          </p>
+          <div class="testimonial-author">
+            <div class="testimonial-avatar">SJ</div>
+            <div>
+              <div class="testimonial-name">Sarah Johnson</div>
+              <div class="testimonial-role">
+                Managing Partner, Johnson Law Group
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-4 col-md-6">
+        <div class="testimonial-card">
+          <p class="testimonial-text">
+            "From client intake to billing, LawEdge handles everything
+            seamlessly. It's like having an extra team member."
+          </p>
+          <div class="testimonial-author">
+            <div class="testimonial-avatar">MC</div>
+            <div>
+              <div class="testimonial-name">Michael Chen</div>
+              <div class="testimonial-role">Attorney, Chen Legal Services</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Enhanced Demo Credentials Section -->
+<section class="container demo-section">
+  <div class="text-center">
+    <h2 class="demo-title">Try Our Live Demo</h2>
+    <p class="demo-subtitle">Experience LawEdge with our test accounts</p>
+  </div>
+
+  <div class="row">
+    <div class="col-lg-4 col-md-6 mb-4">
+      <div class="demo-card">
+        <div class="demo-header bg-primary">
+          <i class="fas fa-user-shield"></i>
+          Admin User
+        </div>
+        <div class="demo-body">
+          <div class="demo-credential">
+            <span class="demo-label">Username:</span>
+            <span class="demo-value">admin</span>
+          </div>
+          <div class="demo-credential">
+            <span class="demo-label">Password:</span>
+            <span class="demo-value">admin123</span>
+          </div>
+          <a href="{{ url_for('login') }}" class="btn-demo btn-primary">
+            <i class="fas fa-sign-in-alt"></i> Login as Admin
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-4 col-md-6 mb-4">
+      <div class="demo-card">
+        <div class="demo-header bg-success">
+          <i class="fas fa-user-tie"></i>
+          Lawyer User
+        </div>
+        <div class="demo-body">
+          <div class="demo-credential">
+            <span class="demo-label">Username:</span>
+            <span class="demo-value">jdoe</span>
+          </div>
+          <div class="demo-credential">
+            <span class="demo-label">Password:</span>
+            <span class="demo-value">lawyer123</span>
+          </div>
+          <a href="{{ url_for('login') }}" class="btn-demo btn-success">
+            <i class="fas fa-sign-in-alt"></i> Login as Lawyer
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-4 col-md-6 mb-4">
+      <div class="demo-card">
+        <div class="demo-header bg-info">
+          <i class="fas fa-user"></i>
+          Staff User
+        </div>
+        <div class="demo-body">
+          <div class="demo-credential">
+            <span class="demo-label">Username:</span>
+            <span class="demo-value">msmith</span>
+          </div>
+          <div class="demo-credential">
+            <span class="demo-label">Password:</span>
+            <span class="demo-value">staff123</span>
+          </div>
+          <a href="{{ url_for('login') }}" class="btn-demo btn-info">
+            <i class="fas fa-sign-in-alt"></i> Login as Staff
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Pricing Section -->
+<section id="pricing" class="py-5">
+  <div class="container">
+    <div class="text-center mb-5">
+      <h2 class="display-4 text-primary mb-3">Choose Your Plan</h2>
+      <p class="lead text-secondary">
+        Flexible pricing for law firms of all sizes
+      </p>
+    </div>
+
+    <div class="row">
+      <div class="col-lg-4 col-md-6 mb-4">
+        <div class="feature-card">
+          <div class="text-center">
+            <h3 class="feature-title">Starter</h3>
+            <div class="mb-3">
+              <span
+                style="
+                  font-size: 3rem;
+                  font-weight: 700;
+                  color: var(--legal-navy);
+                "
+                >$49</span
+              >
+              <span class="text-secondary">/month</span>
+            </div>
+            <p class="text-secondary mb-4">Perfect for solo practitioners</p>
+          </div>
+          <ul class="list-unstyled mb-4">
+            <li class="mb-2">
+              <i class="fas fa-check text-success me-2"></i>Up to 3 users
+            </li>
+            <li class="mb-2">
+              <i class="fas fa-check text-success me-2"></i>Basic case
+              management
+            </li>
+            <li class="mb-2">
+              <i class="fas fa-check text-success me-2"></i>Client management
+            </li>
+            <li class="mb-2">
+              <i class="fas fa-check text-success me-2"></i>Document storage
+              (5GB)
+            </li>
+            <li class="mb-2">
+              <i class="fas fa-check text-success me-2"></i>Basic reporting
+            </li>
+            <li class="mb-2 text-muted">
+              <i class="fas fa-times me-2"></i>Advanced analytics
+            </li>
+            <li class="mb-2 text-muted">
+              <i class="fas fa-times me-2"></i>API access
+            </li>
+          </ul>
+          <a href="{{ url_for('login') }}" class="btn btn-outline-primary w-100"
+            >Get Started</a
+          >
+        </div>
+      </div>
+
+      <div class="col-lg-4 col-md-6 mb-4">
+        <div
+          class="feature-card"
+          style="border: 2px solid var(--legal-gold); transform: scale(1.05)"
+        >
+          <div class="text-center">
+            <div class="badge bg-warning text-dark mb-3">MOST POPULAR</div>
+            <h3 class="feature-title">Professional</h3>
+            <div class="mb-3">
+              <span
+                style="
+                  font-size: 3rem;
+                  font-weight: 700;
+                  color: var(--legal-navy);
+                "
+                >$149</span
+              >
+              <span class="text-secondary">/month</span>
+            </div>
+            <p class="text-secondary mb-4">Ideal for growing law firms</p>
+          </div>
+          <ul class="list-unstyled mb-4">
+            <li class="mb-2">
+              <i class="fas fa-check text-success me-2"></i>Up to 15 users
+            </li>
+            <li class="mb-2">
+              <i class="fas fa-check text-success me-2"></i>Advanced case
+              management
+            </li>
+            <li class="mb-2">
+              <i class="fas fa-check text-success me-2"></i>Client relationship
+              management
+            </li>
+            <li class="mb-2">
+              <i class="fas fa-check text-success me-2"></i>Document storage
+              (50GB)
+            </li>
+            <li class="mb-2">
+              <i class="fas fa-check text-success me-2"></i>Advanced reporting &
+              analytics
+            </li>
+            <li class="mb-2">
+              <i class="fas fa-check text-success me-2"></i>Time tracking &
+              billing
+            </li>
+            <li class="mb-2">
+              <i class="fas fa-check text-success me-2"></i>Calendar integration
+            </li>
+          </ul>
+          <a href="{{ url_for('login') }}" class="btn btn-primary w-100"
+            >Get Started</a
+          >
+        </div>
+      </div>
+
+      <div class="col-lg-4 col-md-6 mb-4">
+        <div class="feature-card">
+          <div class="text-center">
+            <h3 class="feature-title">Enterprise</h3>
+            <div class="mb-3">
+              <span
+                style="
+                  font-size: 3rem;
+                  font-weight: 700;
+                  color: var(--legal-navy);
+                "
+                >$299</span
+              >
+              <span class="text-secondary">/month</span>
+            </div>
+            <p class="text-secondary mb-4">For large law firms</p>
+          </div>
+          <ul class="list-unstyled mb-4">
+            <li class="mb-2">
+              <i class="fas fa-check text-success me-2"></i>Unlimited users
+            </li>
+            <li class="mb-2">
+              <i class="fas fa-check text-success me-2"></i>Complete case
+              management
+            </li>
+            <li class="mb-2">
+              <i class="fas fa-check text-success me-2"></i>Advanced CRM
+              features
+            </li>
+            <li class="mb-2">
+              <i class="fas fa-check text-success me-2"></i>Unlimited document
+              storage
+            </li>
+            <li class="mb-2">
+              <i class="fas fa-check text-success me-2"></i>Custom reporting &
+              dashboards
+            </li>
+            <li class="mb-2">
+              <i class="fas fa-check text-success me-2"></i>API access &
+              integrations
+            </li>
+            <li class="mb-2">
+              <i class="fas fa-check text-success me-2"></i>Priority support &
+              training
+            </li>
+          </ul>
+          <a href="#" class="btn btn-outline-primary w-100">Contact Sales</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Contact Section -->
+<section id="contact" class="py-5" style="background: var(--surface-secondary)">
+  <div class="container">
+    <div class="text-center mb-5">
+      <h2 class="display-4 text-primary mb-3">Get in Touch</h2>
+      <p class="lead text-secondary">Have questions? We're here to help</p>
+    </div>
+
+    <div class="row">
+      <div class="col-lg-4 mb-4">
+        <div class="feature-card text-center h-100">
+          <div class="feature-icon mx-auto mb-3">
+            <i class="fas fa-phone"></i>
+          </div>
+          <h4 class="feature-title">Phone Support</h4>
+          <p class="feature-description">
+            Get immediate help from our support team during business hours.
+          </p>
+          <a
+            href="tel:+1-800-LAWEDGE"
+            class="feature-link justify-content-center"
+          >
+            1-800-LAWEDGE
+          </a>
+        </div>
+      </div>
+
+      <div class="col-lg-4 mb-4">
+        <div class="feature-card text-center h-100">
+          <div class="feature-icon mx-auto mb-3">
+            <i class="fas fa-envelope"></i>
+          </div>
+          <h4 class="feature-title">Email Support</h4>
+          <p class="feature-description">
+            Send us your questions and we'll respond within 24 hours.
+          </p>
+          <a
+            href="mailto:support@lawedge.com"
+            class="feature-link justify-content-center"
+          >
+            support@lawedge.com
+          </a>
+        </div>
+      </div>
+
+      <div class="col-lg-4 mb-4">
+        <div class="feature-card text-center h-100">
+          <div class="feature-icon mx-auto mb-3">
+            <i class="fas fa-calendar"></i>
+          </div>
+          <h4 class="feature-title">Schedule Demo</h4>
+          <p class="feature-description">
+            Book a personalized demo with our product experts.
+          </p>
+          <a href="#" class="feature-link justify-content-center">
+            Schedule Now
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA Section -->
+<section class="cta-section">
+  <div class="container">
+    <div class="text-center">
+      <h2 class="cta-title">Ready to Transform Your Practice?</h2>
+      <p class="cta-description">
+        Join thousands of law firms that have already streamlined their
+        operations with LawEdge
+      </p>
+      <div class="hero-buttons justify-content-center">
+        <a href="{{ url_for('login') }}" class="btn-hero btn-hero-primary">
+          <i class="fas fa-rocket"></i>
+          Start Free Trial
+        </a>
+        <a href="#contact" class="btn-hero btn-hero-secondary">
+          <i class="fas fa-phone"></i>
+          Schedule Demo
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  // Animated counter for stats
+  function animateCounter() {
+    const counters = document.querySelectorAll(".stat-number");
+    const speed = 200;
+
+    counters.forEach((counter) => {
+      const target = +counter.getAttribute("data-count");
+      const increment = target / speed;
+
+      const updateCount = () => {
+        const count = +counter.innerText;
+
+        if (count < target) {
+          counter.innerText = Math.ceil(count + increment);
+          setTimeout(updateCount, 1);
+        } else {
+          counter.innerText = target.toLocaleString();
+        }
+      };
+
+      updateCount();
+    });
+  }
+
+  // Trigger animation when stats section is in view
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        animateCounter();
+        observer.disconnect();
+      }
+    });
+  });
+
+  const statsSection = document.querySelector(".stats-section");
+  if (statsSection) {
+    observer.observe(statsSection);
+  }
+
+  // Smooth scrolling for anchor links
+  document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
+    anchor.addEventListener("click", function (e) {
+      e.preventDefault();
+      const target = document.querySelector(this.getAttribute("href"));
+      if (target) {
+        target.scrollIntoView({
+          behavior: "smooth",
+          block: "start",
+        });
+      }
+    });
+  });
+</script>
 {% endblock %}

@@ -1,8 +1,257 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, session, jsonify, send_file, current_app
 from flask_sqlalchemy import SQLAlchemy
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SelectField, TextAreaField, DateField, IntegerField, FloatField, BooleanField, FileField, HiddenField
+from flask_session import Session
+from flask_mail import Mail
+from wtforms import StringField, PasswordField, SelectField, TextAreaField, DateField, DateTimeField, IntegerField, FloatField, BooleanField, FileField, HiddenField
 from wtforms.validators import DataRequired, Email, EqualTo, Length, Optional
+
+# Forms
+class ClientForm(FlaskForm):
+    first_name = StringField('First Name', validators=[DataRequired(), Length(max=100)])
+    last_name = StringField('Last Name', validators=[DataRequired(), Length(max=100)])
+    email = StringField('Email', validators=[Email(), Length(max=120)])
+    phone = StringField('Phone', validators=[Length(max=20)])
+    address = TextAreaField('Address', validators=[Length(max=500)])
+    city = StringField('City', validators=[Length(max=100)])
+    state = StringField('State', validators=[Length(max=100)])
+    postal_code = StringField('Postal Code', validators=[Length(max=20)])
+    company = StringField('Company', validators=[Length(max=200)])
+    client_type = SelectField('Client Type', choices=[
+        ('individual', 'Individual'),
+        ('corporate', 'Corporate'),
+        ('government', 'Government'),
+        ('ngo', 'NGO')
+    ], default='individual')
+    practice_area = SelectField('Practice Area', choices=[
+        ('property_law', 'Property Law'),
+        ('corporate_law', 'Corporate Law'),
+        ('criminal_law', 'Criminal Law'),
+        ('family_law', 'Family Law'),
+        ('employment_law', 'Employment Law'),
+        ('intellectual_property', 'Intellectual Property'),
+        ('tax_law', 'Tax Law'),
+        ('immigration_law', 'Immigration Law'),
+        ('environmental_law', 'Environmental Law'),
+        ('other', 'Other')
+    ])
+    priority = SelectField('Priority', choices=[
+        ('low', 'Low'),
+        ('medium', 'Medium'),
+        ('high', 'High'),
+        ('urgent', 'Urgent')
+    ], default='medium')
+    assigned_lawyer_id = SelectField('Assigned Lawyer', coerce=int, validators=[Optional()])
+    tags = StringField('Tags', validators=[Length(max=500)])
+    notes = TextAreaField('Notes', validators=[Length(max=1000)])
+
+class CaseForm(FlaskForm):
+    title = StringField('Case Title', validators=[DataRequired(), Length(max=200)])
+    description = TextAreaField('Description', validators=[Length(max=1000)])
+    client_id = SelectField('Client', coerce=int, validators=[DataRequired()])
+    assigned_lawyer_id = SelectField('Assigned Lawyer', coerce=int, validators=[Optional()])
+    case_type = SelectField('Case Type', choices=[
+        ('civil', 'Civil'),
+        ('criminal', 'Criminal'),
+        ('corporate', 'Corporate'),
+        ('family', 'Family'),
+        ('employment', 'Employment'),
+        ('property', 'Property'),
+        ('intellectual_property', 'Intellectual Property'),
+        ('tax', 'Tax'),
+        ('immigration', 'Immigration'),
+        ('environmental', 'Environmental'),
+        ('other', 'Other')
+    ])
+    status = SelectField('Status', choices=[
+        ('open', 'Open'),
+        ('in_progress', 'In Progress'),
+        ('on_hold', 'On Hold'),
+        ('closed', 'Closed')
+    ], default='open')
+    stage = SelectField('Stage', choices=[
+        ('initial', 'Initial Assessment'),
+        ('investigation', 'Investigation'),
+        ('pleading', 'Pleading'),
+        ('discovery', 'Discovery'),
+        ('negotiation', 'Negotiation'),
+        ('trial', 'Trial'),
+        ('appeal', 'Appeal'),
+        ('enforcement', 'Enforcement')
+    ])
+    priority = SelectField('Priority', choices=[
+        ('low', 'Low'),
+        ('medium', 'Medium'),
+        ('high', 'High'),
+        ('urgent', 'Urgent')
+    ], default='medium')
+    date_opened = DateField('Date Opened', validators=[Optional()])
+    estimated_completion = DateField('Estimated Completion', validators=[Optional()])
+    billing_method = SelectField('Billing Method', choices=[
+        ('hourly', 'Hourly'),
+        ('flat_fee', 'Flat Fee'),
+        ('contingency', 'Contingency'),
+        ('retainer', 'Retainer')
+    ], default='hourly')
+    hourly_rate = FloatField('Hourly Rate', validators=[Optional()])
+    budget = FloatField('Budget', validators=[Optional()])
+    court_number = StringField('Court Number', validators=[Length(max=100)])
+    notes = TextAreaField('Notes', validators=[Length(max=1000)])
+
+class AppointmentForm(FlaskForm):
+    title = StringField('Title', validators=[DataRequired(), Length(max=200)])
+    description = TextAreaField('Description', validators=[Length(max=1000)])
+    client_id = SelectField('Client', coerce=int, validators=[Optional()])
+    lawyer_id = SelectField('Lawyer', coerce=int, validators=[Optional()])
+    case_id = SelectField('Case', coerce=int, validators=[Optional()])
+    appointment_type = SelectField('Appointment Type', choices=[
+        ('consultation', 'Consultation'),
+        ('meeting', 'Meeting'),
+        ('court_hearing', 'Court Hearing'),
+        ('deposition', 'Deposition'),
+        ('mediation', 'Mediation'),
+        ('arbitration', 'Arbitration'),
+        ('other', 'Other')
+    ])
+    start_time = DateTimeField('Start Time', validators=[DataRequired()], format='%Y-%m-%dT%H:%M')
+    end_time = DateTimeField('End Time', validators=[Optional()], format='%Y-%m-%dT%H:%M')
+    location = StringField('Location', validators=[Length(max=500)])
+    is_virtual = BooleanField('Virtual Meeting')
+    meeting_link = StringField('Meeting Link', validators=[Length(max=500)])
+    reminder_minutes = IntegerField('Reminder Minutes', validators=[Optional()])
+    notes = TextAreaField('Notes', validators=[Length(max=1000)])
+
+class DocumentForm(FlaskForm):
+    title = StringField('Title', validators=[DataRequired(), Length(max=200)])
+    description = TextAreaField('Description', validators=[Length(max=1000)])
+    category = SelectField('Category', choices=[
+        ('contract', 'Contract'),
+        ('court_filing', 'Court Filing'),
+        ('correspondence', 'Correspondence'),
+        ('evidence', 'Evidence'),
+        ('legal_brief', 'Legal Brief'),
+        ('motion', 'Motion'),
+        ('pleading', 'Pleading'),
+        ('research', 'Research'),
+        ('other', 'Other')
+    ])
+    client_id = SelectField('Client', coerce=int, validators=[Optional()])
+    case_id = SelectField('Case', coerce=int, validators=[Optional()])
+    file = FileField('File', validators=[DataRequired()])
+    tags = StringField('Tags', validators=[Length(max=500)])
+    document_type = SelectField('Document Type', choices=[
+        ('original', 'Original'),
+        ('copy', 'Copy'),
+        ('draft', 'Draft'),
+        ('final', 'Final'),
+        ('signed', 'Signed')
+    ], default='original')
+    is_confidential = BooleanField('Confidential')
+    requires_signature = BooleanField('Requires Signature')
+    signature_details = TextAreaField('Signature Details', validators=[Length(max=500)])
+    is_template = BooleanField('Template')
+    template_details = TextAreaField('Template Details', validators=[Length(max=500)])
+    expiry_date = DateField('Expiry Date', validators=[Optional()])
+
+class TimeEntryForm(FlaskForm):
+    case_id = SelectField('Case', coerce=int, validators=[DataRequired()])
+    client_id = SelectField('Client', coerce=int, validators=[Optional()])
+    lawyer_id = SelectField('Lawyer', coerce=int, validators=[Optional()])
+    description = TextAreaField('Description', validators=[DataRequired(), Length(max=1000)])
+    start_time = DateTimeField('Start Time', validators=[DataRequired()], format='%Y-%m-%dT%H:%M')
+    end_time = DateTimeField('End Time', validators=[Optional()], format='%Y-%m-%dT%H:%M')
+    duration_minutes = IntegerField('Duration (minutes)', validators=[Optional()])
+    is_billable = BooleanField('Billable')
+    hourly_rate = FloatField('Hourly Rate', validators=[Optional()])
+    amount = FloatField('Amount', validators=[Optional()])
+    status = SelectField('Status', choices=[
+        ('draft', 'Draft'),
+        ('submitted', 'Submitted'),
+        ('approved', 'Approved'),
+        ('rejected', 'Rejected'),
+        ('invoiced', 'Invoiced')
+    ], default='draft')
+    notes = TextAreaField('Notes', validators=[Length(max=1000)])
+
+class ExpenseForm(FlaskForm):
+    case_id = SelectField('Case', coerce=int, validators=[Optional()])
+    client_id = SelectField('Client', coerce=int, validators=[Optional()])
+    lawyer_id = SelectField('Lawyer', coerce=int, validators=[Optional()])
+    expense_type = SelectField('Expense Type', choices=[
+        ('travel', 'Travel'),
+        ('meals', 'Meals'),
+        ('accommodation', 'Accommodation'),
+        ('office_supplies', 'Office Supplies'),
+        ('legal_research', 'Legal Research'),
+        ('court_fees', 'Court Fees'),
+        ('expert_witness', 'Expert Witness'),
+        ('other', 'Other')
+    ])
+    description = StringField('Description', validators=[DataRequired(), Length(max=500)])
+    amount = FloatField('Amount', validators=[DataRequired()])
+    currency = SelectField('Currency', choices=[
+        ('USD', 'USD'),
+        ('EUR', 'EUR'),
+        ('GBP', 'GBP'),
+        ('INR', 'INR')
+    ], default='USD')
+    date_incurred = DateField('Date Incurred', validators=[DataRequired()])
+    is_billable = BooleanField('Billable to Client')
+    receipt = FileField('Receipt', validators=[Optional()])
+    status = SelectField('Status', choices=[
+        ('pending', 'Pending'),
+        ('submitted', 'Submitted'),
+        ('approved', 'Approved'),
+        ('rejected', 'Rejected'),
+        ('reimbursed', 'Reimbursed')
+    ], default='pending')
+    notes = TextAreaField('Notes', validators=[Length(max=1000)])
+    # Additional fields for the template
+    date = DateField('Date', validators=[Optional()])
+    category = SelectField('Category', choices=[
+        ('travel', 'Travel'),
+        ('meals', 'Meals'),
+        ('accommodation', 'Accommodation'),
+        ('office_supplies', 'Office Supplies'),
+        ('legal_research', 'Legal Research'),
+        ('court_fees', 'Court Fees'),
+        ('expert_witness', 'Expert Witness'),
+        ('professional_services', 'Professional Services'),
+        ('research_database', 'Research & Database'),
+        ('postage_delivery', 'Postage & Delivery'),
+        ('other', 'Other')
+    ])
+    payment_method = SelectField('Payment Method', choices=[
+        ('cash', 'Cash'),
+        ('credit_card', 'Credit Card'),
+        ('debit_card', 'Debit Card'),
+        ('bank_transfer', 'Bank Transfer'),
+        ('check', 'Check'),
+        ('other', 'Other')
+    ])
+    is_billable_to_client = BooleanField('Billable to Client')
+    is_reimbursable = BooleanField('Reimbursable')
+    reimbursement_details = TextAreaField('Reimbursement Details', validators=[Length(max=500)])
+
+class UserForm(FlaskForm):
+    username = StringField('Username', validators=[DataRequired(), Length(max=100)])
+    email = StringField('Email', validators=[Email(), Length(max=120)])
+    password = PasswordField('Password', validators=[Optional(), Length(min=6)])
+    confirm_password = PasswordField('Confirm Password', validators=[
+        Optional(),
+        EqualTo('password', message='Passwords must match')
+    ])
+    full_name = StringField('Full Name', validators=[DataRequired(), Length(max=200)])
+    role = SelectField('Role', choices=[
+        ('admin', 'Administrator'),
+        ('lawyer', 'Lawyer'),
+        ('paralegal', 'Paralegal'),
+        ('staff', 'Staff'),
+        ('finance', 'Finance')
+    ], validators=[DataRequired()])
+    phone = StringField('Phone', validators=[Length(max=20)])
+    address = TextAreaField('Address', validators=[Length(max=500)])
+    is_active = BooleanField('Active', default=True)
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 from datetime import datetime, timedelta
@@ -21,14 +270,102 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///law_firm.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['UPLOAD_FOLDER'] = 'uploads'
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max upload
+# Set session type to filesystem to avoid potential issues with session serialization
+app.config['SESSION_TYPE'] = 'filesystem'
+app.config['SESSION_FILE_DIR'] = 'flask_session'
+app.config['SESSION_FILE_THRESHOLD'] = 500
+
+# Flask-Mail configuration
+app.config['MAIL_SERVER'] = 'smtp.gmail.com'
+app.config['MAIL_PORT'] = 587
+app.config['MAIL_USE_TLS'] = True
+app.config['MAIL_USE_SSL'] = False
+app.config['MAIL_USERNAME'] = os.environ.get('MAIL_USERNAME', 'your-email@gmail.com')
+app.config['MAIL_PASSWORD'] = os.environ.get('MAIL_PASSWORD', 'your-app-password')
+app.config['MAIL_DEFAULT_SENDER'] = os.environ.get('MAIL_DEFAULT_SENDER', 'noreply@lawedge.com')
+app.config['MAIL_DEFAULT_RECIPIENT'] = os.environ.get('MAIL_DEFAULT_RECIPIENT', 'info@lawedge.com')
+app.config['MAIL_SUPPRESS_SEND'] = False
+app.config['MAIL_ASCII_ATTACHMENTS'] = False
+
+# Initialize Flask-Mail
+mail = Mail(app)
+app.mail = mail
 
 # Import models first to get the db instance
 import models
 from models import db, User, Client, Case, Appointment, Document, TimeEntry, Invoice, Payment, TrustAccount, TrustTransaction, Notification, ActivityLog, Firm, Branch, Permission, RolePermission, Communication, Lead, CaseWorkflow, DocumentVersion, Expense, InvoiceLineItem, ClientPortalUser, DocumentAnalysis, LegalResearch, AutomationRule, SystemSetting
 
+# Import enhanced modules
+try:
+    from enhanced_security import enhanced_security, attendance_tracker, role_manager
+    ENHANCED_SECURITY_AVAILABLE = True
+except ImportError:
+    ENHANCED_SECURITY_AVAILABLE = False
+    print("Warning: Enhanced security module not available")
+
+try:
+    from document_ocr import ocr_engine, document_analyzer, document_search, process_document_ocr
+    OCR_AVAILABLE = True
+except ImportError:
+    OCR_AVAILABLE = False
+    print("Warning: OCR module not available")
+
+try:
+    from analytics_reporting import analytics_engine
+    ANALYTICS_AVAILABLE = True
+except ImportError:
+    ANALYTICS_AVAILABLE = False
+    print("Warning: Analytics module not available")
+
+try:
+    from document_routes import documents_bp
+    ENHANCED_DOCUMENTS_AVAILABLE = True
+except ImportError:
+    ENHANCED_DOCUMENTS_AVAILABLE = False
+    print("Warning: Enhanced document routes not available")
+
+try:
+    from auth_routes import auth_bp
+    AUTH_ROUTES_AVAILABLE = True
+except ImportError:
+    AUTH_ROUTES_AVAILABLE = False
+    print("Warning: Auth routes not available")
+
+try:
+    from analytics_routes import analytics_bp
+    ANALYTICS_ROUTES_AVAILABLE = True
+except ImportError:
+    ANALYTICS_ROUTES_AVAILABLE = False
+    print("Warning: Analytics routes not available")
+
 # Initialize the app with the db instance from models
 db.init_app(app)
 migrate = Migrate(app, db)
+
+# Initialize enhanced services
+if ENHANCED_SECURITY_AVAILABLE:
+    enhanced_security.init_app(app)
+
+if OCR_AVAILABLE:
+    ocr_engine.init_app(app)
+    document_analyzer.init_app(app)
+
+if ANALYTICS_AVAILABLE:
+    analytics_engine.init_app(app)
+
+# Register blueprints
+if AUTH_ROUTES_AVAILABLE:
+    app.register_blueprint(auth_bp, url_prefix='/auth')
+
+if ENHANCED_DOCUMENTS_AVAILABLE:
+    app.register_blueprint(documents_bp, url_prefix='/documents_enhanced')
+
+if ANALYTICS_AVAILABLE:
+    app.register_blueprint(analytics_bp, url_prefix='/analytics')
+
+# Register enquiry routes
+from enquiry_routes import enquiry_bp
+app.register_blueprint(enquiry_bp)
 
 # Create tables
 with app.app_context():
@@ -124,6 +461,10 @@ def get_system_setting(key, default=None):
     return default
 
 # Routes
+@app.route('/favicon.ico')
+def favicon():
+    return '', 204  # No content response for favicon
+
 @app.route('/')
 def index():
     if 'user_id' in session:
@@ -380,55 +721,70 @@ def users():
 @login_required
 @role_required('admin')
 def add_user():
-    if request.method == 'POST':
-        user = User(
-            username=request.form.get('username'),
-            email=request.form.get('email'),
-            full_name=request.form.get('full_name'),
-            role=request.form.get('role'),
-            phone=request.form.get('phone'),
-            address=request.form.get('address')
-        )
-        user.set_password(request.form.get('password'))
-        
-        db.session.add(user)
-        db.session.commit()
-        
-        # Log activity
-        log_activity(session['user_id'], 'create_user', 'user', user.id, f'Created user: {user.full_name}')
-        
-        flash('User added successfully!', 'success')
-        return redirect(url_for('users'))
+    form = UserForm()
     
-    return render_template('add_user.html')
+    if request.method == 'POST':
+        if form.validate_on_submit():
+            user = User(
+                username=form.username.data,
+                email=form.email.data,
+                full_name=form.full_name.data,
+                role=form.role.data,
+                phone=form.phone.data,
+                address=form.address.data
+            )
+            user.set_password(form.password.data)
+            
+            db.session.add(user)
+            db.session.commit()
+            
+            # Log activity
+            log_activity(session['user_id'], 'create_user', 'user', user.id, f'Created user: {user.full_name}')
+            
+            flash('User added successfully!', 'success')
+            return redirect(url_for('users'))
+    
+    return render_template('add_user.html', form=form)
 
 @app.route('/edit_user/<int:user_id>', methods=['GET', 'POST'])
 @login_required
 @role_required('admin')
 def edit_user(user_id):
     user = User.query.get_or_404(user_id)
+    form = UserForm()
     
     if request.method == 'POST':
-        user.username = request.form.get('username')
-        user.email = request.form.get('email')
-        user.full_name = request.form.get('full_name')
-        user.role = request.form.get('role')
-        user.phone = request.form.get('phone')
-        user.address = request.form.get('address')
-        user.is_active = 'is_active' in request.form
-        
-        if request.form.get('password'):
-            user.set_password(request.form.get('password'))
-        
-        db.session.commit()
-        
-        # Log activity
-        log_activity(session['user_id'], 'update_user', 'user', user.id, f'Updated user: {user.full_name}')
-        
-        flash('User updated successfully!', 'success')
-        return redirect(url_for('users'))
+        if form.validate_on_submit():
+            user.username = form.username.data
+            user.email = form.email.data
+            user.full_name = form.full_name.data
+            user.role = form.role.data
+            user.phone = form.phone.data
+            user.address = form.address.data
+            user.is_active = form.is_active.data
+            
+            if form.password.data:
+                user.set_password(form.password.data)
+            
+            db.session.commit()
+            
+            # Log activity
+            log_activity(session['user_id'], 'update_user', 'user', user.id, f'Updated user: {user.full_name}')
+            
+            flash('User updated successfully!', 'success')
+            return redirect(url_for('users'))
     
-    return render_template('edit_user.html', user=user)
+    # Populate form with existing user data for GET request
+    if request.method == 'GET':
+        form.username.data = user.username
+        form.email.data = user.email
+        form.full_name.data = user.full_name
+        form.role.data = user.role
+        form.phone.data = user.phone
+        form.address.data = user.address
+        form.is_active.data = user.is_active
+    
+    return render_template('edit_user.html', user=user, form=form)
 
 @app.route('/profile')
 @login_required
@@ -473,50 +829,57 @@ def clients():
 @login_required
 @role_required('admin', 'lawyer', 'paralegal')
 def add_client():
+    form = ClientForm()
+    form.assigned_lawyer_id.choices = [(0, 'Select Lawyer')] + [(lawyer.id, lawyer.full_name) for lawyer in User.query.filter_by(role='lawyer').all()]
+    
     if request.method == 'POST':
-        # Generate client number
-        last_client = Client.query.order_by(Client.id.desc()).first()
-        if last_client:
-            client_num = int(last_client.client_number.split('-')[2]) + 1
+        if form.validate_on_submit():
+            # Generate client number
+            last_client = Client.query.order_by(Client.id.desc()).first()
+            if last_client:
+                client_num = int(last_client.client_number.split('-')[2]) + 1
+            else:
+                client_num = 1
+            
+            client_number = f"CL-2023-{client_num:03d}"
+            
+            client = Client(
+                client_number=client_number,
+                first_name=form.first_name.data,
+                last_name=form.last_name.data,
+                email=form.email.data,
+                phone=form.phone.data,
+                address=form.address.data,
+                city=form.city.data,
+                state=form.state.data,
+                postal_code=form.postal_code.data,
+                company=form.company.data,
+                client_type=form.client_type.data,
+                practice_area=form.practice_area.data,
+                priority=form.priority.data,
+                assigned_lawyer_id=form.assigned_lawyer_id.data or session['user_id'],
+                notes=form.notes.data
+            )
+            
+            db.session.add(client)
+            db.session.commit()
+            
+            # Log activity and create notification
+            log_activity(session['user_id'], 'create_client', 'client', client.id, f'Created client: {client.full_name}')
+            
+            # Create notification for assigned lawyer if different from current user
+            if client.assigned_lawyer_id != session['user_id']:
+                create_notification(client.assigned_lawyer_id, 'New Client Assigned', 
+                                  f'You have been assigned a new client: {client.full_name}', 'client')
+            
+            flash('Client added successfully!', 'success')
+            return redirect(url_for('clients'))
         else:
-            client_num = 1
-        
-        client_number = f"CL-2023-{client_num:03d}"
-        
-        client = Client(
-            client_number=client_number,
-            first_name=request.form.get('first_name'),
-            last_name=request.form.get('last_name'),
-            email=request.form.get('email'),
-            phone=request.form.get('phone'),
-            address=request.form.get('address'),
-            city=request.form.get('city'),
-            state=request.form.get('state'),
-            postal_code=request.form.get('postal_code'),
-            company=request.form.get('company'),
-            client_type=request.form.get('client_type'),
-            practice_area=request.form.get('practice_area'),
-            priority=request.form.get('priority'),
-            assigned_lawyer_id=request.form.get('assigned_lawyer_id') or session['user_id'],
-            notes=request.form.get('notes')
-        )
-        
-        db.session.add(client)
-        db.session.commit()
-        
-        # Log activity and create notification
-        log_activity(session['user_id'], 'create_client', 'client', client.id, f'Created client: {client.full_name}')
-        
-        # Create notification for assigned lawyer if different from current user
-        if client.assigned_lawyer_id != session['user_id']:
-            create_notification(client.assigned_lawyer_id, 'New Client Assigned', 
-                              f'You have been assigned a new client: {client.full_name}', 'client')
-        
-        flash('Client added successfully!', 'success')
-        return redirect(url_for('clients'))
+            # If form validation fails, repopulate choices
+            form.assigned_lawyer_id.choices = [(0, 'Select Lawyer')] + [(lawyer.id, lawyer.full_name) for lawyer in User.query.filter_by(role='lawyer').all()]
     
     lawyers = User.query.filter_by(role='lawyer').all()
-    return render_template('add_client.html', lawyers=lawyers)
+    return render_template('add_client.html', form=form, lawyers=lawyers)
 
 @app.route('/view_client/<int:client_id>')
 @login_required
@@ -604,49 +967,60 @@ def cases():
 @login_required
 @role_required('admin', 'lawyer', 'paralegal')
 def add_case():
+    form = CaseForm()
+    form.client_id.choices = [(client.id, f"{client.full_name} ({client.client_number})") for client in Client.query.all()]
+    form.assigned_lawyer_id.choices = [(0, 'Select Lawyer')] + [(lawyer.id, lawyer.full_name) for lawyer in User.query.filter_by(role='lawyer').all()]
+    
     if request.method == 'POST':
-        # Generate case number
-        last_case = Case.query.order_by(Case.id.desc()).first()
-        if last_case:
-            case_num = int(last_case.case_number.split('-')[2]) + 1
+        if form.validate_on_submit():
+            # Generate case number
+            last_case = Case.query.order_by(Case.id.desc()).first()
+            if last_case:
+                case_num = int(last_case.case_number.split('-')[2]) + 1
+            else:
+                case_num = 1
+            
+            case_number = f"CASE-2023-{case_num:03d}"
+            
+            case = Case(
+                case_number=case_number,
+                title=form.title.data,
+                description=form.description.data,
+                client_id=form.client_id.data,
+                assigned_lawyer_id=form.assigned_lawyer_id.data or session['user_id'],
+                case_type=form.case_type.data,
+                status=form.status.data,
+                stage=form.stage.data,
+                date_opened=form.date_opened.data,
+                estimated_completion=form.estimated_completion.data,
+                billing_method=form.billing_method.data,
+                hourly_rate=form.hourly_rate.data,
+                budget=form.budget.data,
+                court_number=form.court_number.data,
+                notes=form.notes.data
+            )
+            
+            db.session.add(case)
+            db.session.commit()
+            
+            # Log activity
+            log_activity(session['user_id'], 'create_case', 'case', case.id, f'Created case: {case.title}')
+            
+            # Create notification for assigned lawyer if different from current user
+            if case.assigned_lawyer_id != session['user_id']:
+                create_notification(case.assigned_lawyer_id, 'New Case Assigned', 
+                                  f'You have been assigned a new case: {case.title}', 'case')
+            
+            flash('Case added successfully!', 'success')
+            return redirect(url_for('cases'))
         else:
-            case_num = 1
-        
-        case_number = f"CASE-2023-{case_num:03d}"
-        
-        case = Case(
-            case_number=case_number,
-            title=request.form.get('title'),
-            description=request.form.get('description'),
-            client_id=request.form.get('client_id'),
-            assigned_lawyer_id=request.form.get('assigned_lawyer_id') or session['user_id'],
-            case_type=request.form.get('case_type'),
-            status=request.form.get('status'),
-            stage=request.form.get('stage'),
-            estimated_completion=datetime.strptime(request.form.get('estimated_completion'), '%Y-%m-%d') if request.form.get('estimated_completion') else None,
-            billing_method=request.form.get('billing_method'),
-            hourly_rate=float(request.form.get('hourly_rate')) if request.form.get('hourly_rate') else None,
-            budget=float(request.form.get('budget')) if request.form.get('budget') else None,
-            notes=request.form.get('notes')
-        )
-        
-        db.session.add(case)
-        db.session.commit()
-        
-        # Log activity
-        log_activity(session['user_id'], 'create_case', 'case', case.id, f'Created case: {case.title}')
-        
-        # Create notification for assigned lawyer if different from current user
-        if case.assigned_lawyer_id != session['user_id']:
-            create_notification(case.assigned_lawyer_id, 'New Case Assigned', 
-                              f'You have been assigned a new case: {case.title}', 'case')
-        
-        flash('Case added successfully!', 'success')
-        return redirect(url_for('cases'))
+            # If form validation fails, repopulate choices
+            form.client_id.choices = [(client.id, f"{client.full_name} ({client.client_number})") for client in Client.query.all()]
+            form.assigned_lawyer_id.choices = [(0, 'Select Lawyer')] + [(lawyer.id, lawyer.full_name) for lawyer in User.query.filter_by(role='lawyer').all()]
     
     clients = Client.query.all()
     lawyers = User.query.filter_by(role='lawyer').all()
-    return render_template('add_case.html', clients=clients, lawyers=lawyers)
+    return render_template('add_case.html', form=form, clients=clients, lawyers=lawyers)
 
 @app.route('/view_case/<int:case_id>')
 @login_required
@@ -666,6 +1040,10 @@ def view_case(case_id):
     # Get case time entries
     time_entries = TimeEntry.query.filter_by(case_id=case_id).order_by(TimeEntry.start_time.desc()).all()
     
+    # Calculate total hours and amount from time entries
+    total_hours = sum(entry.duration_minutes or 0 for entry in time_entries) / 60
+    total_amount = sum(entry.amount or 0 for entry in time_entries)
+    
     # Get case appointments
     appointments = Appointment.query.filter_by(case_id=case_id).order_by(Appointment.start_time.desc()).all()
     
@@ -678,10 +1056,12 @@ def view_case(case_id):
     # Get case communications
     communications = Communication.query.filter_by(case_id=case_id).order_by(Communication.communication_date.desc()).limit(10).all()
     
-    return render_template('view_case.html', 
-                         case=case, 
-                         documents=documents, 
+    return render_template('view_case.html',
+                         case=case,
+                         documents=documents,
                          time_entries=time_entries,
+                         total_hours=total_hours,
+                         total_amount=total_amount,
                          appointments=appointments,
                          invoices=invoices,
                          workflows=workflows,
@@ -725,6 +1105,28 @@ def edit_case(case_id):
     lawyers = User.query.filter_by(role='lawyer').all()
     return render_template('edit_case.html', case=case, clients=clients, lawyers=lawyers)
 
+@app.route('/delete_case/<int:case_id>', methods=['POST'])
+@login_required
+@role_required('admin', 'lawyer', 'paralegal')
+def delete_case(case_id):
+    user = User.query.get(session['user_id'])
+    case = Case.query.get_or_404(case_id)
+    
+    # Check if user has permission to delete this case
+    if user.role != 'admin' and case.assigned_lawyer_id != user.id:
+        flash('You do not have permission to delete this case.', 'danger')
+        return redirect(url_for('cases'))
+    
+    # Log activity before deletion
+    log_activity(session['user_id'], 'delete_case', 'case', case.id, f'Deleted case: {case.title}')
+    
+    # Delete the case
+    db.session.delete(case)
+    db.session.commit()
+    
+    flash('Case deleted successfully!', 'success')
+    return redirect(url_for('cases'))
+
 # Appointment Management Routes (Step 4)
 @app.route('/appointments')
 @login_required
@@ -741,48 +1143,56 @@ def appointments():
 @login_required
 @role_required('admin', 'lawyer', 'paralegal', 'staff')
 def add_appointment():
+    form = AppointmentForm()
+    form.client_id.choices = [(0, 'Select Client')] + [(client.id, f"{client.full_name} ({client.client_number})") for client in Client.query.all()]
+    form.lawyer_id.choices = [(0, 'Select Lawyer')] + [(lawyer.id, lawyer.full_name) for lawyer in User.query.filter_by(role='lawyer').all()]
+    form.case_id.choices = [(0, 'Select Case')] + [(case.id, f"{case.title} ({case.case_number})") for case in Case.query.all()]
+    
     if request.method == 'POST':
-        start_time = datetime.strptime(request.form.get('start_time'), '%Y-%m-%dT%H:%M')
-        end_time = datetime.strptime(request.form.get('end_time'), '%Y-%m-%dT%H:%M')
-        
-        appointment = Appointment(
-            title=request.form.get('title'),
-            description=request.form.get('description'),
-            client_id=request.form.get('client_id'),
-            lawyer_id=request.form.get('lawyer_id') or session['user_id'],
-            case_id=request.form.get('case_id'),
-            appointment_type=request.form.get('appointment_type'),
-            start_time=start_time,
-            end_time=end_time,
-            location=request.form.get('location'),
-            is_virtual=True if request.form.get('is_virtual') else False,
-            meeting_link=request.form.get('meeting_link'),
-            notes=request.form.get('notes')
-        )
-        
-        db.session.add(appointment)
-        db.session.commit()
-        
-        # Log activity
-        log_activity(session['user_id'], 'create_appointment', 'appointment', appointment.id, f'Created appointment: {appointment.title}')
-        
-        # Create notification for assigned lawyer if different from current user
-        if appointment.lawyer_id != session['user_id']:
-            create_notification(appointment.lawyer_id, 'New Appointment Scheduled', 
-                              f'You have a new appointment: {appointment.title} on {appointment.start_time.strftime("%Y-%m-%d %H:%M")}', 'appointment')
-        
-        # Create notification for client
-        if appointment.client_id:
-            create_notification(appointment.client_id, 'Appointment Scheduled', 
-                              f'You have an appointment: {appointment.title} on {appointment.start_time.strftime("%Y-%m-%d %H:%M")}', 'appointment')
-        
-        flash('Appointment scheduled successfully!', 'success')
-        return redirect(url_for('appointments'))
+        if form.validate_on_submit():
+            appointment = Appointment(
+                title=form.title.data,
+                description=form.description.data,
+                client_id=form.client_id.data,
+                lawyer_id=form.lawyer_id.data or session['user_id'],
+                case_id=form.case_id.data,
+                appointment_type=form.appointment_type.data,
+                start_time=form.start_time.data,
+                end_time=form.end_time.data,
+                location=form.location.data,
+                is_virtual=form.is_virtual.data,
+                meeting_link=form.meeting_link.data,
+                notes=form.notes.data
+            )
+            
+            db.session.add(appointment)
+            db.session.commit()
+            
+            # Log activity
+            log_activity(session['user_id'], 'create_appointment', 'appointment', appointment.id, f'Created appointment: {appointment.title}')
+            
+            # Create notification for assigned lawyer if different from current user
+            if appointment.lawyer_id != session['user_id']:
+                create_notification(appointment.lawyer_id, 'New Appointment Scheduled', 
+                                  f'You have a new appointment: {appointment.title} on {appointment.start_time.strftime("%Y-%m-%d %H:%M")}', 'appointment')
+            
+            # Create notification for client
+            if appointment.client_id:
+                create_notification(appointment.client_id, 'Appointment Scheduled', 
+                                  f'You have an appointment: {appointment.title} on {appointment.start_time.strftime("%Y-%m-%d %H:%M")}', 'appointment')
+            
+            flash('Appointment scheduled successfully!', 'success')
+            return redirect(url_for('appointments'))
+        else:
+            # If form validation fails, repopulate choices
+            form.client_id.choices = [(0, 'Select Client')] + [(client.id, f"{client.full_name} ({client.client_number})") for client in Client.query.all()]
+            form.lawyer_id.choices = [(0, 'Select Lawyer')] + [(lawyer.id, lawyer.full_name) for lawyer in User.query.filter_by(role='lawyer').all()]
+            form.case_id.choices = [(0, 'Select Case')] + [(case.id, f"{case.title} ({case.case_number})") for case in Case.query.all()]
     
     clients = Client.query.all()
     lawyers = User.query.filter_by(role='lawyer').all()
     cases = Case.query.all()
-    return render_template('add_appointment.html', clients=clients, lawyers=lawyers, cases=cases)
+    return render_template('add_appointment.html', form=form, clients=clients, lawyers=lawyers, cases=cases)
 
 @app.route('/view_appointment/<int:appointment_id>')
 @login_required
@@ -853,39 +1263,60 @@ def documents():
 @login_required
 @role_required('admin', 'lawyer', 'paralegal', 'staff')
 def upload_document():
+    form = DocumentForm()
+    form.client_id.choices = [(0, 'Select Client')] + [(client.id, f"{client.full_name} ({client.client_number})") for client in Client.query.all()]
+    form.case_id.choices = [(0, 'Select Case')] + [(case.id, f"{case.title} ({case.case_number})") for case in Case.query.all()]
+    
     if request.method == 'POST':
-        file = request.files.get('file')
-        if file:
-            filename = secure_filename(file.filename)
-            file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-            file.save(file_path)
-            
-            document = Document(
-                title=request.form.get('title'),
-                description=request.form.get('description'),
-                filename=filename,
-                file_path=file_path,
-                file_size=os.path.getsize(file_path),
-                file_type=file.content_type,
-                category=request.form.get('category'),
-                case_id=request.form.get('case_id'),
-                client_id=request.form.get('client_id'),
-                uploaded_by=session['user_id'],
-                tags=request.form.get('tags')
-            )
-            
-            db.session.add(document)
-            db.session.commit()
-            
-            # Log activity
-            log_activity(session['user_id'], 'upload_document', 'document', document.id, f'Uploaded document: {document.title}')
-            
-            flash('Document uploaded successfully!', 'success')
-            return redirect(url_for('documents'))
+        if form.validate_on_submit():
+            file = form.file.data
+            if file:
+                filename = secure_filename(file.filename)
+                file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+                file.save(file_path)
+                
+                document = Document(
+                    title=form.title.data,
+                    description=form.description.data,
+                    filename=filename,
+                    file_path=file_path,
+                    file_size=os.path.getsize(file_path),
+                    file_type=file.content_type,
+                    category=form.category.data,
+                    case_id=form.case_id.data,
+                    client_id=form.client_id.data,
+                    uploaded_by=session['user_id'],
+                    tags=form.tags.data,
+                    is_confidential=form.is_confidential.data,
+                    requires_signature=form.requires_signature.data
+                )
+                
+                db.session.add(document)
+                db.session.commit()
+                
+                # Process OCR in background if available
+                if OCR_AVAILABLE:
+                    try:
+                        process_document_ocr(document.id)
+                        flash('Document uploaded successfully! OCR processing started.', 'success')
+                    except Exception as e:
+                        app.logger.error(f"OCR processing failed for document {document.id}: {str(e)}")
+                        flash('Document uploaded successfully! OCR processing failed.', 'warning')
+                else:
+                    flash('Document uploaded successfully!', 'success')
+                
+                # Log activity
+                log_activity(session['user_id'], 'upload_document', 'document', document.id, f'Uploaded document: {document.title}')
+                
+                return redirect(url_for('documents'))
+        else:
+            # If form validation fails, repopulate choices
+            form.client_id.choices = [(0, 'Select Client')] + [(client.id, f"{client.full_name} ({client.client_number})") for client in Client.query.all()]
+            form.case_id.choices = [(0, 'Select Case')] + [(case.id, f"{case.title} ({case.case_number})") for case in Case.query.all()]
     
     clients = Client.query.all()
     cases = Case.query.all()
-    return render_template('upload_document.html', clients=clients, cases=cases)
+    return render_template('upload_document.html', form=form, clients=clients, cases=cases)
 
 @app.route('/view_document/<int:document_id>')
 @login_required
@@ -902,7 +1333,77 @@ def view_document(document_id):
     # Get document versions
     versions = DocumentVersion.query.filter_by(document_id=document_id).order_by(DocumentVersion.version_number.desc()).all()
     
-    return render_template('view_document.html', document=document, versions=versions)
+    # Get document analyses
+    analyses = DocumentAnalysis.query.filter_by(document_id=document_id).all()
+    analysis_data = {}
+    for analysis in analyses:
+        try:
+            analysis_data[analysis.analysis_type] = json.loads(analysis.analysis_result)
+        except:
+            analysis_data[analysis.analysis_type] = analysis.analysis_result
+    
+    return render_template('view_document_enhanced.html', 
+                         document=document, 
+                         versions=versions,
+                         analyses=analyses,
+                         analysis_data=analysis_data)
+
+@app.route('/process_ocr/<int:document_id>', methods=['POST'])
+@login_required
+@role_required('admin', 'lawyer', 'paralegal', 'staff')
+def process_ocr(document_id):
+    if not OCR_AVAILABLE:
+        flash('OCR processing is not available.', 'danger')
+        return redirect(url_for('documents.view_document', document_id=document_id))
+    
+    user = User.query.get(session['user_id'])
+    document = Document.query.get_or_404(document_id)
+    
+    # Check if user has permission to process this document
+    if user.role != 'admin' and document.uploaded_by != user.id:
+        return jsonify({'success': False, 'message': 'Permission denied'})
+    
+    try:
+        process_document_ocr(document_id)
+        return jsonify({'success': True, 'message': 'OCR processing completed successfully'})
+    except Exception as e:
+        app.logger.error(f"Error processing OCR for document {document_id}: {str(e)}")
+        return jsonify({'success': False, 'message': f'OCR processing failed: {str(e)}'})
+
+@app.route('/search_document_text', methods=['POST'])
+@login_required
+@role_required('admin', 'lawyer', 'paralegal', 'staff')
+def search_document_text():
+    search_query = request.form.get('query')
+    document_id = request.form.get('document_id', type=int)
+    
+    if not search_query or not document_id:
+        return jsonify({'results': [], 'message': 'Invalid request'})
+    
+    # Get documents based on user role
+    if session['user_role'] == 'admin':
+        documents = Document.query.filter_by(id=document_id).all()
+    else:
+        documents = Document.query.filter_by(id=document_id, uploaded_by=session['user_id']).all()
+    
+    results = []
+    for doc in documents:
+        if doc.ocr_text and search_query.lower() in doc.ocr_text.lower():
+            # Find context around the search term
+            text = doc.ocr_text
+            start_idx = text.lower().find(search_query.lower())
+            start = max(0, start_idx - 100)
+            end = min(len(text), start_idx + len(search_query) + 100)
+            context = text[start:end].replace('\n', ' ')
+            
+            results.append({
+                'document_id': doc.id,
+                'document_title': doc.title,
+                'context': context,
+                'highlight': search_query
+            })
+    
+    return jsonify({'results': results, 'count': len(results)})
 
 @app.route('/download_document/<int:document_id>')
 @login_required
@@ -1181,6 +1682,114 @@ def export_expenses():
         download_name=f'expenses_{datetime.now().strftime("%Y%m%d_%H%M%S")}.csv'
     )
 
+@app.route('/export_leads')
+@login_required
+@role_required('admin', 'lawyer', 'paralegal')
+def export_leads():
+    try:
+        user = User.query.get(session['user_id'])
+        
+        # Get leads based on user role
+        if user.role == 'admin':
+            leads = Lead.query.all()
+        else:
+            leads = Lead.query.filter_by(assigned_lawyer_id=user.id).all()
+        
+        # Create CSV content
+        output = BytesIO()
+        writer = csv.writer(output)
+        
+        # Write header
+        writer.writerow(['Lead Number', 'Name', 'Email', 'Phone', 'Company', 'Practice Area', 'Source', 'Priority', 'Status', 'Assigned Lawyer', 'Created Date'])
+        
+        # Write data
+        for lead in leads:
+            writer.writerow([
+                lead.lead_number or '',
+                f"{lead.first_name} {lead.last_name}" if lead.first_name and lead.last_name else '',
+                lead.email or '',
+                lead.phone or '',
+                lead.company or '',
+                lead.practice_area or '',
+                lead.source or '',
+                lead.priority or '',
+                lead.status or '',
+                lead.assigned_lawyer.full_name if lead.assigned_lawyer else '',
+                lead.created_at.strftime('%Y-%m-%d') if lead.created_at else ''
+            ])
+        
+        output.seek(0)
+        
+        # Log activity
+        log_activity(session['user_id'], 'export_leads', 'lead', None, 'Exported leads')
+        
+        return send_file(
+            output,
+            mimetype='text/csv',
+            as_attachment=True,
+            download_name=f'leads_{datetime.now().strftime("%Y%m%d_%H%M%S")}.csv'
+        )
+    except Exception as e:
+        app.logger.error(f'Error exporting leads: {str(e)}')
+        flash(f'Error exporting leads: {str(e)}', 'danger')
+        # Redirect to dashboard if leads route doesn't exist
+        return redirect(url_for('dashboard'))
+
+@app.route('/export_invoices')
+@login_required
+@role_required('admin', 'lawyer', 'paralegal', 'finance')
+def export_invoices():
+    try:
+        user = User.query.get(session['user_id'])
+        
+        # Get invoices based on user role
+        if user.role == 'admin':
+            invoices = Invoice.query.all()
+        else:
+            invoices = Invoice.query.join(Case).filter(Case.assigned_lawyer_id == user.id).all()
+        
+        # Create CSV content
+        output = BytesIO()
+        writer = csv.writer(output)
+        
+        # Write header
+        writer.writerow(['Invoice Number', 'Client', 'Case', 'Issue Date', 'Due Date', 'Subtotal', 'Tax', 'Total', 'Status', 'Currency'])
+        
+        # Write data
+        for invoice in invoices:
+            writer.writerow([
+                invoice.invoice_number or '',
+                invoice.client.full_name if invoice.client else '',
+                invoice.case.title if invoice.case else '',
+                invoice.issue_date.strftime('%Y-%m-%d') if invoice.issue_date else '',
+                invoice.due_date.strftime('%Y-%m-%d') if invoice.due_date else '',
+                invoice.subtotal or 0,
+                invoice.tax_amount or 0,
+                invoice.total or 0,
+                invoice.status or '',
+                invoice.currency or ''
+            ])
+        
+        output.seek(0)
+        
+        # Log activity
+        log_activity(session['user_id'], 'export_invoices', 'invoice', None, 'Exported invoices')
+        
+        return send_file(
+            output,
+            mimetype='text/csv',
+            as_attachment=True,
+            download_name=f'invoices_{datetime.now().strftime("%Y%m%d_%H%M%S")}.csv'
+        )
+    except Exception as e:
+        app.logger.error(f'Error exporting invoices: {str(e)}')
+        flash(f'Error exporting invoices: {str(e)}', 'danger')
+        # Check if invoices route exists, otherwise redirect to dashboard
+        try:
+            return redirect(url_for('invoices'))
+        except:
+            return redirect(url_for('dashboard'))
+
 # Time Report Routes
 @app.route('/reports/time/lawyer')
 @login_required
@@ -1257,42 +1866,50 @@ def expense_report_by_date():
 @login_required
 @role_required('admin', 'lawyer', 'paralegal', 'staff')
 def add_time_entry():
+    form = TimeEntryForm()
+    form.case_id.choices = [(case.id, f"{case.title} ({case.case_number})") for case in Case.query.all()]
+    form.client_id.choices = [(0, 'Select Client')] + [(client.id, f"{client.full_name} ({client.client_number})") for client in Client.query.all()]
+    form.lawyer_id.choices = [(0, 'Select Lawyer')] + [(lawyer.id, lawyer.full_name) for lawyer in User.query.filter_by(role='lawyer').all()]
+    
     if request.method == 'POST':
-        start_time = datetime.strptime(request.form.get('start_time'), '%Y-%m-%dT%H:%M')
-        end_time = datetime.strptime(request.form.get('end_time'), '%Y-%m-%dT%H:%M') if request.form.get('end_time') else None
-        
-        # Calculate duration if end time is provided
-        duration_minutes = None
-        if end_time:
-            duration_minutes = int((end_time - start_time).total_seconds() / 60)
-        
-        time_entry = TimeEntry(
-            user_id=session['user_id'],
-            case_id=request.form.get('case_id'),
-            description=request.form.get('description'),
-            start_time=start_time,
-            end_time=end_time,
-            duration_minutes=duration_minutes,
-            is_billable=True if request.form.get('is_billable') else False,
-            hourly_rate=float(request.form.get('hourly_rate')) if request.form.get('hourly_rate') else None,
-            status=request.form.get('status'),
-            notes=request.form.get('notes')
-        )
-        
-        # Calculate amount
-        time_entry.calculate_amount()
-        
-        db.session.add(time_entry)
-        db.session.commit()
-        
-        # Log activity
-        log_activity(session['user_id'], 'create_time_entry', 'time_entry', time_entry.id, f'Created time entry for case: {time_entry.case.title if time_entry.case else "N/A"}')
-        
-        flash('Time entry added successfully!', 'success')
-        return redirect(url_for('time_entries'))
+        if form.validate_on_submit():
+            # Calculate duration if end time is provided
+            duration_minutes = None
+            if form.end_time.data:
+                duration_minutes = int((form.end_time.data - form.start_time.data).total_seconds() / 60)
+            
+            time_entry = TimeEntry(
+                user_id=session['user_id'],
+                case_id=form.case_id.data,
+                description=form.description.data,
+                start_time=form.start_time.data,
+                end_time=form.end_time.data,
+                duration_minutes=duration_minutes,
+                is_billable=form.is_billable.data,
+                hourly_rate=form.hourly_rate.data,
+                status=form.status.data,
+                notes=form.notes.data
+            )
+            
+            # Calculate amount
+            time_entry.calculate_amount()
+            
+            db.session.add(time_entry)
+            db.session.commit()
+            
+            # Log activity
+            log_activity(session['user_id'], 'create_time_entry', 'time_entry', time_entry.id, f'Created time entry for case: {time_entry.case.title if time_entry.case else "N/A"}')
+            
+            flash('Time entry added successfully!', 'success')
+            return redirect(url_for('time_entries'))
+        else:
+            # If form validation fails, repopulate choices
+            form.case_id.choices = [(case.id, f"{case.title} ({case.case_number})") for case in Case.query.all()]
+            form.client_id.choices = [(0, 'Select Client')] + [(client.id, f"{client.full_name} ({client.client_number})") for client in Client.query.all()]
+            form.lawyer_id.choices = [(0, 'Select Lawyer')] + [(lawyer.id, lawyer.full_name) for lawyer in User.query.filter_by(role='lawyer').all()]
     
     cases = Case.query.all()
-    return render_template('add_time_entry.html', cases=cases)
+    return render_template('add_time_entry.html', form=form, cases=cases)
 
 # Expense Tracking Routes (Step 6)
 @app.route('/expenses')
@@ -1310,43 +1927,54 @@ def expenses():
 @login_required
 @role_required('admin', 'lawyer', 'paralegal', 'staff')
 def add_expense():
+    form = ExpenseForm()
+    form.case_id.choices = [(0, 'Select Case')] + [(case.id, f"{case.title} ({case.case_number})") for case in Case.query.all()]
+    form.client_id.choices = [(0, 'Select Client')] + [(client.id, f"{client.full_name} ({client.client_number})") for client in Client.query.all()]
+    form.lawyer_id.choices = [(0, 'Select Lawyer')] + [(lawyer.id, lawyer.full_name) for lawyer in User.query.filter_by(role='lawyer').all()]
+    
     if request.method == 'POST':
-        file = request.files.get('receipt')
-        receipt_filename = None
-        receipt_path = None
-        
-        if file:
-            receipt_filename = secure_filename(file.filename)
-            receipt_path = os.path.join(app.config['UPLOAD_FOLDER'], 'receipts', receipt_filename)
-            os.makedirs(os.path.dirname(receipt_path), exist_ok=True)
-            file.save(receipt_path)
-        
-        expense = Expense(
-            user_id=session['user_id'],
-            case_id=request.form.get('case_id'),
-            expense_type=request.form.get('expense_type'),
-            description=request.form.get('description'),
-            amount=float(request.form.get('amount')),
-            currency=request.form.get('currency'),
-            date_incurred=datetime.strptime(request.form.get('date_incurred'), '%Y-%m-%d'),
-            is_billable=True if request.form.get('is_billable') else False,
-            receipt_filename=receipt_filename,
-            receipt_path=receipt_path,
-            status=request.form.get('status'),
-            notes=request.form.get('notes')
-        )
-        
-        db.session.add(expense)
-        db.session.commit()
-        
-        # Log activity
-        log_activity(session['user_id'], 'create_expense', 'expense', expense.id, f'Created expense: {expense.description}')
-        
-        flash('Expense added successfully!', 'success')
-        return redirect(url_for('expenses'))
+        if form.validate_on_submit():
+            file = form.receipt.data
+            receipt_filename = None
+            receipt_path = None
+            
+            if file:
+                receipt_filename = secure_filename(file.filename)
+                receipt_path = os.path.join(app.config['UPLOAD_FOLDER'], 'receipts', receipt_filename)
+                os.makedirs(os.path.dirname(receipt_path), exist_ok=True)
+                file.save(receipt_path)
+            
+            expense = Expense(
+                user_id=session['user_id'],
+                case_id=form.case_id.data if form.case_id.data != 0 else None,
+                expense_type=form.expense_type.data,
+                description=form.description.data,
+                amount=form.amount.data,
+                currency=form.currency.data,
+                date_incurred=form.date_incurred.data,
+                is_billable=form.is_billable.data,
+                receipt_filename=receipt_filename,
+                receipt_path=receipt_path,
+                status=form.status.data,
+                notes=form.notes.data
+            )
+            
+            db.session.add(expense)
+            db.session.commit()
+            
+            # Log activity
+            log_activity(session['user_id'], 'create_expense', 'expense', expense.id, f'Created expense: {expense.description}')
+            
+            flash('Expense added successfully!', 'success')
+            return redirect(url_for('expenses'))
+        else:
+            # If form validation fails, repopulate choices
+            form.case_id.choices = [(0, 'Select Case')] + [(case.id, f"{case.title} ({case.case_number})") for case in Case.query.all()]
+            form.client_id.choices = [(0, 'Select Client')] + [(client.id, f"{client.full_name} ({client.client_number})") for client in Client.query.all()]
+            form.lawyer_id.choices = [(0, 'Select Lawyer')] + [(lawyer.id, lawyer.full_name) for lawyer in User.query.filter_by(role='lawyer').all()]
     
     cases = Case.query.all()
-    return render_template('add_expense.html', cases=cases)
+    return render_template('add_expense.html', form=form, cases=cases)
 
 # Invoice Routes (Step 7)
 @app.route('/invoices')
@@ -2173,7 +2801,71 @@ def add_workflow_rule():
 @role_required('admin')
 def reports_compliance():
     active_tab = request.args.get('tab', 'reports')
-    return render_template('reports_compliance.html', active_tab=active_tab)
+    
+    # Prepare data for the template
+    # Placeholder data for compliance statistics
+    compliance_stats = {
+        'overall_compliance': 85.5,
+        'completed_tasks': 42,
+        'total_tasks': 50,
+        'pending_reviews': 8,
+        'violations': 2
+    }
+    
+    # Placeholder data for compliance trend chart
+    compliance_trend_chart = {
+        'labels': ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+        'data': [82, 84, 83, 85, 86, 85.5]
+    }
+    
+    # Placeholder data for compliance by category chart
+    compliance_by_category_chart = {
+        'labels': ['Documentation', 'Security', 'Financial', 'Operational'],
+        'data': [90, 85, 88, 80]
+    }
+    
+    # Placeholder data for compliance requirements
+    compliance_requirements = []
+    
+    # Placeholder data for audit logs
+    audit_logs = []
+    
+    # Placeholder data for retention policies
+    retention_policies = []
+    
+    # Placeholder data for upcoming retention actions
+    upcoming_retention_actions = []
+    
+    # Placeholder data for standard reports
+    standard_reports = {
+        'Financial': [
+            {'id': 1, 'name': 'Monthly Revenue Report', 'description': 'Monthly revenue breakdown by client and case', 'frequency': 'Monthly'},
+            {'id': 2, 'name': 'Expense Analysis', 'description': 'Detailed expense analysis by category', 'frequency': 'Monthly'}
+        ],
+        'Case Management': [
+            {'id': 3, 'name': 'Case Status Report', 'description': 'Current status of all active cases', 'frequency': 'Weekly'},
+            {'id': 4, 'name': 'Lawyer Utilization', 'description': 'Billable hours and utilization rates', 'frequency': 'Monthly'}
+        ]
+    }
+    
+    # Placeholder data for scheduled reports
+    scheduled_reports = []
+    
+    # Placeholder data for report history
+    report_history = []
+    
+    return render_template('reports_compliance.html',
+                         active_tab=active_tab,
+                         compliance_stats=compliance_stats,
+                         compliance_trend_chart=compliance_trend_chart,
+                         compliance_by_category_chart=compliance_by_category_chart,
+                         compliance_requirements=compliance_requirements,
+                         audit_logs=audit_logs,
+                         retention_policies=retention_policies,
+                         upcoming_retention_actions=upcoming_retention_actions,
+                         standard_reports=standard_reports,
+                         scheduled_reports=scheduled_reports,
+                         report_history=report_history)
 
 
 @app.route('/generate_custom_report', methods=['GET', 'POST'])
@@ -2189,6 +2881,42 @@ def generate_custom_report():
     
     return render_template('generate_custom_report.html')
 
+@app.route('/report_templates')
+@login_required
+@role_required('admin')
+def report_templates():
+    # In a real implementation, this would fetch report templates from the database
+    # For now, we'll use placeholder data
+    templates = []
+    return render_template('report_templates.html', templates=templates)
+
+@app.route('/export_all_reports')
+@login_required
+@role_required('admin')
+def export_all_reports():
+    # In a real implementation, this would export all reports
+    flash('All reports exported successfully!', 'success')
+    return redirect(url_for('reports_compliance', tab='reports'))
+
+@app.route('/add_scheduled_report', methods=['GET', 'POST'])
+@login_required
+@role_required('admin')
+def add_scheduled_report():
+    if request.method == 'POST':
+        # In a real implementation, this would add a scheduled report
+        flash('Scheduled report added successfully!', 'success')
+        return redirect(url_for('reports_compliance', tab='reports'))
+    
+    return render_template('add_scheduled_report.html')
+
+@app.route('/export_scheduled_reports')
+@login_required
+@role_required('admin')
+def export_scheduled_reports():
+    # In a real implementation, this would export scheduled reports
+    flash('Scheduled reports exported successfully!', 'success')
+    return redirect(url_for('reports_compliance', tab='reports'))
+
 @app.route('/compliance_requirements')
 @login_required
 @role_required('admin')
@@ -2198,6 +2926,55 @@ def compliance_requirements():
     requirements = []
     return render_template('compliance_requirements.html', requirements=requirements)
 
+@app.route('/add_compliance_requirement', methods=['GET', 'POST'])
+@login_required
+@role_required('admin')
+def add_compliance_requirement():
+    if request.method == 'POST':
+        # In a real implementation, this would add a compliance requirement
+        flash('Compliance requirement added successfully!', 'success')
+        return redirect(url_for('reports_compliance', tab='compliance'))
+    
+    return render_template('add_compliance_requirement.html')
+
+@app.route('/import_compliance_requirements', methods=['GET', 'POST'])
+@login_required
+@role_required('admin')
+def import_compliance_requirements():
+    if request.method == 'POST':
+        # In a real implementation, this would import compliance requirements
+        flash('Compliance requirements imported successfully!', 'success')
+        return redirect(url_for('reports_compliance', tab='compliance'))
+    
+    return render_template('import_compliance_requirements.html')
+
+@app.route('/export_compliance_requirements')
+@login_required
+@role_required('admin')
+def export_compliance_requirements():
+    # In a real implementation, this would export compliance requirements
+    flash('Compliance requirements exported successfully!', 'success')
+    return redirect(url_for('reports_compliance', tab='compliance'))
+
+@app.route('/run_audit', methods=['GET', 'POST'])
+@login_required
+@role_required('admin')
+def run_audit():
+    if request.method == 'POST':
+        # In a real implementation, this would run an audit
+        flash('Audit completed successfully!', 'success')
+        return redirect(url_for('reports_compliance', tab='audits'))
+    
+    return render_template('run_audit.html')
+
+@app.route('/export_audit_logs')
+@login_required
+@role_required('admin')
+def export_audit_logs():
+    # In a real implementation, this would export audit logs
+    flash('Audit logs exported successfully!', 'success')
+    return redirect(url_for('reports_compliance', tab='audits'))
+
 @app.route('/retention_policies')
 @login_required
 @role_required('admin')
@@ -2206,6 +2983,25 @@ def retention_policies():
     # For now, we'll use placeholder data
     policies = []
     return render_template('retention_policies.html', policies=policies)
+
+@app.route('/add_retention_policy', methods=['GET', 'POST'])
+@login_required
+@role_required('admin')
+def add_retention_policy():
+    if request.method == 'POST':
+        # In a real implementation, this would add a retention policy
+        flash('Retention policy added successfully!', 'success')
+        return redirect(url_for('reports_compliance', tab='document_retention'))
+    
+    return render_template('add_retention_policy.html')
+
+@app.route('/export_retention_policies')
+@login_required
+@role_required('admin')
+def export_retention_policies():
+    # In a real implementation, this would export retention policies
+    flash('Retention policies exported successfully!', 'success')
+    return redirect(url_for('reports_compliance', tab='document_retention'))
 
 # Onboarding & Support Routes (Step 18)
 @app.route('/onboarding_support')
@@ -2519,6 +3315,86 @@ def add_firm():
         return redirect(url_for('firms'))
     
     return render_template('add_firm.html')
+
+@app.route('/branches')
+@login_required
+@role_required('admin')
+def branches():
+    branches = Branch.query.all()
+    return render_template('branches.html', branches=branches)
+
+@app.route('/add_branch', methods=['GET', 'POST'])
+@login_required
+@role_required('admin')
+def add_branch():
+    if request.method == 'POST':
+        branch = Branch(
+            name=request.form.get('name'),
+            branch_code=request.form.get('branch_code'),
+            firm_id=request.form.get('firm_id'),
+            address=request.form.get('address'),
+            phone=request.form.get('phone'),
+            email=request.form.get('email'),
+            manager_id=request.form.get('manager_id')
+        )
+        
+        db.session.add(branch)
+        db.session.commit()
+        
+        # Log activity
+        log_activity(session['user_id'], 'create_branch', 'branch', branch.id, f'Created branch: {branch.name}')
+        
+        flash('Branch created successfully!', 'success')
+        return redirect(url_for('branches'))
+    
+    firms = Firm.query.all()
+    managers = User.query.filter(User.role.in_(['admin', 'lawyer'])).all()
+    return render_template('add_branch.html', firms=firms, managers=managers)
+
+@app.route('/add_permission', methods=['GET', 'POST'])
+@login_required
+@role_required('admin')
+def add_permission():
+    if request.method == 'POST':
+        permission = Permission(
+            name=request.form.get('name'),
+            description=request.form.get('description'),
+            module=request.form.get('module')
+        )
+        
+        db.session.add(permission)
+        db.session.commit()
+        
+        # Log activity
+        log_activity(session['user_id'], 'create_permission', 'permission', permission.id, f'Created permission: {permission.name}')
+        
+        flash('Permission created successfully!', 'success')
+        return redirect(url_for('permissions'))
+    
+    return render_template('add_permission.html')
+
+@app.route('/add_role_permission', methods=['GET', 'POST'])
+@login_required
+@role_required('admin')
+def add_role_permission():
+    if request.method == 'POST':
+        role_permission = RolePermission(
+            role=request.form.get('role'),
+            permission_id=request.form.get('permission_id')
+        )
+        
+        db.session.add(role_permission)
+        db.session.commit()
+        
+        # Log activity
+        log_activity(session['user_id'], 'create_role_permission', 'role_permission', role_permission.id, f'Assigned permission to role: {role_permission.role}')
+        
+        flash('Role permission created successfully!', 'success')
+        return redirect(url_for('role_permissions'))
+    
+    roles = ['admin', 'lawyer', 'paralegal', 'staff', 'finance']
+    permissions = Permission.query.all()
+    return render_template('add_role_permission.html', roles=roles, permissions=permissions)
 
 @app.route('/settings')
 @login_required

@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>New Enquiry - LawEdge</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        line-height: 1.6;
+        color: #333;
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+      .header {
+        background: linear-gradient(135deg, #1a365d 0%, #2c5282 100%);
+        color: white;
+        padding: 30px;
+        text-align: center;
+        border-radius: 10px 10px 0 0;
+      }
+      .header h1 {
+        margin: 0;
+        font-size: 28px;
+      }
+      .content {
+        background: #f8f9fa;
+        padding: 30px;
+        border-radius: 0 0 10px 10px;
+      }
+      .enquiry-details {
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+      .detail-row {
+        display: flex;
+        margin-bottom: 15px;
+        align-items: flex-start;
+      }
+      .detail-label {
+        font-weight: bold;
+        color: #1a365d;
+        width: 150px;
+        flex-shrink: 0;
+      }
+      .detail-value {
+        flex: 1;
+      }
+      .urgency-high {
+        background: #f8d7da;
+        color: #721c24;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 12px;
+        font-weight: bold;
+      }
+      .urgency-urgent {
+        background: #f5c6cb;
+        color: #721c24;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 12px;
+        font-weight: bold;
+        animation: pulse 2s infinite;
+      }
+      .urgency-medium {
+        background: #fff3cd;
+        color: #856404;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 12px;
+      }
+      .urgency-low {
+        background: #d4edda;
+        color: #155724;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 12px;
+      }
+      .action-buttons {
+        text-align: center;
+        margin-top: 20px;
+      }
+      .btn {
+        display: inline-block;
+        padding: 12px 24px;
+        margin: 5px;
+        text-decoration: none;
+        border-radius: 5px;
+        font-weight: bold;
+      }
+      .btn-primary {
+        background: linear-gradient(135deg, #d69e2e 0%, #b7791f 100%);
+        color: white;
+      }
+      .btn-secondary {
+        background: #6c757d;
+        color: white;
+      }
+      .footer {
+        text-align: center;
+        margin-top: 30px;
+        padding-top: 20px;
+        border-top: 1px solid #dee2e6;
+        color: #6c757d;
+        font-size: 14px;
+      }
+      @keyframes pulse {
+        0% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.7;
+        }
+        100% {
+          opacity: 1;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="header">
+      <h1>📧 New Enquiry Received</h1>
+      <p>
+        A potential client has submitted an enquiry through the LawEdge website
+      </p>
+    </div>
+
+    <div class="content">
+      <div class="enquiry-details">
+        <h3 style="margin-top: 0; color: #1a365d">Enquiry Details</h3>
+
+        <div class="detail-row">
+          <div class="detail-label">Name:</div>
+          <div class="detail-value"><strong>{{ enquiry.name }}</strong></div>
+        </div>
+
+        <div class="detail-row">
+          <div class="detail-label">Email:</div>
+          <div class="detail-value">{{ enquiry.email }}</div>
+        </div>
+
+        {% if enquiry.phone %}
+        <div class="detail-row">
+          <div class="detail-label">Phone:</div>
+          <div class="detail-value">{{ enquiry.phone }}</div>
+        </div>
+        {% endif %}
+
+        <div class="detail-row">
+          <div class="detail-label">Subject:</div>
+          <div class="detail-value"><strong>{{ enquiry.subject }}</strong></div>
+        </div>
+
+        {% if enquiry.practice_area %}
+        <div class="detail-row">
+          <div class="detail-label">Practice Area:</div>
+          <div class="detail-value">
+            {{ enquiry.practice_area.replace('_', ' ').title() }}
+          </div>
+        </div>
+        {% endif %}
+
+        <div class="detail-row">
+          <div class="detail-label">Urgency Level:</div>
+          <div class="detail-value">
+            <span class="urgency-{{ enquiry.urgency_level }}">
+              {{ enquiry.urgency_level.replace('_', ' ').title() }}
+            </span>
+          </div>
+        </div>
+
+        <div class="detail-row">
+          <div class="detail-label">Preferred Contact:</div>
+          <div class="detail-value">
+            {{ enquiry.preferred_contact.title() }}
+          </div>
+        </div>
+
+        <div class="detail-row">
+          <div class="detail-label">Message:</div>
+          <div class="detail-value">{{ enquiry.message | nl2br }}</div>
+        </div>
+
+        <div class="detail-row">
+          <div class="detail-label">Submitted:</div>
+          <div class="detail-value">
+            {{ enquiry.created_at.strftime('%B %d, %Y at %I:%M %p') }}
+          </div>
+        </div>
+
+        {% if enquiry.ip_address %}
+        <div class="detail-row">
+          <div class="detail-label">IP Address:</div>
+          <div class="detail-value">{{ enquiry.ip_address }}</div>
+        </div>
+        {% endif %}
+      </div>
+
+      <div class="action-buttons">
+        <a href="#" class="btn btn-primary">View in Admin Panel</a>
+        <a href="mailto:{{ enquiry.email }}" class="btn btn-secondary"
+          >Reply via Email</a
+        >
+        {% if enquiry.phone %}
+        <a href="tel:{{ enquiry.phone }}" class="btn btn-secondary"
+          >Call Client</a
+        >
+        {% endif %}
+      </div>
+
+      <div
+        style="
+          background: #e3f2fd;
+          padding: 15px;
+          border-radius: 8px;
+          margin-top: 20px;
+        "
+      >
+        <h4 style="margin-top: 0; color: #1565c0">🚨 Urgent Action Required</h4>
+        <p style="margin-bottom: 0">
+          Please review this enquiry and respond to the client within 24 hours.
+          {% if enquiry.urgency_level == 'urgent' %}This enquiry has been marked
+          as URGENT and requires immediate attention.{% endif %}
+        </p>
+      </div>
+    </div>
+
+    <div class="footer">
+      <p><strong>LawEdge Legal Practice Management System</strong></p>
+      <p>This email was sent automatically by the LawEdge system.</p>
+      <p>
+        If you believe this is an error, please contact your system
+        administrator.
+      </p>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,371 @@
+{% extends "base.html" %} {% block title %}Thank You - LawEdge{% endblock %} {%
+block head %}
+<style>
+  .success-section {
+    background: linear-gradient(135deg, var(--legal-navy) 0%, #2c5282 100%);
+    min-height: 100vh;
+    padding: 4rem 0;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .success-section::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="1"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+    opacity: 0.3;
+  }
+
+  .success-container {
+    position: relative;
+    z-index: 2;
+  }
+
+  .success-card {
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    max-width: 800px;
+    margin: 0 auto;
+    text-align: center;
+    padding: 3rem 2rem;
+  }
+
+  .success-icon {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #28a745, #20c997);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3rem;
+    margin: 0 auto 2rem;
+    animation: successPulse 2s ease-in-out;
+  }
+
+  @keyframes successPulse {
+    0% {
+      transform: scale(0);
+      opacity: 0;
+    }
+    50% {
+      transform: scale(1.1);
+    }
+    100% {
+      transform: scale(1);
+      opacity: 1;
+    }
+  }
+
+  .success-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--legal-navy);
+    margin-bottom: 1rem;
+  }
+
+  .success-subtitle {
+    font-size: 1.2rem;
+    color: var(--text-secondary);
+    margin-bottom: 2rem;
+  }
+
+  .success-details {
+    background: var(--surface-secondary);
+    border-radius: 15px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    text-align: left;
+  }
+
+  .detail-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #e9ecef;
+  }
+
+  .detail-item:last-child {
+    margin-bottom: 0;
+    padding-bottom: 0;
+    border-bottom: none;
+  }
+
+  .detail-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(
+      135deg,
+      var(--legal-navy),
+      var(--primary-hover)
+    );
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+  }
+
+  .detail-text h5 {
+    color: var(--legal-navy);
+    margin-bottom: 0.25rem;
+  }
+
+  .detail-text p {
+    color: var(--text-secondary);
+    margin: 0;
+  }
+
+  .action-buttons {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .btn-action {
+    padding: 1rem 2rem;
+    font-size: 1.1rem;
+    font-weight: 600;
+    border-radius: 50px;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .btn-primary-action {
+    background: linear-gradient(135deg, var(--legal-gold) 0%, #b7791f 100%);
+    color: white;
+    box-shadow: 0 10px 30px rgba(214, 158, 46, 0.3);
+  }
+
+  .btn-primary-action:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 15px 40px rgba(214, 158, 46, 0.4);
+    color: white;
+  }
+
+  .btn-secondary-action {
+    background: rgba(26, 54, 93, 0.1);
+    color: var(--legal-navy);
+    border: 2px solid var(--legal-navy);
+  }
+
+  .btn-secondary-action:hover {
+    background: var(--legal-navy);
+    color: white;
+    transform: translateY(-3px);
+  }
+
+  .timeline-info {
+    background: #f8f9fa;
+    border-radius: 10px;
+    padding: 1.5rem;
+    margin-top: 2rem;
+  }
+
+  .timeline-info h4 {
+    color: var(--legal-navy);
+    margin-bottom: 1rem;
+  }
+
+  .timeline-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  .timeline-item:last-child {
+    margin-bottom: 0;
+  }
+
+  .timeline-marker {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: var(--legal-gold);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    font-weight: 600;
+  }
+
+  .timeline-text {
+    flex: 1;
+  }
+
+  .timeline-text h6 {
+    color: var(--legal-navy);
+    margin-bottom: 0.25rem;
+  }
+
+  .timeline-text p {
+    color: var(--text-secondary);
+    margin: 0;
+    font-size: 0.9rem;
+  }
+
+  @media (max-width: 768px) {
+    .success-title {
+      font-size: 2rem;
+    }
+
+    .success-card {
+      padding: 2rem 1rem;
+    }
+
+    .action-buttons {
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .btn-action {
+      width: 100%;
+      justify-content: center;
+    }
+  }
+</style>
+{% endblock %} {% block content %}
+<section class="success-section">
+  <div class="container success-container">
+    <div class="success-card">
+      <div class="success-icon">
+        <i class="fas fa-check"></i>
+      </div>
+
+      <h1 class="success-title">Thank You!</h1>
+      <p class="success-subtitle">
+        Your enquiry has been successfully submitted. Our legal team will review
+        your information and get back to you shortly.
+      </p>
+
+      <div class="success-details">
+        <h4 class="mb-3">What Happens Next?</h4>
+
+        <div class="detail-item">
+          <div class="detail-icon">
+            <i class="fas fa-envelope"></i>
+          </div>
+          <div class="detail-text">
+            <h5>Confirmation Email</h5>
+            <p>
+              We've sent a confirmation email to the address you provided with
+              your enquiry details.
+            </p>
+          </div>
+        </div>
+
+        <div class="detail-item">
+          <div class="detail-icon">
+            <i class="fas fa-user-tie"></i>
+          </div>
+          <div class="detail-text">
+            <h5>Expert Review</h5>
+            <p>
+              Your enquiry will be reviewed by our legal experts to determine
+              the best course of action.
+            </p>
+          </div>
+        </div>
+
+        <div class="detail-item">
+          <div class="detail-icon">
+            <i class="fas fa-phone"></i>
+          </div>
+          <div class="detail-text">
+            <h5>Prompt Response</h5>
+            <p>
+              We'll contact you within 24 hours using your preferred contact
+              method to discuss your legal needs.
+            </p>
+          </div>
+        </div>
+
+        <div class="detail-item">
+          <div class="detail-icon">
+            <i class="fas fa-calendar-check"></i>
+          </div>
+          <div class="detail-text">
+            <h5>Consultation Schedule</h5>
+            <p>
+              If needed, we'll schedule a consultation to discuss your case in
+              detail and provide initial guidance.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="timeline-info">
+        <h4>Response Timeline</h4>
+
+        <div class="timeline-item">
+          <div class="timeline-marker">1</div>
+          <div class="timeline-text">
+            <h6>Immediate</h6>
+            <p>Confirmation email sent</p>
+          </div>
+        </div>
+
+        <div class="timeline-item">
+          <div class="timeline-marker">2</div>
+          <div class="timeline-text">
+            <h6>Within 2 Hours</h6>
+            <p>Initial review of your enquiry</p>
+          </div>
+        </div>
+
+        <div class="timeline-item">
+          <div class="timeline-marker">3</div>
+          <div class="timeline-text">
+            <h6>Within 24 Hours</h6>
+            <p>Personalized response from our legal team</p>
+          </div>
+        </div>
+
+        <div class="timeline-item">
+          <div class="timeline-marker">4</div>
+          <div class="timeline-text">
+            <h6>Within 48 Hours</h6>
+            <p>Consultation scheduled (if required)</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="action-buttons">
+        <a href="{{ url_for('index') }}" class="btn-action btn-primary-action">
+          <i class="fas fa-home"></i>
+          Return to Homepage
+        </a>
+
+        <a href="tel:1-800-LAWEDGE" class="btn-action btn-secondary-action">
+          <i class="fas fa-phone"></i>
+          Call Us Now
+        </a>
+      </div>
+
+      <div class="mt-4">
+        <p class="text-muted">
+          <i class="fas fa-info-circle me-2"></i>
+          For urgent matters, please call us directly at
+          <strong>1-800-LAWEDGE</strong>
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

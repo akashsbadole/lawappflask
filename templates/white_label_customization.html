@@ -1,816 +1,1076 @@
-{% extends "base.html" %}
-
-{% block title %}White-Label & Customization - Law Firm Management System{% endblock %}
-
-{% block content %}
-<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-    <h1 class="h2">White-Label & Customization</h1>
-    <div class="btn-toolbar mb-2 mb-md-0">
-        <div class="btn-group me-2">
-            <a href="{{ url_for('preview_customization') }}" class="btn btn-sm btn-outline-secondary">
-                <i class="fas fa-eye me-1"></i>Preview
-            </a>
-        </div>
-        <div class="btn-group">
-            <a href="{{ url_for='export_customization') }}" class="btn btn-sm btn-outline-secondary">
-                <i class="fas fa-download me-1"></i>Export
-            </a>
-        </div>
+{% extends "base.html" %} {% block title %}White-Label & Customization - Law
+Firm Management System{% endblock %} {% block content %}
+<div
+  class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom"
+>
+  <h1 class="h2">White-Label & Customization</h1>
+  <div class="btn-toolbar mb-2 mb-md-0">
+    <div class="btn-group me-2">
+      <a
+        href="{{ url_for('preview_customization') }}"
+        class="btn btn-sm btn-outline-secondary"
+      >
+        <i class="fas fa-eye me-1"></i>Preview
+      </a>
     </div>
+    <div class="btn-group">
+      <a
+        href="{{ url_for('export_customization') }}"
+        class="btn btn-sm btn-outline-secondary"
+      >
+        <i class="fas fa-download me-1"></i>Export
+      </a>
+    </div>
+  </div>
 </div>
 
 <!-- Tabs for White-Label & Customization Navigation -->
 <ul class="nav nav-tabs mb-4" id="whiteLabelTabs" role="tablist">
-    <li class="nav-item" role="presentation">
-        <button class="nav-link {% if active_tab == 'branding' %}active{% endif %}" id="branding-tab" data-bs-toggle="tab" data-bs-target="#branding" type="button" role="tab" aria-controls="branding" aria-selected="{% if active_tab == 'branding' %}true{% else %}false{% endif %}">
-            <i class="fas fa-paint-brush me-1"></i>Branding
-        </button>
-    </li>
-    <li class="nav-item" role="presentation">
-        <button class="nav-link {% if active_tab == 'ui_customization' %}active{% endif %}" id="uiCustomization-tab" data-bs-toggle="tab" data-bs-target="#uiCustomization" type="button" role="tab" aria-controls="uiCustomization" aria-selected="{% if active_tab == 'ui_customization' %}true{% else %}false{% endif %}">
-            <i class="fas fa-palette me-1"></i>UI Customization
-        </button>
-    </li>
-    <li class="nav-item" role="presentation">
-        <button class="nav-link {% if active_tab == 'domain_settings' %}active{% endif %}" id="domainSettings-tab" data-bs-toggle="tab" data-bs-target="#domainSettings" type="button" role="tab" aria-controls="domainSettings" aria-selected="{% if active_tab == 'domain_settings' %}true{% else %}false{% endif %}">
-            <i class="fas fa-globe me-1"></i>Domain Settings
-        </button>
-    </li>
-    <li class="nav-item" role="presentation">
-        <button class="nav-link {% if active_tab == 'email_templates' %}active{% endif %}" id="emailTemplates-tab" data-bs-toggle="tab" data-bs-target="#emailTemplates" type="button" role="tab" aria-controls="emailTemplates" aria-selected="{% if active_tab == 'email_templates' %}true{% else %}false{% endif %}">
-            <i class="fas fa-envelope me-1"></i>Email Templates
-        </button>
-    </li>
+  <li class="nav-item" role="presentation">
+    <button
+      class="nav-link {% if active_tab == 'branding' %}active{% endif %}"
+      id="branding-tab"
+      data-bs-toggle="tab"
+      data-bs-target="#branding"
+      type="button"
+      role="tab"
+      aria-controls="branding"
+      aria-selected="{% if active_tab == 'branding' %}true{% else %}false{% endif %}"
+    >
+      <i class="fas fa-paint-brush me-1"></i>Branding
+    </button>
+  </li>
+  <li class="nav-item" role="presentation">
+    <button
+      class="nav-link {% if active_tab == 'ui_customization' %}active{% endif %}"
+      id="uiCustomization-tab"
+      data-bs-toggle="tab"
+      data-bs-target="#uiCustomization"
+      type="button"
+      role="tab"
+      aria-controls="uiCustomization"
+      aria-selected="{% if active_tab == 'ui_customization' %}true{% else %}false{% endif %}"
+    >
+      <i class="fas fa-palette me-1"></i>UI Customization
+    </button>
+  </li>
+  <li class="nav-item" role="presentation">
+    <button
+      class="nav-link {% if active_tab == 'domain_settings' %}active{% endif %}"
+      id="domainSettings-tab"
+      data-bs-toggle="tab"
+      data-bs-target="#domainSettings"
+      type="button"
+      role="tab"
+      aria-controls="domainSettings"
+      aria-selected="{% if active_tab == 'domain_settings' %}true{% else %}false{% endif %}"
+    >
+      <i class="fas fa-globe me-1"></i>Domain Settings
+    </button>
+  </li>
+  <li class="nav-item" role="presentation">
+    <button
+      class="nav-link {% if active_tab == 'email_templates' %}active{% endif %}"
+      id="emailTemplates-tab"
+      data-bs-toggle="tab"
+      data-bs-target="#emailTemplates"
+      type="button"
+      role="tab"
+      aria-controls="emailTemplates"
+      aria-selected="{% if active_tab == 'email_templates' %}true{% else %}false{% endif %}"
+    >
+      <i class="fas fa-envelope me-1"></i>Email Templates
+    </button>
+  </li>
 </ul>
 
 <!-- Tab Content -->
 <div class="tab-content" id="whiteLabelTabsContent">
-    <!-- Branding Tab -->
-    <div class="tab-pane fade {% if active_tab == 'branding' %}show active{% endif %}" id="branding" role="tabpanel" aria-labelledby="branding-tab">
-        <div class="card shadow mb-4">
-            <div class="card-header py-3">
-                <h6 class="m-0 font-weight-bold text-primary">Company Branding</h6>
+  <!-- Branding Tab -->
+  <div
+    class="tab-pane fade {% if active_tab == 'branding' %}show active{% endif %}"
+    id="branding"
+    role="tabpanel"
+    aria-labelledby="branding-tab"
+  >
+    <div class="card shadow mb-4">
+      <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Company Branding</h6>
+      </div>
+      <div class="card-body">
+        <form
+          method="POST"
+          action="{{ url_for('update_branding_settings') }}"
+          enctype="multipart/form-data"
+        >
+          {{ branding_form.hidden_tag() }}
+
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              {{ branding_form.company_name.label(class="form-label") }} {{
+              branding_form.company_name(class="form-control") }} {% if
+              branding_form.company_name.errors %}
+              <div class="text-danger">
+                {% for error in branding_form.company_name.errors %}
+                <small>{{ error }}</small>
+                {% endfor %}
+              </div>
+              {% endif %}
             </div>
-            <div class="card-body">
-                <form method="POST" action="{{ url_for('update_branding_settings') }}" enctype="multipart/form-data">
-                    {{ branding_form.hidden_tag() }}
-                    
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            {{ branding_form.company_name.label(class="form-label") }}
-                            {{ branding_form.company_name(class="form-control") }}
-                            {% if branding_form.company_name.errors %}
-                                <div class="text-danger">
-                                    {% for error in branding_form.company_name.errors %}
-                                        <small>{{ error }}</small>
-                                    {% endfor %}
-                                </div>
-                            {% endif %}
-                        </div>
-                        
-                        <div class="col-md-6 mb-3">
-                            {{ branding_form.company_tagline.label(class="form-label") }}
-                            {{ branding_form.company_tagline(class="form-control") }}
-                            {% if branding_form.company_tagline.errors %}
-                                <div class="text-danger">
-                                    {% for error in branding_form.company_tagline.errors %}
-                                        <small>{{ error }}</small>
-                                    {% endfor %}
-                                </div>
-                            {% endif %}
-                        </div>
-                    </div>
-                    
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            {{ branding_form.company_logo.label(class="form-label") }}
-                            {{ branding_form.company_logo(class="form-control") }}
-                            {% if branding_form.company_logo.errors %}
-                                <div class="text-danger">
-                                    {% for error in branding_form.company_logo.errors %}
-                                        <small>{{ error }}</small>
-                                    {% endfor %}
-                                </div>
-                            {% endif %}
-                            {% if current_branding.company_logo %}
-                                <div class="mt-2">
-                                    <img src="{{ url_for('static', filename='uploads/branding/' + current_branding.company_logo) }}" alt="Current Logo" class="img-thumbnail" style="max-height: 100px;">
-                                </div>
-                            {% endif %}
-                        </div>
-                        
-                        <div class="col-md-6 mb-3">
-                            {{ branding_form.company_favicon.label(class="form-label") }}
-                            {{ branding_form.company_favicon(class="form-control") }}
-                            {% if branding_form.company_favicon.errors %}
-                                <div class="text-danger">
-                                    {% for error in branding_form.company_favicon.errors %}
-                                        <small>{{ error }}</small>
-                                    {% endfor %}
-                                </div>
-                            {% endif %}
-                            {% if current_branding.company_favicon %}
-                                <div class="mt-2">
-                                    <img src="{{ url_for('static', filename='uploads/branding/' + current_branding.company_favicon) }}" alt="Current Favicon" class="img-thumbnail" style="max-height: 32px;">
-                                </div>
-                            {% endif %}
-                        </div>
-                    </div>
-                    
-                    <div class="mb-3">
-                        {{ branding_form.primary_color.label(class="form-label") }}
-                        <div class="input-group">
-                            {{ branding_form.primary_color(class="form-control") }}
-                            <span class="input-group-text" id="primaryColorPreview" style="background-color: {{ current_branding.primary_color or '#4e73df' }};"></span>
-                        </div>
-                        {% if branding_form.primary_color.errors %}
-                            <div class="text-danger">
-                                {% for error in branding_form.primary_color.errors %}
-                                    <small>{{ error }}</small>
-                                {% endfor %}
-                            </div>
-                        {% endif %}
-                    </div>
-                    
-                    <div class="mb-3">
-                        {{ branding_form.secondary_color.label(class="form-label") }}
-                        <div class="input-group">
-                            {{ branding_form.secondary_color(class="form-control") }}
-                            <span class="input-group-text" id="secondaryColorPreview" style="background-color: {{ current_branding.secondary_color or '#858796' }};"></span>
-                        </div>
-                        {% if branding_form.secondary_color.errors %}
-                            <div class="text-danger">
-                                {% for error in branding_form.secondary_color.errors %}
-                                    <small>{{ error }}</small>
-                                {% endfor %}
-                            </div>
-                        {% endif %}
-                    </div>
-                    
-                    <div class="mb-3">
-                        {{ branding_form.accent_color.label(class="form-label") }}
-                        <div class="input-group">
-                            {{ branding_form.accent_color(class="form-control") }}
-                            <span class="input-group-text" id="accentColorPreview" style="background-color: {{ current_branding.accent_color or '#1cc88a' }};"></span>
-                        </div>
-                        {% if branding_form.accent_color.errors %}
-                            <div class="text-danger">
-                                {% for error in branding_form.accent_color.errors %}
-                                    <small>{{ error }}</small>
-                                {% endfor %}
-                            </div>
-                        {% endif %}
-                    </div>
-                    
-                    <div class="mb-3">
-                        {{ branding_form.font_family.label(class="form-label") }}
-                        {{ branding_form.font_family(class="form-control") }}
-                        {% if branding_form.font_family.errors %}
-                            <div class="text-danger">
-                                {% for error in branding_form.font_family.errors %}
-                                    <small>{{ error }}</small>
-                                {% endfor %}
-                            </div>
-                        {% endif %}
-                    </div>
-                    
-                    <div class="mb-3">
-                        {{ branding_form.footer_text.label(class="form-label") }}
-                        {{ branding_form.footer_text(class="form-control", rows="3") }}
-                        {% if branding_form.footer_text.errors %}
-                            <div class="text-danger">
-                                {% for error in branding_form.footer_text.errors %}
-                                    <small>{{ error }}</small>
-                                {% endfor %}
-                            </div>
-                        {% endif %}
-                    </div>
-                    
-                    <div class="d-flex justify-content-end">
-                        <button type="submit" class="btn btn-primary">Update Branding</button>
-                    </div>
-                </form>
+
+            <div class="col-md-6 mb-3">
+              {{ branding_form.company_tagline.label(class="form-label") }} {{
+              branding_form.company_tagline(class="form-control") }} {% if
+              branding_form.company_tagline.errors %}
+              <div class="text-danger">
+                {% for error in branding_form.company_tagline.errors %}
+                <small>{{ error }}</small>
+                {% endfor %}
+              </div>
+              {% endif %}
             </div>
-        </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              {{ branding_form.company_logo.label(class="form-label") }} {{
+              branding_form.company_logo(class="form-control") }} {% if
+              branding_form.company_logo.errors %}
+              <div class="text-danger">
+                {% for error in branding_form.company_logo.errors %}
+                <small>{{ error }}</small>
+                {% endfor %}
+              </div>
+              {% endif %} {% if current_branding.company_logo %}
+              <div class="mt-2">
+                <img
+                  src="{{ url_for('static', filename='uploads/branding/' + current_branding.company_logo) }}"
+                  alt="Current Logo"
+                  class="img-thumbnail"
+                  style="max-height: 100px"
+                />
+              </div>
+              {% endif %}
+            </div>
+
+            <div class="col-md-6 mb-3">
+              {{ branding_form.company_favicon.label(class="form-label") }} {{
+              branding_form.company_favicon(class="form-control") }} {% if
+              branding_form.company_favicon.errors %}
+              <div class="text-danger">
+                {% for error in branding_form.company_favicon.errors %}
+                <small>{{ error }}</small>
+                {% endfor %}
+              </div>
+              {% endif %} {% if current_branding.company_favicon %}
+              <div class="mt-2">
+                <img
+                  src="{{ url_for('static', filename='uploads/branding/' + current_branding.company_favicon) }}"
+                  alt="Current Favicon"
+                  class="img-thumbnail"
+                  style="max-height: 32px"
+                />
+              </div>
+              {% endif %}
+            </div>
+          </div>
+
+          <div class="mb-3">
+            {{ branding_form.primary_color.label(class="form-label") }}
+            <div class="input-group">
+              {{ branding_form.primary_color(class="form-control") }}
+              <span
+                class="input-group-text"
+                id="primaryColorPreview"
+                style="background-color: {{ current_branding.primary_color or '#4e73df' }};"
+              ></span>
+            </div>
+            {% if branding_form.primary_color.errors %}
+            <div class="text-danger">
+              {% for error in branding_form.primary_color.errors %}
+              <small>{{ error }}</small>
+              {% endfor %}
+            </div>
+            {% endif %}
+          </div>
+
+          <div class="mb-3">
+            {{ branding_form.secondary_color.label(class="form-label") }}
+            <div class="input-group">
+              {{ branding_form.secondary_color(class="form-control") }}
+              <span
+                class="input-group-text"
+                id="secondaryColorPreview"
+                style="background-color: {{ current_branding.secondary_color or '#858796' }};"
+              ></span>
+            </div>
+            {% if branding_form.secondary_color.errors %}
+            <div class="text-danger">
+              {% for error in branding_form.secondary_color.errors %}
+              <small>{{ error }}</small>
+              {% endfor %}
+            </div>
+            {% endif %}
+          </div>
+
+          <div class="mb-3">
+            {{ branding_form.accent_color.label(class="form-label") }}
+            <div class="input-group">
+              {{ branding_form.accent_color(class="form-control") }}
+              <span
+                class="input-group-text"
+                id="accentColorPreview"
+                style="background-color: {{ current_branding.accent_color or '#1cc88a' }};"
+              ></span>
+            </div>
+            {% if branding_form.accent_color.errors %}
+            <div class="text-danger">
+              {% for error in branding_form.accent_color.errors %}
+              <small>{{ error }}</small>
+              {% endfor %}
+            </div>
+            {% endif %}
+          </div>
+
+          <div class="mb-3">
+            {{ branding_form.font_family.label(class="form-label") }} {{
+            branding_form.font_family(class="form-control") }} {% if
+            branding_form.font_family.errors %}
+            <div class="text-danger">
+              {% for error in branding_form.font_family.errors %}
+              <small>{{ error }}</small>
+              {% endfor %}
+            </div>
+            {% endif %}
+          </div>
+
+          <div class="mb-3">
+            {{ branding_form.footer_text.label(class="form-label") }} {{
+            branding_form.footer_text(class="form-control", rows="3") }} {% if
+            branding_form.footer_text.errors %}
+            <div class="text-danger">
+              {% for error in branding_form.footer_text.errors %}
+              <small>{{ error }}</small>
+              {% endfor %}
+            </div>
+            {% endif %}
+          </div>
+
+          <div class="d-flex justify-content-end">
+            <button type="submit" class="btn btn-primary">
+              Update Branding
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
-    
-    <!-- UI Customization Tab -->
-    <div class="tab-pane fade {% if active_tab == 'ui_customization' %}show active{% endif %}" id="uiCustomization" role="tabpanel" aria-labelledby="uiCustomization-tab">
-        <div class="card shadow mb-4">
-            <div class="card-header py-3">
-                <h6 class="m-0 font-weight-bold text-primary">UI Customization</h6>
+  </div>
+
+  <!-- UI Customization Tab -->
+  <div
+    class="tab-pane fade {% if active_tab == 'ui_customization' %}show active{% endif %}"
+    id="uiCustomization"
+    role="tabpanel"
+    aria-labelledby="uiCustomization-tab"
+  >
+    <div class="card shadow mb-4">
+      <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">UI Customization</h6>
+      </div>
+      <div class="card-body">
+        <form
+          method="POST"
+          action="{{ url_for('update_ui_customization_settings') }}"
+        >
+          {{ ui_customization_form.hidden_tag() }}
+
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <div class="form-check form-switch">
+                {{
+                ui_customization_form.enable_dark_mode(class="form-check-input")
+                }} {{
+                ui_customization_form.enable_dark_mode.label(class="form-check-label")
+                }}
+              </div>
+              <small class="form-text text-muted"
+                >Enable dark mode option for users.</small
+              >
             </div>
-            <div class="card-body">
-                <form method="POST" action="{{ url_for('update_ui_customization_settings') }}">
-                    {{ ui_customization_form.hidden_tag() }}
-                    
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <div class="form-check form-switch">
-                                {{ ui_customization_form.enable_dark_mode(class="form-check-input") }}
-                                {{ ui_customization_form.enable_dark_mode.label(class="form-check-label") }}
-                            </div>
-                            <small class="form-text text-muted">Enable dark mode option for users.</small>
-                        </div>
-                        
-                        <div class="col-md-6 mb-3">
-                            <div class="form-check form-switch">
-                                {{ ui_customization_form.compact_mode(class="form-check-input") }}
-                                {{ ui_customization_form.compact_mode.label(class="form-check-label") }}
-                            </div>
-                            <small class="form-text text-muted">Use compact layout for better space utilization.</small>
-                        </div>
-                    </div>
-                    
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <div class="form-check form-switch">
-                                {{ ui_customization_form.rounded_corners(class="form-check-input") }}
-                                {{ ui_customization_form.rounded_corners.label(class="form-check-label") }}
-                            </div>
-                            <small class="form-text text-muted">Use rounded corners for UI elements.</small>
-                        </div>
-                        
-                        <div class="col-md-6 mb-3">
-                            <div class="form-check form-switch">
-                                {{ ui_customization_form.shadow_effects(class="form-check-input") }}
-                                {{ ui_customization_form.shadow_effects.label(class="form-check-label") }}
-                            </div>
-                            <small class="form-text text-muted">Enable shadow effects for UI elements.</small>
-                        </div>
-                    </div>
-                    
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            {{ ui_customization_form.navigation_style.label(class="form-label") }}
-                            {{ ui_customization_form.navigation_style(class="form-control") }}
-                            {% if ui_customization_form.navigation_style.errors %}
-                                <div class="text-danger">
-                                    {% for error in ui_customization_form.navigation_style.errors %}
-                                        <small>{{ error }}</small>
-                                    {% endfor %}
-                                </div>
-                            {% endif %}
-                        </div>
-                        
-                        <div class="col-md-6 mb-3">
-                            {{ ui_customization_form.button_style.label(class="form-label") }}
-                            {{ ui_customization_form.button_style(class="form-control") }}
-                            {% if ui_customization_form.button_style.errors %}
-                                <div class="text-danger">
-                                    {% for error in ui_customization_form.button_style.errors %}
-                                        <small>{{ error }}</small>
-                                    {% endfor %}
-                                </div>
-                            {% endif %}
-                        </div>
-                    </div>
-                    
-                    <div class="mb-3">
-                        {{ ui_customization_form.dashboard_layout.label(class="form-label") }}
-                        {{ ui_customization_form.dashboard_layout(class="form-control") }}
-                        {% if ui_customization_form.dashboard_layout.errors %}
-                            <div class="text-danger">
-                                {% for error in ui_customization_form.dashboard_layout.errors %}
-                                    <small>{{ error }}</small>
-                                {% endfor %}
-                            </div>
-                        {% endif %}
-                    </div>
-                    
-                    <div class="mb-3">
-                        {{ ui_customization_form.custom_css.label(class="form-label") }}
-                        {{ ui_customization_form.custom_css(class="form-control", rows="5") }}
-                        {% if ui_customization_form.custom_css.errors %}
-                            <div class="text-danger">
-                                {% for error in ui_customization_form.custom_css.errors %}
-                                    <small>{{ error }}</small>
-                                {% endfor %}
-                            </div>
-                        {% endif %}
-                        <small class="form-text text-muted">Add custom CSS to further customize the appearance.</small>
-                    </div>
-                    
-                    <div class="d-flex justify-content-end">
-                        <button type="submit" class="btn btn-primary">Update UI Settings</button>
-                    </div>
-                </form>
+
+            <div class="col-md-6 mb-3">
+              <div class="form-check form-switch">
+                {{ ui_customization_form.compact_mode(class="form-check-input")
+                }} {{
+                ui_customization_form.compact_mode.label(class="form-check-label")
+                }}
+              </div>
+              <small class="form-text text-muted"
+                >Use compact layout for better space utilization.</small
+              >
             </div>
-        </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <div class="form-check form-switch">
+                {{
+                ui_customization_form.rounded_corners(class="form-check-input")
+                }} {{
+                ui_customization_form.rounded_corners.label(class="form-check-label")
+                }}
+              </div>
+              <small class="form-text text-muted"
+                >Use rounded corners for UI elements.</small
+              >
+            </div>
+
+            <div class="col-md-6 mb-3">
+              <div class="form-check form-switch">
+                {{
+                ui_customization_form.shadow_effects(class="form-check-input")
+                }} {{
+                ui_customization_form.shadow_effects.label(class="form-check-label")
+                }}
+              </div>
+              <small class="form-text text-muted"
+                >Enable shadow effects for UI elements.</small
+              >
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              {{
+              ui_customization_form.navigation_style.label(class="form-label")
+              }} {{ ui_customization_form.navigation_style(class="form-control")
+              }} {% if ui_customization_form.navigation_style.errors %}
+              <div class="text-danger">
+                {% for error in ui_customization_form.navigation_style.errors %}
+                <small>{{ error }}</small>
+                {% endfor %}
+              </div>
+              {% endif %}
+            </div>
+
+            <div class="col-md-6 mb-3">
+              {{ ui_customization_form.button_style.label(class="form-label") }}
+              {{ ui_customization_form.button_style(class="form-control") }} {%
+              if ui_customization_form.button_style.errors %}
+              <div class="text-danger">
+                {% for error in ui_customization_form.button_style.errors %}
+                <small>{{ error }}</small>
+                {% endfor %}
+              </div>
+              {% endif %}
+            </div>
+          </div>
+
+          <div class="mb-3">
+            {{ ui_customization_form.dashboard_layout.label(class="form-label")
+            }} {{ ui_customization_form.dashboard_layout(class="form-control")
+            }} {% if ui_customization_form.dashboard_layout.errors %}
+            <div class="text-danger">
+              {% for error in ui_customization_form.dashboard_layout.errors %}
+              <small>{{ error }}</small>
+              {% endfor %}
+            </div>
+            {% endif %}
+          </div>
+
+          <div class="mb-3">
+            {{ ui_customization_form.custom_css.label(class="form-label") }} {{
+            ui_customization_form.custom_css(class="form-control", rows="5") }}
+            {% if ui_customization_form.custom_css.errors %}
+            <div class="text-danger">
+              {% for error in ui_customization_form.custom_css.errors %}
+              <small>{{ error }}</small>
+              {% endfor %}
+            </div>
+            {% endif %}
+            <small class="form-text text-muted"
+              >Add custom CSS to further customize the appearance.</small
+            >
+          </div>
+
+          <div class="d-flex justify-content-end">
+            <button type="submit" class="btn btn-primary">
+              Update UI Settings
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
-    
-    <!-- Domain Settings Tab -->
-    <div class="tab-pane fade {% if active_tab == 'domain_settings' %}show active{% endif %}" id="domainSettings" role="tabpanel" aria-labelledby="domainSettings-tab">
-        <div class="card shadow mb-4">
-            <div class="card-header py-3">
-                <h6 class="m-0 font-weight-bold text-primary">Domain Settings</h6>
+  </div>
+
+  <!-- Domain Settings Tab -->
+  <div
+    class="tab-pane fade {% if active_tab == 'domain_settings' %}show active{% endif %}"
+    id="domainSettings"
+    role="tabpanel"
+    aria-labelledby="domainSettings-tab"
+  >
+    <div class="card shadow mb-4">
+      <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Domain Settings</h6>
+      </div>
+      <div class="card-body">
+        <form method="POST" action="{{ url_for('update_domain_settings') }}">
+          {{ domain_settings_form.hidden_tag() }}
+
+          <div class="mb-3">
+            {{ domain_settings_form.custom_domain.label(class="form-label") }}
+            {{ domain_settings_form.custom_domain(class="form-control") }} {% if
+            domain_settings_form.custom_domain.errors %}
+            <div class="text-danger">
+              {% for error in domain_settings_form.custom_domain.errors %}
+              <small>{{ error }}</small>
+              {% endfor %}
             </div>
-            <div class="card-body">
-                <form method="POST" action="{{ url_for('update_domain_settings') }}">
-                    {{ domain_settings_form.hidden_tag() }}
-                    
-                    <div class="mb-3">
-                        {{ domain_settings_form.custom_domain.label(class="form-label") }}
-                        {{ domain_settings_form.custom_domain(class="form-control") }}
-                        {% if domain_settings_form.custom_domain.errors %}
-                            <div class="text-danger">
-                                {% for error in domain_settings_form.custom_domain.errors %}
-                                    <small>{{ error }}</small>
-                                {% endfor %}
-                            </div>
-                        {% endif %}
-                        <small class="form-text text-muted">Enter your custom domain (e.g., firm.yourdomain.com).</small>
-                    </div>
-                    
-                    <div class="mb-3">
-                        {{ domain_settings_form.ssl_certificate.label(class="form-label") }}
-                        {{ domain_settings_form.ssl_certificate(class="form-control") }}
-                        {% if domain_settings_form.ssl_certificate.errors %}
-                            <div class="text-danger">
-                                {% for error in domain_settings_form.ssl_certificate.errors %}
-                                    <small>{{ error }}</small>
-                                {% endfor %}
-                            </div>
-                        {% endif %}
-                        <small class="form-text text-muted">Upload your SSL certificate for HTTPS.</small>
-                    </div>
-                    
-                    <div class="mb-3">
-                        <div class="form-check form-switch">
-                            {{ domain_settings_form.enable_www_redirect(class="form-check-input") }}
-                            {{ domain_settings_form.enable_www_redirect.label(class="form-check-label") }}
-                        </div>
-                        <small class="form-text text-muted">Redirect www to non-www domain or vice versa.</small>
-                    </div>
-                    
-                    <div class="mb-3">
-                        <div class="form-check form-switch">
-                            {{ domain_settings_form.force_https(class="form-check-input") }}
-                            {{ domain_settings_form.force_https.label(class="form-check-label") }}
-                        </div>
-                        <small class="form-text text-muted">Force all connections to use HTTPS.</small>
-                    </div>
-                    
-                    <div class="mb-3">
-                        <div class="form-check form-switch">
-                            {{ domain_settings_form.enable_cdn(class="form-check-input") }}
-                            {{ domain_settings_form.enable_cdn.label(class="form-check-label") }}
-                        </div>
-                        <small class="form-text text-muted">Enable CDN for faster content delivery.</small>
-                    </div>
-                    
-                    <div class="mb-3">
-                        {{ domain_settings_form.cdn_url.label(class="form-label") }}
-                        {{ domain_settings_form.cdn_url(class="form-control") }}
-                        {% if domain_settings_form.cdn_url.errors %}
-                            <div class="text-danger">
-                                {% for error in domain_settings_form.cdn_url.errors %}
-                                    <small>{{ error }}</small>
-                                {% endfor %}
-                            </div>
-                        {% endif %}
-                    </div>
-                    
-                    <div class="d-flex justify-content-end">
-                        <button type="submit" class="btn btn-primary">Update Domain Settings</button>
-                    </div>
-                </form>
+            {% endif %}
+            <small class="form-text text-muted"
+              >Enter your custom domain (e.g., firm.yourdomain.com).</small
+            >
+          </div>
+
+          <div class="mb-3">
+            {{ domain_settings_form.ssl_certificate.label(class="form-label") }}
+            {{ domain_settings_form.ssl_certificate(class="form-control") }} {%
+            if domain_settings_form.ssl_certificate.errors %}
+            <div class="text-danger">
+              {% for error in domain_settings_form.ssl_certificate.errors %}
+              <small>{{ error }}</small>
+              {% endfor %}
             </div>
-        </div>
-        
-        <div class="card shadow mb-4">
-            <div class="card-header py-3">
-                <h6 class="m-0 font-weight-bold text-primary">DNS Configuration</h6>
+            {% endif %}
+            <small class="form-text text-muted"
+              >Upload your SSL certificate for HTTPS.</small
+            >
+          </div>
+
+          <div class="mb-3">
+            <div class="form-check form-switch">
+              {{
+              domain_settings_form.enable_www_redirect(class="form-check-input")
+              }} {{
+              domain_settings_form.enable_www_redirect.label(class="form-check-label")
+              }}
             </div>
-            <div class="card-body">
-                <div class="alert alert-info">
-                    <h5 class="alert-heading">DNS Configuration Instructions</h5>
-                    <p>To use your custom domain, you need to configure your DNS settings as follows:</p>
-                    <hr>
-                    <p class="mb-0"><strong>A Record:</strong> Point your domain to <code>{{ server_ip }}</code></p>
-                    <p class="mb-0"><strong>CNAME Record (www):</strong> Point to your main domain</p>
-                    <p class="mb-0"><strong>MX Records:</strong> Configure for email delivery</p>
-                    <p class="mb-0"><strong>TXT Records:</strong> Add SPF and DKIM records for email authentication</p>
-                </div>
-                
-                <div class="table-responsive">
-                    <table class="table table-bordered">
-                        <thead>
-                            <tr>
-                                <th>Type</th>
-                                <th>Host</th>
-                                <th>Value</th>
-                                <th>TTL</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for record in dns_records %}
-                            <tr>
-                                <td>{{ record.type }}</td>
-                                <td>{{ record.host }}</td>
-                                <td><code>{{ record.value }}</code></td>
-                                <td>{{ record.ttl }}</td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-                
-                <div class="mt-3">
-                    <button class="btn btn-primary" id="verifyDomainBtn">Verify Domain</button>
-                    <button class="btn btn-secondary" id="refreshDnsBtn">Refresh DNS Status</button>
-                </div>
+            <small class="form-text text-muted"
+              >Redirect www to non-www domain or vice versa.</small
+            >
+          </div>
+
+          <div class="mb-3">
+            <div class="form-check form-switch">
+              {{ domain_settings_form.force_https(class="form-check-input") }}
+              {{
+              domain_settings_form.force_https.label(class="form-check-label")
+              }}
             </div>
-        </div>
+            <small class="form-text text-muted"
+              >Force all connections to use HTTPS.</small
+            >
+          </div>
+
+          <div class="mb-3">
+            <div class="form-check form-switch">
+              {{ domain_settings_form.enable_cdn(class="form-check-input") }} {{
+              domain_settings_form.enable_cdn.label(class="form-check-label") }}
+            </div>
+            <small class="form-text text-muted"
+              >Enable CDN for faster content delivery.</small
+            >
+          </div>
+
+          <div class="mb-3">
+            {{ domain_settings_form.cdn_url.label(class="form-label") }} {{
+            domain_settings_form.cdn_url(class="form-control") }} {% if
+            domain_settings_form.cdn_url.errors %}
+            <div class="text-danger">
+              {% for error in domain_settings_form.cdn_url.errors %}
+              <small>{{ error }}</small>
+              {% endfor %}
+            </div>
+            {% endif %}
+          </div>
+
+          <div class="d-flex justify-content-end">
+            <button type="submit" class="btn btn-primary">
+              Update Domain Settings
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
-    
-    <!-- Email Templates Tab -->
-    <div class="tab-pane fade {% if active_tab == 'email_templates' %}show active{% endif %}" id="emailTemplates" role="tabpanel" aria-labelledby="emailTemplates-tab">
-        <div class="card shadow mb-4">
-            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                <h6 class="m-0 font-weight-bold text-primary">Email Templates</h6>
-                <div class="dropdown no-arrow">
-                    <a class="dropdown-toggle" href="#" role="button" id="emailTemplatesDropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
+
+    <div class="card shadow mb-4">
+      <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">DNS Configuration</h6>
+      </div>
+      <div class="card-body">
+        <div class="alert alert-info">
+          <h5 class="alert-heading">DNS Configuration Instructions</h5>
+          <p>
+            To use your custom domain, you need to configure your DNS settings
+            as follows:
+          </p>
+          <hr />
+          <p class="mb-0">
+            <strong>A Record:</strong> Point your domain to
+            <code>{{ server_ip }}</code>
+          </p>
+          <p class="mb-0">
+            <strong>CNAME Record (www):</strong> Point to your main domain
+          </p>
+          <p class="mb-0">
+            <strong>MX Records:</strong> Configure for email delivery
+          </p>
+          <p class="mb-0">
+            <strong>TXT Records:</strong> Add SPF and DKIM records for email
+            authentication
+          </p>
+        </div>
+
+        <div class="table-responsive">
+          <table class="table table-bordered">
+            <thead>
+              <tr>
+                <th>Type</th>
+                <th>Host</th>
+                <th>Value</th>
+                <th>TTL</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for record in dns_records %}
+              <tr>
+                <td>{{ record.type }}</td>
+                <td>{{ record.host }}</td>
+                <td><code>{{ record.value }}</code></td>
+                <td>{{ record.ttl }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+
+        <div class="mt-3">
+          <button class="btn btn-primary" id="verifyDomainBtn">
+            Verify Domain
+          </button>
+          <button class="btn btn-secondary" id="refreshDnsBtn">
+            Refresh DNS Status
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Email Templates Tab -->
+  <div
+    class="tab-pane fade {% if active_tab == 'email_templates' %}show active{% endif %}"
+    id="emailTemplates"
+    role="tabpanel"
+    aria-labelledby="emailTemplates-tab"
+  >
+    <div class="card shadow mb-4">
+      <div
+        class="card-header py-3 d-flex flex-row align-items-center justify-content-between"
+      >
+        <h6 class="m-0 font-weight-bold text-primary">Email Templates</h6>
+        <div class="dropdown no-arrow">
+          <a
+            class="dropdown-toggle"
+            href="#"
+            role="button"
+            id="emailTemplatesDropdown"
+            data-bs-toggle="dropdown"
+            aria-haspopup="true"
+            aria-expanded="false"
+          >
+            <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
+          </a>
+          <div
+            class="dropdown-menu dropdown-menu-right shadow animated--fade-in"
+            aria-labelledby="emailTemplatesDropdown"
+          >
+            <div class="dropdown-header">Template Options:</div>
+            <a class="dropdown-item" href="{{ url_for('add_email_template') }}"
+              >Add New Template</a
+            >
+            <a
+              class="dropdown-item"
+              href="{{ url_for('reset_email_templates') }}"
+              >Reset to Default</a
+            >
+            <div class="dropdown-divider"></div>
+            <a
+              class="dropdown-item"
+              href="{{ url_for('export_email_templates') }}"
+              >Export Templates</a
+            >
+          </div>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="table-responsive">
+          <table class="table table-bordered" width="100%" cellspacing="0">
+            <thead>
+              <tr>
+                <th>Template Name</th>
+                <th>Subject</th>
+                <th>Category</th>
+                <th>Last Modified</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for template in email_templates %}
+              <tr>
+                <td>{{ template.name }}</td>
+                <td>{{ template.subject }}</td>
+                <td>{{ template.category }}</td>
+                <td>{{ template.last_modified.strftime('%Y-%m-%d %H:%M') }}</td>
+                <td>
+                  {% if template.status == 'active' %}
+                  <span class="badge bg-success">Active</span>
+                  {% elif template.status == 'inactive' %}
+                  <span class="badge bg-secondary">Inactive</span>
+                  {% else %}
+                  <span class="badge bg-light text-dark"
+                    >{{ template.status }}</span
+                  >
+                  {% endif %}
+                </td>
+                <td>
+                  <div class="btn-group" role="group">
+                    <a
+                      href="{{ url_for('edit_email_template', template_id=template.id) }}"
+                      class="btn btn-sm btn-info"
+                      title="Edit"
+                    >
+                      <i class="fas fa-edit"></i>
                     </a>
-                    <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in" aria-labelledby="emailTemplatesDropdown">
-                        <div class="dropdown-header">Template Options:</div>
-                        <a class="dropdown-item" href="{{ url_for('add_email_template') }}">Add New Template</a>
-                        <a class="dropdown-item" href="{{ url_for('reset_email_templates') }}">Reset to Default</a>
-                        <div class="dropdown-divider"></div>
-                        <a class="dropdown-item" href="{{ url_for('export_email_templates') }}">Export Templates</a>
-                    </div>
-                </div>
-            </div>
-            <div class="card-body">
-                <div class="table-responsive">
-                    <table class="table table-bordered" width="100%" cellspacing="0">
-                        <thead>
-                            <tr>
-                                <th>Template Name</th>
-                                <th>Subject</th>
-                                <th>Category</th>
-                                <th>Last Modified</th>
-                                <th>Status</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for template in email_templates %}
-                            <tr>
-                                <td>{{ template.name }}</td>
-                                <td>{{ template.subject }}</td>
-                                <td>{{ template.category }}</td>
-                                <td>{{ template.last_modified.strftime('%Y-%m-%d %H:%M') }}</td>
-                                <td>
-                                    {% if template.status == 'active' %}
-                                        <span class="badge bg-success">Active</span>
-                                    {% elif template.status == 'inactive' %}
-                                        <span class="badge bg-secondary">Inactive</span>
-                                    {% else %}
-                                        <span class="badge bg-light text-dark">{{ template.status }}</span>
-                                    {% endif %}
-                                </td>
-                                <td>
-                                    <div class="btn-group" role="group">
-                                        <a href="{{ url_for('edit_email_template', template_id=template.id) }}" class="btn btn-sm btn-info" title="Edit">
-                                            <i class="fas fa-edit"></i>
-                                        </a>
-                                        <button type="button" class="btn btn-sm btn-primary test-email-template" data-id="{{ template.id }}" title="Test">
-                                            <i class="fas fa-paper-plane"></i>
-                                        </button>
-                                        <button type="button" class="btn btn-sm btn-warning toggle-email-template" data-id="{{ template.id }}" data-status="{{ template.status }}" title="Toggle">
-                                            {% if template.status == 'active' %}
-                                                <i class="fas fa-pause"></i>
-                                            {% else %}
-                                                <i class="fas fa-play"></i>
-                                            {% endif %}
-                                        </button>
-                                        <button type="button" class="btn btn-sm btn-danger delete-email-template" data-id="{{ template.id }}" data-name="{{ template.name }}" title="Delete">
-                                            <i class="fas fa-trash"></i>
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
-                            {% else %}
-                            <tr>
-                                <td colspan="6" class="text-center">No email templates found.</td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-                <div class="text-center mt-3">
-                    <a href="{{ url_for('add_email_template') }}" class="btn btn-primary">Add New Template</a>
-                </div>
-            </div>
+                    <button
+                      type="button"
+                      class="btn btn-sm btn-primary test-email-template"
+                      data-id="{{ template.id }}"
+                      title="Test"
+                    >
+                      <i class="fas fa-paper-plane"></i>
+                    </button>
+                    <button
+                      type="button"
+                      class="btn btn-sm btn-warning toggle-email-template"
+                      data-id="{{ template.id }}"
+                      data-status="{{ template.status }}"
+                      title="Toggle"
+                    >
+                      {% if template.status == 'active' %}
+                      <i class="fas fa-pause"></i>
+                      {% else %}
+                      <i class="fas fa-play"></i>
+                      {% endif %}
+                    </button>
+                    <button
+                      type="button"
+                      class="btn btn-sm btn-danger delete-email-template"
+                      data-id="{{ template.id }}"
+                      data-name="{{ template.name }}"
+                      title="Delete"
+                    >
+                      <i class="fas fa-trash"></i>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+              {% else %}
+              <tr>
+                <td colspan="6" class="text-center">
+                  No email templates found.
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
         </div>
-        
-        <div class="card shadow mb-4">
-            <div class="card-header py-3">
-                <h6 class="m-0 font-weight-bold text-primary">Email Settings</h6>
-            </div>
-            <div class="card-body">
-                <form method="POST" action="{{ url_for('update_email_settings') }}">
-                    {{ email_settings_form.hidden_tag() }}
-                    
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            {{ email_settings_form.email_from_name.label(class="form-label") }}
-                            {{ email_settings_form.email_from_name(class="form-control") }}
-                            {% if email_settings_form.email_from_name.errors %}
-                                <div class="text-danger">
-                                    {% for error in email_settings_form.email_from_name.errors %}
-                                        <small>{{ error }}</small>
-                                    {% endfor %}
-                                </div>
-                            {% endif %}
-                        </div>
-                        
-                        <div class="col-md-6 mb-3">
-                            {{ email_settings_form.email_from_address.label(class="form-label") }}
-                            {{ email_settings_form.email_from_address(class="form-control") }}
-                            {% if email_settings_form.email_from_address.errors %}
-                                <div class="text-danger">
-                                    {% for error in email_settings_form.email_from_address.errors %}
-                                        <small>{{ error }}</small>
-                                    {% endfor %}
-                                </div>
-                            {% endif %}
-                        </div>
-                    </div>
-                    
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            {{ email_settings_form.smtp_server.label(class="form-label") }}
-                            {{ email_settings_form.smtp_server(class="form-control") }}
-                            {% if email_settings_form.smtp_server.errors %}
-                                <div class="text-danger">
-                                    {% for error in email_settings_form.smtp_server.errors %}
-                                        <small>{{ error }}</small>
-                                    {% endfor %}
-                                </div>
-                            {% endif %}
-                        </div>
-                        
-                        <div class="col-md-6 mb-3">
-                            {{ email_settings_form.smtp_port.label(class="form-label") }}
-                            {{ email_settings_form.smtp_port(class="form-control") }}
-                            {% if email_settings_form.smtp_port.errors %}
-                                <div class="text-danger">
-                                    {% for error in email_settings_form.smtp_port.errors %}
-                                        <small>{{ error }}</small>
-                                    {% endfor %}
-                                </div>
-                            {% endif %}
-                        </div>
-                    </div>
-                    
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            {{ email_settings_form.smtp_username.label(class="form-label") }}
-                            {{ email_settings_form.smtp_username(class="form-control") }}
-                            {% if email_settings_form.smtp_username.errors %}
-                                <div class="text-danger">
-                                    {% for error in email_settings_form.smtp_username.errors %}
-                                        <small>{{ error }}</small>
-                                    {% endfor %}
-                                </div>
-                            {% endif %}
-                        </div>
-                        
-                        <div class="col-md-6 mb-3">
-                            {{ email_settings_form.smtp_password.label(class="form-label") }}
-                            {{ email_settings_form.smtp_password(class="form-control") }}
-                            {% if email_settings_form.smtp_password.errors %}
-                                <div class="text-danger">
-                                    {% for error in email_settings_form.smtp_password.errors %}
-                                        <small>{{ error }}</small>
-                                    {% endfor %}
-                                </div>
-                            {% endif %}
-                        </div>
-                    </div>
-                    
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <div class="form-check form-switch">
-                                {{ email_settings_form.smtp_tls(class="form-check-input") }}
-                                {{ email_settings_form.smtp_tls.label(class="form-check-label") }}
-                            </div>
-                            <small class="form-text text-muted">Use TLS for SMTP connection.</small>
-                        </div>
-                        
-                        <div class="col-md-6 mb-3">
-                            <div class="form-check form-switch">
-                                {{ email_settings_form.smtp_ssl(class="form-check-input") }}
-                                {{ email_settings_form.smtp_ssl.label(class="form-check-label") }}
-                            </div>
-                            <small class="form-text text-muted">Use SSL for SMTP connection.</small>
-                        </div>
-                    </div>
-                    
-                    <div class="d-flex justify-content-between">
-                        <button type="button" class="btn btn-secondary" id="testEmailSettingsBtn">Test Settings</button>
-                        <button type="submit" class="btn btn-primary">Update Email Settings</button>
-                    </div>
-                </form>
-            </div>
+        <div class="text-center mt-3">
+          <a href="{{ url_for('add_email_template') }}" class="btn btn-primary"
+            >Add New Template</a
+          >
         </div>
+      </div>
     </div>
+
+    <div class="card shadow mb-4">
+      <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Email Settings</h6>
+      </div>
+      <div class="card-body">
+        <form method="POST" action="{{ url_for('update_email_settings') }}">
+          {{ email_settings_form.hidden_tag() }}
+
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              {{ email_settings_form.email_from_name.label(class="form-label")
+              }} {{ email_settings_form.email_from_name(class="form-control") }}
+              {% if email_settings_form.email_from_name.errors %}
+              <div class="text-danger">
+                {% for error in email_settings_form.email_from_name.errors %}
+                <small>{{ error }}</small>
+                {% endfor %}
+              </div>
+              {% endif %}
+            </div>
+
+            <div class="col-md-6 mb-3">
+              {{
+              email_settings_form.email_from_address.label(class="form-label")
+              }} {{ email_settings_form.email_from_address(class="form-control")
+              }} {% if email_settings_form.email_from_address.errors %}
+              <div class="text-danger">
+                {% for error in email_settings_form.email_from_address.errors %}
+                <small>{{ error }}</small>
+                {% endfor %}
+              </div>
+              {% endif %}
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              {{ email_settings_form.smtp_server.label(class="form-label") }} {{
+              email_settings_form.smtp_server(class="form-control") }} {% if
+              email_settings_form.smtp_server.errors %}
+              <div class="text-danger">
+                {% for error in email_settings_form.smtp_server.errors %}
+                <small>{{ error }}</small>
+                {% endfor %}
+              </div>
+              {% endif %}
+            </div>
+
+            <div class="col-md-6 mb-3">
+              {{ email_settings_form.smtp_port.label(class="form-label") }} {{
+              email_settings_form.smtp_port(class="form-control") }} {% if
+              email_settings_form.smtp_port.errors %}
+              <div class="text-danger">
+                {% for error in email_settings_form.smtp_port.errors %}
+                <small>{{ error }}</small>
+                {% endfor %}
+              </div>
+              {% endif %}
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              {{ email_settings_form.smtp_username.label(class="form-label") }}
+              {{ email_settings_form.smtp_username(class="form-control") }} {%
+              if email_settings_form.smtp_username.errors %}
+              <div class="text-danger">
+                {% for error in email_settings_form.smtp_username.errors %}
+                <small>{{ error }}</small>
+                {% endfor %}
+              </div>
+              {% endif %}
+            </div>
+
+            <div class="col-md-6 mb-3">
+              {{ email_settings_form.smtp_password.label(class="form-label") }}
+              {{ email_settings_form.smtp_password(class="form-control") }} {%
+              if email_settings_form.smtp_password.errors %}
+              <div class="text-danger">
+                {% for error in email_settings_form.smtp_password.errors %}
+                <small>{{ error }}</small>
+                {% endfor %}
+              </div>
+              {% endif %}
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <div class="form-check form-switch">
+                {{ email_settings_form.smtp_tls(class="form-check-input") }} {{
+                email_settings_form.smtp_tls.label(class="form-check-label") }}
+              </div>
+              <small class="form-text text-muted"
+                >Use TLS for SMTP connection.</small
+              >
+            </div>
+
+            <div class="col-md-6 mb-3">
+              <div class="form-check form-switch">
+                {{ email_settings_form.smtp_ssl(class="form-check-input") }} {{
+                email_settings_form.smtp_ssl.label(class="form-check-label") }}
+              </div>
+              <small class="form-text text-muted"
+                >Use SSL for SMTP connection.</small
+              >
+            </div>
+          </div>
+
+          <div class="d-flex justify-content-between">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              id="testEmailSettingsBtn"
+            >
+              Test Settings
+            </button>
+            <button type="submit" class="btn btn-primary">
+              Update Email Settings
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
 </div>
 
 <!-- Delete Email Template Confirmation Modal -->
-<div class="modal fade" id="deleteEmailTemplateModal" tabindex="-1" aria-labelledby="deleteEmailTemplateModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="deleteEmailTemplateModalLabel">Confirm Delete</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                Are you sure you want to delete the email template "<strong id="deleteEmailTemplateName"></strong>"? This action cannot be undone.
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <form id="deleteEmailTemplateForm" method="POST">
-                    <button type="submit" class="btn btn-danger">Delete</button>
-                </form>
-            </div>
-        </div>
+<div
+  class="modal fade"
+  id="deleteEmailTemplateModal"
+  tabindex="-1"
+  aria-labelledby="deleteEmailTemplateModalLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="deleteEmailTemplateModalLabel">
+          Confirm Delete
+        </h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+        ></button>
+      </div>
+      <div class="modal-body">
+        Are you sure you want to delete the email template "<strong
+          id="deleteEmailTemplateName"
+        ></strong
+        >"? This action cannot be undone.
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+          Cancel
+        </button>
+        <form id="deleteEmailTemplateForm" method="POST">
+          <button type="submit" class="btn btn-danger">Delete</button>
+        </form>
+      </div>
     </div>
+  </div>
 </div>
 
 <!-- Test Email Template Modal -->
-<div class="modal fade" id="testEmailTemplateModal" tabindex="-1" aria-labelledby="testEmailTemplateModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="testEmailTemplateModalLabel">Test Email Template</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <form id="testEmailTemplateForm">
-                    <div class="mb-3">
-                        <label for="testEmailAddress" class="form-label">Email Address</label>
-                        <input type="email" class="form-control" id="testEmailAddress" required>
-                    </div>
-                    <input type="hidden" id="testTemplateId">
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-primary" id="sendTestEmailBtn">Send Test Email</button>
-            </div>
-        </div>
+<div
+  class="modal fade"
+  id="testEmailTemplateModal"
+  tabindex="-1"
+  aria-labelledby="testEmailTemplateModalLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="testEmailTemplateModalLabel">
+          Test Email Template
+        </h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+        ></button>
+      </div>
+      <div class="modal-body">
+        <form id="testEmailTemplateForm">
+          <div class="mb-3">
+            <label for="testEmailAddress" class="form-label"
+              >Email Address</label
+            >
+            <input
+              type="email"
+              class="form-control"
+              id="testEmailAddress"
+              required
+            />
+          </div>
+          <input type="hidden" id="testTemplateId" />
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+          Cancel
+        </button>
+        <button type="button" class="btn btn-primary" id="sendTestEmailBtn">
+          Send Test Email
+        </button>
+      </div>
     </div>
+  </div>
 </div>
-{% endblock %}
-
-{% block scripts %}
+{% endblock %} {% block scripts %}
 <script>
-    $(document).ready(function() {
-        // Color preview functionality
-        $('#primary_color').on('input', function() {
-            $('#primaryColorPreview').css('background-color', $(this).val());
-        });
-        
-        $('#secondary_color').on('input', function() {
-            $('#secondaryColorPreview').css('background-color', $(this).val());
-        });
-        
-        $('#accent_color').on('input', function() {
-            $('#accentColorPreview').css('background-color', $(this).val());
-        });
-        
-        // Toggle email template status
-        $('.toggle-email-template').on('click', function() {
-            var templateId = $(this).data('id');
-            var currentStatus = $(this).data('status');
-            var newStatus = currentStatus === 'active' ? 'inactive' : 'active';
-            
-            $.ajax({
-                url: '/toggle_email_template/' + templateId,
-                type: 'POST',
-                data: {
-                    status: newStatus
-                },
-                success: function(response) {
-                    if (response.success) {
-                        location.reload();
-                    } else {
-                        alert('Error updating template status: ' + response.message);
-                    }
-                },
-                error: function() {
-                    alert('Error updating template status. Please try again.');
-                }
-            });
-        });
-        
-        // Test email template
-        $('.test-email-template').on('click', function() {
-            var templateId = $(this).data('id');
-            $('#testTemplateId').val(templateId);
-            
-            var testEmailTemplateModal = new bootstrap.Modal(document.getElementById('testEmailTemplateModal'));
-            testEmailTemplateModal.show();
-        });
-        
-        // Send test email
-        $('#sendTestEmailBtn').on('click', function() {
-            var templateId = $('#testTemplateId').val();
-            var emailAddress = $('#testEmailAddress').val();
-            
-            $.ajax({
-                url: '/test_email_template/' + templateId,
-                type: 'POST',
-                data: {
-                    email_address: emailAddress
-                },
-                success: function(response) {
-                    if (response.success) {
-                        alert('Test email sent successfully!');
-                        bootstrap.Modal.getInstance(document.getElementById('testEmailTemplateModal')).hide();
-                    } else {
-                        alert('Error sending test email: ' + response.message);
-                    }
-                },
-                error: function() {
-                    alert('Error sending test email. Please try again.');
-                }
-            });
-        });
-        
-        // Delete email template confirmation
-        $('.delete-email-template').on('click', function() {
-            var templateId = $(this).data('id');
-            var templateName = $(this).data('name');
-            
-            $('#deleteEmailTemplateName').text(templateName);
-            $('#deleteEmailTemplateForm').attr('action', '/delete_email_template/' + templateId);
-            
-            var deleteEmailTemplateModal = new bootstrap.Modal(document.getElementById('deleteEmailTemplateModal'));
-            deleteEmailTemplateModal.show();
-        });
-        
-        // Verify domain
-        $('#verifyDomainBtn').on('click', function() {
-            $.ajax({
-                url: '/verify_domain',
-                type: 'POST',
-                success: function(response) {
-                    if (response.success) {
-                        alert('Domain verified successfully!');
-                    } else {
-                        alert('Domain verification failed: ' + response.message);
-                    }
-                },
-                error: function() {
-                    alert('Error verifying domain. Please try again.');
-                }
-            });
-        });
-        
-        // Refresh DNS status
-        $('#refreshDnsBtn').on('click', function() {
-            $.ajax({
-                url: '/refresh_dns_status',
-                type: 'POST',
-                success: function(response) {
-                    if (response.success) {
-                        alert('DNS status refreshed successfully!');
-                        location.reload();
-                    } else {
-                        alert('Error refreshing DNS status: ' + response.message);
-                    }
-                },
-                error: function() {
-                    alert('Error refreshing DNS status. Please try again.');
-                }
-            });
-        });
-        
-        // Test email settings
-        $('#testEmailSettingsBtn').on('click', function() {
-            var formData = $('form').serialize();
-            
-            $.ajax({
-                url: '/test_email_settings',
-                type: 'POST',
-                data: formData,
-                success: function(response) {
-                    if (response.success) {
-                        alert('Email settings test successful!');
-                    } else {
-                        alert('Email settings test failed: ' + response.message);
-                    }
-                },
-                error: function() {
-                    alert('Error testing email settings. Please try again.');
-                }
-            });
-        });
+  $(document).ready(function () {
+    // Color preview functionality
+    $("#primary_color").on("input", function () {
+      $("#primaryColorPreview").css("background-color", $(this).val());
     });
+
+    $("#secondary_color").on("input", function () {
+      $("#secondaryColorPreview").css("background-color", $(this).val());
+    });
+
+    $("#accent_color").on("input", function () {
+      $("#accentColorPreview").css("background-color", $(this).val());
+    });
+
+    // Toggle email template status
+    $(".toggle-email-template").on("click", function () {
+      var templateId = $(this).data("id");
+      var currentStatus = $(this).data("status");
+      var newStatus = currentStatus === "active" ? "inactive" : "active";
+
+      $.ajax({
+        url: "/toggle_email_template/" + templateId,
+        type: "POST",
+        data: {
+          status: newStatus,
+        },
+        success: function (response) {
+          if (response.success) {
+            location.reload();
+          } else {
+            alert("Error updating template status: " + response.message);
+          }
+        },
+        error: function () {
+          alert("Error updating template status. Please try again.");
+        },
+      });
+    });
+
+    // Test email template
+    $(".test-email-template").on("click", function () {
+      var templateId = $(this).data("id");
+      $("#testTemplateId").val(templateId);
+
+      var testEmailTemplateModal = new bootstrap.Modal(
+        document.getElementById("testEmailTemplateModal")
+      );
+      testEmailTemplateModal.show();
+    });
+
+    // Send test email
+    $("#sendTestEmailBtn").on("click", function () {
+      var templateId = $("#testTemplateId").val();
+      var emailAddress = $("#testEmailAddress").val();
+
+      $.ajax({
+        url: "/test_email_template/" + templateId,
+        type: "POST",
+        data: {
+          email_address: emailAddress,
+        },
+        success: function (response) {
+          if (response.success) {
+            alert("Test email sent successfully!");
+            bootstrap.Modal.getInstance(
+              document.getElementById("testEmailTemplateModal")
+            ).hide();
+          } else {
+            alert("Error sending test email: " + response.message);
+          }
+        },
+        error: function () {
+          alert("Error sending test email. Please try again.");
+        },
+      });
+    });
+
+    // Delete email template confirmation
+    $(".delete-email-template").on("click", function () {
+      var templateId = $(this).data("id");
+      var templateName = $(this).data("name");
+
+      $("#deleteEmailTemplateName").text(templateName);
+      $("#deleteEmailTemplateForm").attr(
+        "action",
+        "/delete_email_template/" + templateId
+      );
+
+      var deleteEmailTemplateModal = new bootstrap.Modal(
+        document.getElementById("deleteEmailTemplateModal")
+      );
+      deleteEmailTemplateModal.show();
+    });
+
+    // Verify domain
+    $("#verifyDomainBtn").on("click", function () {
+      $.ajax({
+        url: "/verify_domain",
+        type: "POST",
+        success: function (response) {
+          if (response.success) {
+            alert("Domain verified successfully!");
+          } else {
+            alert("Domain verification failed: " + response.message);
+          }
+        },
+        error: function () {
+          alert("Error verifying domain. Please try again.");
+        },
+      });
+    });
+
+    // Refresh DNS status
+    $("#refreshDnsBtn").on("click", function () {
+      $.ajax({
+        url: "/refresh_dns_status",
+        type: "POST",
+        success: function (response) {
+          if (response.success) {
+            alert("DNS status refreshed successfully!");
+            location.reload();
+          } else {
+            alert("Error refreshing DNS status: " + response.message);
+          }
+        },
+        error: function () {
+          alert("Error refreshing DNS status. Please try again.");
+        },
+      });
+    });
+
+    // Test email settings
+    $("#testEmailSettingsBtn").on("click", function () {
+      var formData = $("form").serialize();
+
+      $.ajax({
+        url: "/test_email_settings",
+        type: "POST",
+        data: formData,
+        success: function (response) {
+          if (response.success) {
+            alert("Email settings test successful!");
+          } else {
+            alert("Email settings test failed: " + response.message);
+          }
+        },
+        error: function () {
+          alert("Error testing email settings. Please try again.");
+        },
+      });
+    });
+  });
 </script>
 {% endblock %}

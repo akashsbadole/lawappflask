@@ -1,0 +1,198 @@
+{% extends "base.html" %}
+
+{% block title %}Lawyer Utilization Report - Law Firm Management System{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Lawyer Utilization Report</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <div class="btn-group me-2">
+            <a href="{{ url_for('reports_compliance', tab='reports') }}" class="btn btn-sm btn-outline-secondary">
+                <i class="fas fa-arrow-left me-1"></i>Back to Reports
+            </a>
+        </div>
+        <div class="btn-group">
+            <button type="button" class="btn btn-sm btn-outline-primary" onclick="window.print()">
+                <i class="fas fa-print me-1"></i>Print
+            </button>
+            <a href="{{ url_for('export_time_entries') }}" class="btn btn-sm btn-outline-secondary">
+                <i class="fas fa-download me-1"></i>Export
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Report Filters</h5>
+            </div>
+            <div class="card-body">
+                <form method="GET" action="{{ url_for('utilization_report') }}">
+                    <div class="mb-3">
+                        <label for="date_from" class="form-label">Date From</label>
+                        <input type="date" class="form-control" id="date_from" name="date_from" value="{{ date_from or '' }}" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="date_to" class="form-label">Date To</label>
+                        <input type="date" class="form-control" id="date_to" name="date_to" value="{{ date_to or '' }}" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="group_by" class="form-label">Group By</label>
+                        <select class="form-select" id="group_by" name="group_by">
+                            <option value="lawyer" {% if group_by == 'lawyer' %}selected{% endif %}>Lawyer</option>
+                            <option value="department" {% if group_by == 'department' %}selected{% endif %}>Department</option>
+                            <option value="practice_area" {% if group_by == 'practice_area' %}selected{% endif %}>Practice Area</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="billable_only" class="form-label">Billable Only</label>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="billable_only" name="billable_only" {% if billable_only %}checked{% endif %}>
+                            <label class="form-check-label" for="billable_only">
+                                Show only billable hours
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary">Generate Report</button>
+                        <a href="{{ url_for('utilization_report') }}" class="btn btn-outline-secondary">Clear Filters</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Lawyer Utilization Analysis</h5>
+            </div>
+            <div class="card-body">
+                {% if utilization_data %}
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover">
+                        <thead>
+                            <tr>
+                                <th>{{ group_by|title }}</th>
+                                <th>Total Hours</th>
+                                <th>Billable Hours</th>
+                                <th>Non-Billable Hours</th>
+                                <th>Utilization %</th>
+                                <th>Productivity %</th>
+                                <th>Target Hours</th>
+                                <th>Achievement %</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in utilization_data %}
+                            <tr>
+                                <td>{{ item.name }}</td>
+                                <td>{{ item.total_hours|round(2) }}</td>
+                                <td>{{ item.billable_hours|round(2) }}</td>
+                                <td>{{ item.non_billable_hours|round(2) }}</td>
+                                <td>
+                                    <div class="progress" style="height: 20px;">
+                                        <div class="progress-bar {% if item.utilization_percentage >= 75 %}bg-success{% elif item.utilization_percentage >= 50 %}bg-warning{% else %}bg-danger{% endif %}" 
+                                             role="progressbar" 
+                                             style="width: {{ item.utilization_percentage|round }}%" 
+                                             aria-valuenow="{{ item.utilization_percentage|round }}" 
+                                             aria-valuemin="0" 
+                                             aria-valuemax="100">
+                                            {{ item.utilization_percentage|round }}%
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="progress" style="height: 20px;">
+                                        <div class="progress-bar {% if item.productivity_percentage >= 75 %}bg-success{% elif item.productivity_percentage >= 50 %}bg-warning{% else %}bg-danger{% endif %}" 
+                                             role="progressbar" 
+                                             style="width: {{ item.productivity_percentage|round }}%" 
+                                             aria-valuenow="{{ item.productivity_percentage|round }}" 
+                                             aria-valuemin="0" 
+                                             aria-valuemax="100">
+                                            {{ item.productivity_percentage|round }}%
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>{{ item.target_hours|round(2) }}</td>
+                                <td>
+                                    <div class="progress" style="height: 20px;">
+                                        <div class="progress-bar {% if item.achievement_percentage >= 100 %}bg-success{% elif item.achievement_percentage >= 75 %}bg-warning{% else %}bg-danger{% endif %}" 
+                                             role="progressbar" 
+                                             style="width: {{ item.achievement_percentage|round }}%" 
+                                             aria-valuenow="{{ item.achievement_percentage|round }}" 
+                                             aria-valuemin="0" 
+                                             aria-valuemax="100">
+                                            {{ item.achievement_percentage|round }}%
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="row mt-4">
+                    <div class="col-md-6">
+                        <h5>Summary Statistics</h5>
+                        <p><strong>Total Hours:</strong> {{ summary.total_hours|round(2) }}</p>
+                        <p><strong>Billable Hours:</strong> {{ summary.billable_hours|round(2) }}</p>
+                        <p><strong>Non-Billable Hours:</strong> {{ summary.non_billable_hours|round(2) }}</p>
+                        <p><strong>Average Utilization:</strong> {{ summary.average_utilization|round(2) }}%</p>
+                        <p><strong>Average Productivity:</strong> {{ summary.average_productivity|round(2) }}%</p>
+                    </div>
+                    <div class="col-md-6">
+                        <h5>Performance Metrics</h5>
+                        <p><strong>Top Performer:</strong> {{ summary.top_performer.name }} ({{ summary.top_performer.utilization|round(2) }}%)</p>
+                        <p><strong>Most Billable Hours:</strong> {{ summary.most_billable.name }} ({{ summary.most_billable.hours|round(2) }} hrs)</p>
+                        <p><strong>Highest Target Achievement:</strong> {{ summary.highest_achievement.name }} ({{ summary.highest_achievement.percentage|round(2) }}%)</p>
+                    </div>
+                </div>
+                
+                <div class="mt-4">
+                    <h5>Performance Distribution</h5>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="card text-center">
+                                <div class="card-body">
+                                    <h5 class="card-title text-success">{{ summary.high_performers }}</h5>
+                                    <p class="card-text">High Performers (>75% utilization)</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card text-center">
+                                <div class="card-body">
+                                    <h5 class="card-title text-warning">{{ summary.average_performers }}</h5>
+                                    <p class="card-text">Average Performers (50-75% utilization)</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card text-center">
+                                <div class="card-body">
+                                    <h5 class="card-title text-danger">{{ summary.low_performers }}</h5>
+                                    <p class="card-text">Low Performers (<50% utilization)</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% else %}
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>
+                    No utilization data found matching your criteria. Please adjust your filters and try again.
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

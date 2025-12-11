@@ -1,0 +1,170 @@
+{% extends "base.html" %}
+
+{% block title %}Time Report by Date - Law Firm Management System{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Time Report by Date</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <div class="btn-group me-2">
+            <a href="{{ url_for('reports_compliance', tab='reports') }}" class="btn btn-sm btn-outline-secondary">
+                <i class="fas fa-arrow-left me-1"></i>Back to Reports
+            </a>
+        </div>
+        <div class="btn-group">
+            <button type="button" class="btn btn-sm btn-outline-primary" onclick="window.print()">
+                <i class="fas fa-print me-1"></i>Print
+            </button>
+            <a href="{{ url_for('export_time_entries') }}" class="btn btn-sm btn-outline-secondary">
+                <i class="fas fa-download me-1"></i>Export
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Report Filters</h5>
+            </div>
+            <div class="card-body">
+                <form method="GET" action="{{ url_for('time_report_by_date') }}">
+                    <div class="mb-3">
+                        <label for="date_from" class="form-label">Date From</label>
+                        <input type="date" class="form-control" id="date_from" name="date_from" value="{{ date_from or '' }}" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="date_to" class="form-label">Date To</label>
+                        <input type="date" class="form-control" id="date_to" name="date_to" value="{{ date_to or '' }}" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="group_by" class="form-label">Group By</label>
+                        <select class="form-select" id="group_by" name="group_by">
+                            <option value="day" {% if group_by == 'day' %}selected{% endif %}>Day</option>
+                            <option value="week" {% if group_by == 'week' %}selected{% endif %}>Week</option>
+                            <option value="month" {% if group_by == 'month' %}selected{% endif %}>Month</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="lawyer_id" class="form-label">Lawyer</label>
+                        <select class="form-select" id="lawyer_id" name="lawyer_id">
+                            <option value="">All Lawyers</option>
+                            {% for lawyer in lawyers %}
+                            <option value="{{ lawyer.id }}" {% if lawyer.id == selected_lawyer_id %}selected{% endif %}>{{ lawyer.full_name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary">Generate Report</button>
+                        <a href="{{ url_for('time_report_by_date') }}" class="btn btn-outline-secondary">Clear Filters</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Time Entries by Date</h5>
+            </div>
+            <div class="card-body">
+                {% if grouped_entries %}
+                {% for period, entries in grouped_entries.items() %}
+                <div class="mb-4">
+                    <h6 class="text-primary">{{ period }}</h6>
+                    <div class="table-responsive">
+                        <table class="table table-sm table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Lawyer</th>
+                                    <th>Case</th>
+                                    <th>Client</th>
+                                    <th>Description</th>
+                                    <th>Duration</th>
+                                    <th>Amount</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for entry in entries %}
+                                <tr>
+                                    <td>{{ entry.start_time.strftime('%Y-%m-%d %H:%M') }}</td>
+                                    <td>{{ entry.user.full_name }}</td>
+                                    <td>
+                                        {% if entry.case %}
+                                            <a href="{{ url_for('view_case', case_id=entry.case.id) }}">
+                                                {{ entry.case.title }}
+                                            </a>
+                                        {% else %}
+                                            N/A
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if entry.case and entry.case.client %}
+                                            <a href="{{ url_for('view_client', client_id=entry.case.client.id) }}">
+                                                {{ entry.case.client.full_name }}
+                                            </a>
+                                        {% else %}
+                                            N/A
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ entry.description[:50] }}{% if entry.description|length > 50 %}...{% endif %}</td>
+                                    <td>{{ entry.duration_minutes or 0 }} minutes</td>
+                                    <td>₹{{ entry.amount|round(2) or 0 }}</td>
+                                    <td>
+                                        {% if entry.status == 'draft' %}
+                                            <span class="badge bg-secondary">Draft</span>
+                                        {% elif entry.status == 'submitted' %}
+                                            <span class="badge bg-primary">Submitted</span>
+                                        {% elif entry.status == 'approved' %}
+                                            <span class="badge bg-success">Approved</span>
+                                        {% elif entry.status == 'invoiced' %}
+                                            <span class="badge bg-info">Invoiced</span>
+                                        {% else %}
+                                            <span class="badge bg-light text-dark">{{ entry.status }}</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="mt-2">
+                        <span class="fw-bold">Subtotal:</span> 
+                        {{ period_totals[period].hours|round(2) }} hours, 
+                        ₹{{ period_totals[period].amount|round(2) }}
+                    </div>
+                </div>
+                {% endfor %}
+                
+                <div class="row mt-4">
+                    <div class="col-md-6">
+                        <h5>Grand Total</h5>
+                        <p><strong>Total Hours:</strong> {{ total_hours|round(2) }}</p>
+                        <p><strong>Total Amount:</strong> ₹{{ total_amount|round(2) }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <h5>By Status</h5>
+                        {% for status, count in status_counts.items() %}
+                        <p><strong>{{ status|title }}:</strong> {{ count }} entries</p>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% else %}
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>
+                    No time entries found matching your criteria. Please adjust your filters and try again.
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

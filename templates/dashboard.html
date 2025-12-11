@@ -1,896 +1,1035 @@
 {% extends "base.html" %} {% block title %}Dashboard - Law Firm Management
 System{% endblock %} {% block content %}
-<div
-  class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom"
->
-  <h1 class="h2">Dashboard</h1>
-  <div class="btn-toolbar mb-2 mb-md-0">
-    <div class="btn-group me-2">
-      <button
-        class="btn btn-sm btn-outline-secondary dropdown-toggle"
-        type="button"
-        data-bs-toggle="dropdown"
-        aria-expanded="false"
-      >
-        <i class="fas fa-calendar me-1"></i>Date Range
-      </button>
-      <ul class="dropdown-menu">
-        <li>
-          <a
-            class="dropdown-item"
-            href="{{ url_for('dashboard', date_range='today') }}"
-            >Today</a
-          >
-        </li>
-        <li>
-          <a
-            class="dropdown-item"
-            href="{{ url_for('dashboard', date_range='this_week') }}"
-            >This Week</a
-          >
-        </li>
-        <li>
-          <a
-            class="dropdown-item"
-            href="{{ url_for('dashboard', date_range='this_month') }}"
-            >This Month</a
-          >
-        </li>
-        <li>
-          <a
-            class="dropdown-item"
-            href="{{ url_for('dashboard', date_range='this_quarter') }}"
-            >This Quarter</a
-          >
-        </li>
-        <li>
-          <a
-            class="dropdown-item"
-            href="{{ url_for('dashboard', date_range='this_year') }}"
-            >This Year</a
-          >
-        </li>
-        <li><hr class="dropdown-divider" /></li>
-        <li>
-          <a
-            class="dropdown-item"
-            href="{{ url_for('dashboard', date_range='custom') }}"
-            >Custom Range</a
-          >
-        </li>
-      </ul>
-    </div>
-    <div class="btn-group">
-      <a
-        href="{{ url_for('reports_compliance') }}"
-        class="btn btn-sm btn-outline-secondary"
-      >
-        <i class="fas fa-chart-bar me-1"></i>Reports
-      </a>
-    </div>
-  </div>
-</div>
-
-<!-- Dashboard Summary Cards -->
-<div class="row mb-4">
-  <div class="col-xl-3 col-md-6 mb-4">
-    <div class="card border-left-primary shadow h-100 py-2">
-      <div class="card-body">
-        <div class="row no-gutters align-items-center">
-          <div class="col mr-2">
-            <div
-              class="text-xs font-weight-bold text-primary text-uppercase mb-1"
-            >
-              Active Cases
-            </div>
-            <div class="h5 mb-0 font-weight-bold text-gray-800">
-              {{ stats.active_cases }}
-            </div>
-          </div>
-          <div class="col-auto">
-            <i class="fas fa-briefcase fa-2x text-gray-300"></i>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="col-xl-3 col-md-6 mb-4">
-    <div class="card border-left-success shadow h-100 py-2">
-      <div class="card-body">
-        <div class="row no-gutters align-items-center">
-          <div class="col mr-2">
-            <div
-              class="text-xs font-weight-bold text-success text-uppercase mb-1"
-            >
-              Clients
-            </div>
-            <div class="h5 mb-0 font-weight-bold text-gray-800">
-              {{ stats.total_clients }}
-            </div>
-          </div>
-          <div class="col-auto">
-            <i class="fas fa-users fa-2x text-gray-300"></i>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="col-xl-3 col-md-6 mb-4">
-    <div class="card border-left-info shadow h-100 py-2">
-      <div class="card-body">
-        <div class="row no-gutters align-items-center">
-          <div class="col mr-2">
-            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
-              Revenue This Month
-            </div>
-            <div class="h5 mb-0 font-weight-bold text-gray-800">
-              ₹{{ stats.revenue_this_month|round(2) }}
-            </div>
-          </div>
-          <div class="col-auto">
-            <i class="fas fa-rupee-sign fa-2x text-gray-300"></i>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="col-xl-3 col-md-6 mb-4">
-    <div class="card border-left-warning shadow h-100 py-2">
-      <div class="card-body">
-        <div class="row no-gutters align-items-center">
-          <div class="col mr-2">
-            <div
-              class="text-xs font-weight-bold text-warning text-uppercase mb-1"
-            >
-              Pending Tasks
-            </div>
-            <div class="h5 mb-0 font-weight-bold text-gray-800">
-              {{ stats.pending_tasks }}
-            </div>
-          </div>
-          <div class="col-auto">
-            <i class="fas fa-tasks fa-2x text-gray-300"></i>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- Charts Row -->
-<div class="row mb-4">
-  <div class="col-xl-8 col-lg-7">
-    <div class="card shadow mb-4">
-      <div
-        class="card-header py-3 d-flex flex-row align-items-center justify-content-between"
-      >
-        <h6 class="m-0 font-weight-bold text-primary">Revenue Overview</h6>
-        <div class="dropdown no-arrow">
-          <a
-            class="dropdown-toggle"
-            href="#"
-            role="button"
-            id="revenueDropdown"
-            data-bs-toggle="dropdown"
-            aria-haspopup="true"
-            aria-expanded="false"
-          >
-            <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
-          </a>
-          <div
-            class="dropdown-menu dropdown-menu-right shadow animated--fade-in"
-            aria-labelledby="revenueDropdown"
-          >
-            <div class="dropdown-header">Revenue Options:</div>
+<div id="dashboard-content">
+  <div
+    class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-4 border-bottom"
+  >
+    <h1 class="h2">Dashboard</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+      <div class="btn-group me-2">
+        <button
+          class="btn btn-sm btn-outline-primary dropdown-toggle"
+          type="button"
+          data-bs-toggle="dropdown"
+          aria-expanded="false"
+        >
+          <i class="fas fa-calendar me-1"></i>Date Range
+        </button>
+        <ul class="dropdown-menu">
+          <li>
             <a
               class="dropdown-item"
-              href="{{ url_for('dashboard', date_range='this_month') }}"
+              hx-get="{{ url_for('dashboard', date_range='today') }}"
+              hx-target="#dashboard-content"
+              hx-swap="innerHTML"
+              >Today</a
+            >
+          </li>
+          <li>
+            <a
+              class="dropdown-item"
+              hx-get="{{ url_for('dashboard', date_range='this_week') }}"
+              hx-target="#dashboard-content"
+              hx-swap="innerHTML"
+              >This Week</a
+            >
+          </li>
+          <li>
+            <a
+              class="dropdown-item"
+              hx-get="{{ url_for('dashboard', date_range='this_month') }}"
+              hx-target="#dashboard-content"
+              hx-swap="innerHTML"
               >This Month</a
             >
+          </li>
+          <li>
             <a
               class="dropdown-item"
-              href="{{ url_for('dashboard', date_range='this_quarter') }}"
+              hx-get="{{ url_for('dashboard', date_range='this_quarter') }}"
+              hx-target="#dashboard-content"
+              hx-swap="innerHTML"
               >This Quarter</a
             >
+          </li>
+          <li>
             <a
               class="dropdown-item"
-              href="{{ url_for('dashboard', date_range='this_year') }}"
+              hx-get="{{ url_for('dashboard', date_range='this_year') }}"
+              hx-target="#dashboard-content"
+              hx-swap="innerHTML"
               >This Year</a
             >
-            <div class="dropdown-divider"></div>
-            <a class="dropdown-item" href="{{ url_for('reports_compliance') }}"
-              >Full Report</a
-            >
-          </div>
-        </div>
-      </div>
-      <div class="card-body">
-        <div class="chart-area">
-          <canvas id="revenueChart"></canvas>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="col-xl-4 col-lg-5">
-    <div class="card shadow mb-4">
-      <div
-        class="card-header py-3 d-flex flex-row align-items-center justify-content-between"
-      >
-        <h6 class="m-0 font-weight-bold text-primary">Case Status</h6>
-        <div class="dropdown no-arrow">
-          <a
-            class="dropdown-toggle"
-            href="#"
-            role="button"
-            id="caseStatusDropdown"
-            data-bs-toggle="dropdown"
-            aria-haspopup="true"
-            aria-expanded="false"
-          >
-            <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
-          </a>
-          <div
-            class="dropdown-menu dropdown-menu-right shadow animated--fade-in"
-            aria-labelledby="caseStatusDropdown"
-          >
-            <div class="dropdown-header">Case Status Options:</div>
-            <a class="dropdown-item" href="{{ url_for('cases') }}"
-              >View All Cases</a
-            >
+          </li>
+          <li><hr class="dropdown-divider" /></li>
+          <li>
             <a
               class="dropdown-item"
-              href="{{ url_for('cases', status='active') }}"
-              >Active Cases</a
+              hx-get="{{ url_for('dashboard', date_range='custom') }}"
+              hx-target="#dashboard-content"
+              hx-swap="innerHTML"
+              >Custom Range</a
             >
-            <a
-              class="dropdown-item"
-              href="{{ url_for('cases', status='pending') }}"
-              >Pending Cases</a
-            >
-            <div class="dropdown-divider"></div>
-            <a class="dropdown-item" href="{{ url_for('reports_compliance') }}"
-              >Full Report</a
-            >
-          </div>
-        </div>
+          </li>
+        </ul>
       </div>
-      <div class="card-body">
-        <div class="chart-pie pt-4 pb-2">
-          <canvas id="caseStatusChart"></canvas>
-        </div>
-        <div class="mt-4 text-center small">
-          <span class="mr-2">
-            <i class="fas fa-circle text-primary"></i> Active
-          </span>
-          <span class="mr-2">
-            <i class="fas fa-circle text-success"></i> Pending
-          </span>
-          <span class="mr-2">
-            <i class="fas fa-circle text-info"></i> Closed
-          </span>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- Additional Charts Row -->
-<div class="row mb-4">
-  <div class="col-xl-4 col-lg-5">
-    <div class="card shadow mb-4">
-      <div
-        class="card-header py-3 d-flex flex-row align-items-center justify-content-between"
-      >
-        <h6 class="m-0 font-weight-bold text-primary">
-          Time Entry by Category
-        </h6>
-        <div class="dropdown no-arrow">
-          <a
-            class="dropdown-toggle"
-            href="#"
-            role="button"
-            id="timeCategoryDropdown"
-            data-bs-toggle="dropdown"
-            aria-haspopup="true"
-            aria-expanded="false"
-          >
-            <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
-          </a>
-          <div
-            class="dropdown-menu dropdown-menu-right shadow animated--fade-in"
-            aria-labelledby="timeCategoryDropdown"
-          >
-            <div class="dropdown-header">Time Entry Options:</div>
-            <a class="dropdown-item" href="{{ url_for('time_entries') }}"
-              >View All Time Entries</a
-            >
-            <a class="dropdown-item" href="{{ url_for('reports_compliance') }}"
-              >By Lawyer</a
-            >
-            <a class="dropdown-item" href="{{ url_for('reports_compliance') }}"
-              >By Client</a
-            >
-            <div class="dropdown-divider"></div>
-            <a class="dropdown-item" href="{{ url_for('reports_compliance') }}"
-              >Full Report</a
-            >
-          </div>
-        </div>
-      </div>
-      <div class="card-body">
-        <div class="chart-bar">
-          <canvas id="timeCategoryChart"></canvas>
-        </div>
+      <div class="btn-group">
+        <a
+          href="{{ url_for('reports_compliance') }}"
+          class="btn btn-sm btn-primary"
+        >
+          <i class="fas fa-chart-bar me-1"></i>Reports
+        </a>
       </div>
     </div>
   </div>
 
-  <div class="col-xl-4 col-lg-5">
-    <div class="card shadow mb-4">
-      <div
-        class="card-header py-3 d-flex flex-row align-items-center justify-content-between"
-      >
-        <h6 class="m-0 font-weight-bold text-primary">Expense Categories</h6>
-        <div class="dropdown no-arrow">
-          <a
-            class="dropdown-toggle"
-            href="#"
-            role="button"
-            id="expenseCategoryDropdown"
-            data-bs-toggle="dropdown"
-            aria-haspopup="true"
-            aria-expanded="false"
-          >
-            <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
-          </a>
-          <div
-            class="dropdown-menu dropdown-menu-right shadow animated--fade-in"
-            aria-labelledby="expenseCategoryDropdown"
-          >
-            <div class="dropdown-header">Expense Options:</div>
-            <a
-              class="dropdown-item"
-              href="{{ url_for('time_entries', tab='expense') }}"
-              >View All Expenses</a
-            >
-            <a class="dropdown-item" href="{{ url_for('reports_compliance') }}"
-              >By Category</a
-            >
-            <a class="dropdown-item" href="{{ url_for('reports_compliance') }}"
-              >By Lawyer</a
-            >
-            <div class="dropdown-divider"></div>
-            <a class="dropdown-item" href="{{ url_for('reports_compliance') }}"
-              >Full Report</a
-            >
-          </div>
+  <!-- Dashboard Stats Grid -->
+  <div class="stats-grid">
+    <div class="stat-card primary">
+      <div class="stat-header">
+        <div class="stat-title">Active Cases</div>
+        <div class="stat-icon">
+          <i class="fas fa-briefcase"></i>
         </div>
       </div>
-      <div class="card-body">
-        <div class="chart-pie pt-4 pb-2">
-          <canvas id="expenseCategoryChart"></canvas>
+      <div class="stat-value">{{ stats.active_cases }}</div>
+      <div class="stat-change positive">
+        <i class="fas fa-arrow-up"></i>
+        <span>12% from last month</span>
+      </div>
+    </div>
+
+    <div class="stat-card success">
+      <div class="stat-header">
+        <div class="stat-title">Total Clients</div>
+        <div class="stat-icon">
+          <i class="fas fa-users"></i>
         </div>
+      </div>
+      <div class="stat-value">{{ stats.total_clients }}</div>
+      <div class="stat-change positive">
+        <i class="fas fa-arrow-up"></i>
+        <span>8% from last month</span>
+      </div>
+    </div>
+
+    <div class="stat-card info">
+      <div class="stat-header">
+        <div class="stat-title">Revenue This Month</div>
+        <div class="stat-icon">
+          <i class="fas fa-rupee-sign"></i>
+        </div>
+      </div>
+      <div class="stat-value">₹{{ stats.revenue_this_month|round(2) }}</div>
+      <div class="stat-change positive">
+        <i class="fas fa-arrow-up"></i>
+        <span>23% from last month</span>
+      </div>
+    </div>
+
+    <div class="stat-card warning">
+      <div class="stat-header">
+        <div class="stat-title">Pending Tasks</div>
+        <div class="stat-icon">
+          <i class="fas fa-tasks"></i>
+        </div>
+      </div>
+      <div class="stat-value">{{ stats.pending_tasks }}</div>
+      <div class="stat-change negative">
+        <i class="fas fa-arrow-down"></i>
+        <span>5% from last week</span>
       </div>
     </div>
   </div>
 
-  <div class="col-xl-4 col-lg-5">
-    <div class="card shadow mb-4">
-      <div
-        class="card-header py-3 d-flex flex-row align-items-center justify-content-between"
-      >
-        <h6 class="m-0 font-weight-bold text-primary">Client Acquisition</h6>
-        <div class="dropdown no-arrow">
-          <a
-            class="dropdown-toggle"
-            href="#"
-            role="button"
-            id="clientAcquisitionDropdown"
-            data-bs-toggle="dropdown"
-            aria-haspopup="true"
-            aria-expanded="false"
-          >
-            <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
-          </a>
-          <div
-            class="dropdown-menu dropdown-menu-right shadow animated--fade-in"
-            aria-labelledby="clientAcquisitionDropdown"
-          >
-            <div class="dropdown-header">Client Options:</div>
-            <a class="dropdown-item" href="{{ url_for('clients') }}"
-              >View All Clients</a
-            >
-            <a
-              class="dropdown-item"
-              href="{{ url_for('clients', status='active') }}"
-              >Active Clients</a
-            >
-            <a class="dropdown-item" href="{{ url_for('leads') }}">Leads</a>
-            <div class="dropdown-divider"></div>
-            <a class="dropdown-item" href="{{ url_for('reports_compliance') }}"
-              >Full Report</a
-            >
-          </div>
+  <!-- Legal Metrics Section -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="card card-legal">
+        <div class="card-header">
+          <h6 class="m-0 font-weight-bold">Legal Practice Metrics</h6>
         </div>
-      </div>
-      <div class="card-body">
-        <div class="chart-bar">
-          <canvas id="clientAcquisitionChart"></canvas>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- Recent Activities and Upcoming Tasks -->
-<div class="row mb-4">
-  <div class="col-lg-6">
-    <div class="card shadow mb-4">
-      <div class="card-header py-3">
-        <h6 class="m-0 font-weight-bold text-primary">Recent Activities</h6>
-      </div>
-      <div class="card-body">
-        <div class="list-group">
-          {% for activity in recent_activities %}
-          <a href="#" class="list-group-item list-group-item-action">
-            <div class="d-flex w-100 justify-content-between">
-              <h6 class="mb-1">{{ activity.description }}</h6>
-              <small>{{ activity.timestamp.strftime('%H:%M') }}</small>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-md-3 mb-4">
+              <div class="metric-card">
+                <div class="metric-card-title">Case Win Rate</div>
+                <div class="metric-card-value">87%</div>
+                <div class="metric-card-subtitle">
+                  <i class="fas fa-chart-line"></i>
+                  <span>+3% from last quarter</span>
+                </div>
+              </div>
             </div>
-            <p class="mb-1">
-              {{ activity.user.full_name if activity.user else 'System' }}
-            </p>
-            <small>{{ activity.timestamp.strftime('%Y-%m-%d') }}</small>
-          </a>
-          {% endfor %}
-        </div>
-        <div class="text-center mt-3">
-          <a
-            href="{{ url_for('activity_logs') }}"
-            class="btn btn-sm btn-primary"
-            >View All Activities</a
-          >
+            <div class="col-md-3 mb-4">
+              <div class="metric-card">
+                <div class="metric-card-title">Avg. Case Duration</div>
+                <div class="metric-card-value">42 days</div>
+                <div class="metric-card-subtitle">
+                  <i class="fas fa-clock"></i>
+                  <span>-5 days from last month</span>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-3 mb-4">
+              <div class="metric-card">
+                <div class="metric-card-title">Billable Hours</div>
+                <div class="metric-card-value">1,245</div>
+                <div class="metric-card-subtitle">
+                  <i class="fas fa-hourglass-half"></i>
+                  <span>+12% from last month</span>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-3 mb-4">
+              <div class="metric-card">
+                <div class="metric-card-title">Client Satisfaction</div>
+                <div class="metric-card-value">4.8/5</div>
+                <div class="metric-card-subtitle">
+                  <i class="fas fa-star"></i>
+                  <span>+0.2 from last quarter</span>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
   </div>
 
-  <div class="col-lg-6">
-    <div class="card shadow mb-4">
-      <div class="card-header py-3">
-        <h6 class="m-0 font-weight-bold text-primary">Upcoming Tasks</h6>
-      </div>
-      <div class="card-body">
-        <div class="list-group">
-          {% for task in upcoming_tasks %}
-          <a
-            href="{{ url_for('view_appointment', appointment_id=task.id) if task.type == 'appointment' else '#' }}"
-            class="list-group-item list-group-item-action"
-          >
-            <div class="d-flex w-100 justify-content-between">
-              <h6 class="mb-1">{{ task.title }}</h6>
-              <small
-                class="{% if task.is_overdue %}text-danger{% elif task.is_today %}text-warning{% else %}text-muted{% endif %}"
+  <!-- Charts Row -->
+  <div class="row mb-4">
+    <div class="col-xl-8 col-lg-7">
+      <div class="card card-legal mb-4">
+        <div
+          class="card-header py-3 d-flex flex-row align-items-center justify-content-between"
+        >
+          <h6 class="m-0 font-weight-bold">Revenue Overview</h6>
+          <div class="dropdown no-arrow">
+            <a
+              class="dropdown-toggle"
+              href="#"
+              role="button"
+              id="revenueDropdown"
+              data-bs-toggle="dropdown"
+              aria-haspopup="true"
+              aria-expanded="false"
+            >
+              <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
+            </a>
+            <div
+              class="dropdown-menu dropdown-menu-right shadow animated--fade-in"
+              aria-labelledby="revenueDropdown"
+            >
+              <div class="dropdown-header">Revenue Options:</div>
+              <a
+                class="dropdown-item"
+                href="{{ url_for('dashboard', date_range='this_month') }}"
+                >This Month</a
               >
-                {% if task.is_overdue %}Overdue{% elif task.is_today %}Today{%
-                else %}{{ task.due_date.strftime('%m/%d') }}{% endif %}
-              </small>
+              <a
+                class="dropdown-item"
+                href="{{ url_for('dashboard', date_range='this_quarter') }}"
+                >This Quarter</a
+              >
+              <a
+                class="dropdown-item"
+                href="{{ url_for('dashboard', date_range='this_year') }}"
+                >This Year</a
+              >
+              <div class="dropdown-divider"></div>
+              <a
+                class="dropdown-item"
+                href="{{ url_for('reports_compliance') }}"
+                >Full Report</a
+              >
             </div>
-            <p class="mb-1">
-              {{ task.description[:50] }}{% if task.description|length > 50
-              %}...{% endif %}
-            </p>
-            <small>
-              {% if task.assigned_to %}Assigned to: {{
-              task.assigned_to.full_name }}{% endif %} {% if task.client %} •
-              Client: {{ task.client.full_name }}{% endif %}
-            </small>
-          </a>
-          {% endfor %}
+          </div>
         </div>
-        <div class="text-center mt-3">
-          <a href="{{ url_for('appointments') }}" class="btn btn-sm btn-primary"
-            >View All Tasks</a
+        <div class="card-body">
+          <div class="chart-area">
+            <canvas id="revenueChart"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-xl-4 col-lg-5">
+      <div class="card card-legal mb-4">
+        <div
+          class="card-header py-3 d-flex flex-row align-items-center justify-content-between"
+        >
+          <h6 class="m-0 font-weight-bold">Case Status</h6>
+          <div class="dropdown no-arrow">
+            <a
+              class="dropdown-toggle"
+              href="#"
+              role="button"
+              id="caseStatusDropdown"
+              data-bs-toggle="dropdown"
+              aria-haspopup="true"
+              aria-expanded="false"
+            >
+              <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
+            </a>
+            <div
+              class="dropdown-menu dropdown-menu-right shadow animated--fade-in"
+              aria-labelledby="caseStatusDropdown"
+            >
+              <div class="dropdown-header">Case Status Options:</div>
+              <a class="dropdown-item" href="{{ url_for('cases') }}"
+                >View All Cases</a
+              >
+              <a
+                class="dropdown-item"
+                href="{{ url_for('cases', status='active') }}"
+                >Active Cases</a
+              >
+              <a
+                class="dropdown-item"
+                href="{{ url_for('cases', status='pending') }}"
+                >Pending Cases</a
+              >
+              <div class="dropdown-divider"></div>
+              <a
+                class="dropdown-item"
+                href="{{ url_for('reports_compliance') }}"
+                >Full Report</a
+              >
+            </div>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="chart-pie pt-4 pb-2">
+            <canvas id="caseStatusChart"></canvas>
+          </div>
+          <div class="mt-4 text-center small">
+            <span class="mr-2">
+              <i class="fas fa-circle text-primary"></i> Active
+            </span>
+            <span class="mr-2">
+              <i class="fas fa-circle text-success"></i> Pending
+            </span>
+            <span class="mr-2">
+              <i class="fas fa-circle text-info"></i> Closed
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Additional Charts Row -->
+  <div class="row mb-4">
+    <div class="col-xl-4 col-lg-5">
+      <div class="card card-legal mb-4">
+        <div
+          class="card-header py-3 d-flex flex-row align-items-center justify-content-between"
+        >
+          <h6 class="m-0 font-weight-bold">Time Entry by Category</h6>
+          <div class="dropdown no-arrow">
+            <a
+              class="dropdown-toggle"
+              href="#"
+              role="button"
+              id="timeCategoryDropdown"
+              data-bs-toggle="dropdown"
+              aria-haspopup="true"
+              aria-expanded="false"
+            >
+              <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
+            </a>
+            <div
+              class="dropdown-menu dropdown-menu-right shadow animated--fade-in"
+              aria-labelledby="timeCategoryDropdown"
+            >
+              <div class="dropdown-header">Time Entry Options:</div>
+              <a class="dropdown-item" href="{{ url_for('time_entries') }}"
+                >View All Time Entries</a
+              >
+              <a
+                class="dropdown-item"
+                href="{{ url_for('reports_compliance') }}"
+                >By Lawyer</a
+              >
+              <a
+                class="dropdown-item"
+                href="{{ url_for('reports_compliance') }}"
+                >By Client</a
+              >
+              <div class="dropdown-divider"></div>
+              <a
+                class="dropdown-item"
+                href="{{ url_for('reports_compliance') }}"
+                >Full Report</a
+              >
+            </div>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="chart-bar">
+            <canvas id="timeCategoryChart"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-xl-4 col-lg-5">
+      <div class="card card-legal mb-4">
+        <div
+          class="card-header py-3 d-flex flex-row align-items-center justify-content-between"
+        >
+          <h6 class="m-0 font-weight-bold">Expense Categories</h6>
+          <div class="dropdown no-arrow">
+            <a
+              class="dropdown-toggle"
+              href="#"
+              role="button"
+              id="expenseCategoryDropdown"
+              data-bs-toggle="dropdown"
+              aria-haspopup="true"
+              aria-expanded="false"
+            >
+              <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
+            </a>
+            <div
+              class="dropdown-menu dropdown-menu-right shadow animated--fade-in"
+              aria-labelledby="expenseCategoryDropdown"
+            >
+              <div class="dropdown-header">Expense Options:</div>
+              <a
+                class="dropdown-item"
+                href="{{ url_for('time_entries', tab='expense') }}"
+                >View All Expenses</a
+              >
+              <a
+                class="dropdown-item"
+                href="{{ url_for('reports_compliance') }}"
+                >By Category</a
+              >
+              <a
+                class="dropdown-item"
+                href="{{ url_for('reports_compliance') }}"
+                >By Lawyer</a
+              >
+              <div class="dropdown-divider"></div>
+              <a
+                class="dropdown-item"
+                href="{{ url_for('reports_compliance') }}"
+                >Full Report</a
+              >
+            </div>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="chart-pie pt-4 pb-2">
+            <canvas id="expenseCategoryChart"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-xl-4 col-lg-5">
+      <div class="card card-legal mb-4">
+        <div
+          class="card-header py-3 d-flex flex-row align-items-center justify-content-between"
+        >
+          <h6 class="m-0 font-weight-bold">Client Acquisition</h6>
+          <div class="dropdown no-arrow">
+            <a
+              class="dropdown-toggle"
+              href="#"
+              role="button"
+              id="clientAcquisitionDropdown"
+              data-bs-toggle="dropdown"
+              aria-haspopup="true"
+              aria-expanded="false"
+            >
+              <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
+            </a>
+            <div
+              class="dropdown-menu dropdown-menu-right shadow animated--fade-in"
+              aria-labelledby="clientAcquisitionDropdown"
+            >
+              <div class="dropdown-header">Client Options:</div>
+              <a class="dropdown-item" href="{{ url_for('clients') }}"
+                >View All Clients</a
+              >
+              <a
+                class="dropdown-item"
+                href="{{ url_for('clients', status='active') }}"
+                >Active Clients</a
+              >
+              <a class="dropdown-item" href="{{ url_for('leads') }}">Leads</a>
+              <div class="dropdown-divider"></div>
+              <a
+                class="dropdown-item"
+                href="{{ url_for('reports_compliance') }}"
+                >Full Report</a
+              >
+            </div>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="chart-bar">
+            <canvas id="clientAcquisitionChart"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Recent Activities and Upcoming Tasks -->
+  <div class="row mb-4">
+    <div class="col-lg-6">
+      <div class="card card-legal mb-4">
+        <div class="card-header py-3">
+          <h6 class="m-0 font-weight-bold">Recent Activities</h6>
+        </div>
+        <div class="card-body">
+          <div
+            class="list-group"
+            hx-get="{{ url_for('activity_logs') }}"
+            hx-trigger="load, every 30s"
+            hx-target="#recent-activities-list"
+            hx-swap="innerHTML"
           >
+            <div id="recent-activities-list">
+              {% for activity in recent_activities %}
+              <a href="#" class="list-group-item list-group-item-action">
+                <div class="d-flex w-100 justify-content-between">
+                  <h6 class="mb-1">{{ activity.description }}</h6>
+                  <small>{{ activity.timestamp.strftime('%H:%M') }}</small>
+                </div>
+                <p class="mb-1">
+                  {{ activity.user.full_name if activity.user else 'System' }}
+                </p>
+                <small>{{ activity.timestamp.strftime('%Y-%m-%d') }}</small>
+              </a>
+              {% endfor %}
+            </div>
+          </div>
+          <div class="text-center mt-3">
+            <a
+              href="{{ url_for('activity_logs') }}"
+              class="btn btn-sm btn-primary"
+              >View All Activities</a
+            >
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-6">
+      <div class="card card-legal mb-4">
+        <div class="card-header py-3">
+          <h6 class="m-0 font-weight-bold">Upcoming Tasks</h6>
+        </div>
+        <div class="card-body">
+          <div
+            class="list-group"
+            hx-get="{{ url_for('appointments') }}"
+            hx-trigger="load, every 60s"
+            hx-target="#upcoming-tasks-list"
+            hx-swap="innerHTML"
+            hx-indicator="#tasks-loading"
+          >
+            <div id="upcoming-tasks-list">
+              {% for task in upcoming_tasks %}
+              <a
+                href="{{ url_for('view_appointment', appointment_id=task.id) if task.type == 'appointment' else '#' }}"
+                class="list-group-item list-group-item-action"
+              >
+                <div class="d-flex w-100 justify-content-between">
+                  <h6 class="mb-1">{{ task.title }}</h6>
+                  <small
+                    class="{% if task.is_overdue %}text-danger{% elif task.is_today %}text-warning{% else %}text-muted{% endif %}"
+                  >
+                    {% if task.is_overdue %}Overdue{% elif task.is_today
+                    %}Today{% else %}{{ task.due_date.strftime('%m/%d') }}{%
+                    endif %}
+                  </small>
+                </div>
+                <p class="mb-1">
+                  {{ task.description[:50] }}{% if task.description|length > 50
+                  %}...{% endif %}
+                </p>
+                <small>
+                  {% if task.assigned_to %}Assigned to: {{
+                  task.assigned_to.full_name }}{% endif %} {% if task.client %}
+                  • Client: {{ task.client.full_name }}{% endif %}
+                </small>
+              </a>
+              {% endfor %}
+            </div>
+            <div
+              id="tasks-loading"
+              class="text-center mt-2"
+              style="display: none"
+            >
+              <div class="spinner-border spinner-border-sm" role="status">
+                <span class="visually-hidden">Loading...</span>
+              </div>
+            </div>
+          </div>
+          <div class="text-center mt-3">
+            <a
+              href="{{ url_for('appointments') }}"
+              class="btn btn-sm btn-primary"
+              >View All Tasks</a
+            >
+          </div>
         </div>
       </div>
     </div>
   </div>
-</div>
 
-<!-- Financial Summary and Performance Metrics -->
-<div class="row mb-4">
-  <div class="col-lg-6">
-    <div class="card shadow mb-4">
-      <div class="card-header py-3">
-        <h6 class="m-0 font-weight-bold text-primary">Financial Summary</h6>
+  <!-- Financial Summary and Performance Metrics -->
+  <div class="row mb-4">
+    <div class="col-lg-6">
+      <div class="card card-legal mb-4">
+        <div class="card-header py-3">
+          <h6 class="m-0 font-weight-bold">Financial Summary</h6>
+        </div>
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table table-bordered" width="100%" cellspacing="0">
+              <thead>
+                <tr>
+                  <th>Metric</th>
+                  <th>Current Period</th>
+                  <th>Previous Period</th>
+                  <th>Change</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Revenue</td>
+                  <td>₹{{ financial_summary.revenue.current|round(2) }}</td>
+                  <td>₹{{ financial_summary.revenue.previous|round(2) }}</td>
+                  <td
+                    class="{% if financial_summary.revenue.change >= 0 %}text-success{% else %}text-danger{% endif %}"
+                  >
+                    {% if financial_summary.revenue.change >= 0 %}+{% endif %}{{
+                    financial_summary.revenue.percent_change|round(2) }}%
+                  </td>
+                </tr>
+                <tr>
+                  <td>Expenses</td>
+                  <td>₹{{ financial_summary.expenses.current|round(2) }}</td>
+                  <td>₹{{ financial_summary.expenses.previous|round(2) }}</td>
+                  <td
+                    class="{% if financial_summary.expenses.change <= 0 %}text-success{% else %}text-danger{% endif %}"
+                  >
+                    {% if financial_summary.expenses.change >= 0 %}+{% endif
+                    %}{{ financial_summary.expenses.percent_change|round(2) }}%
+                  </td>
+                </tr>
+                <tr>
+                  <td>Profit</td>
+                  <td>₹{{ financial_summary.profit.current|round(2) }}</td>
+                  <td>₹{{ financial_summary.profit.previous|round(2) }}</td>
+                  <td
+                    class="{% if financial_summary.profit.change >= 0 %}text-success{% else %}text-danger{% endif %}"
+                  >
+                    {% if financial_summary.profit.change >= 0 %}+{% endif %}{{
+                    financial_summary.profit.percent_change|round(2) }}%
+                  </td>
+                </tr>
+                <tr>
+                  <td>Outstanding Invoices</td>
+                  <td>
+                    ₹{{ financial_summary.outstanding_invoices.current|round(2)
+                    }}
+                  </td>
+                  <td>
+                    ₹{{ financial_summary.outstanding_invoices.previous|round(2)
+                    }}
+                  </td>
+                  <td
+                    class="{% if financial_summary.outstanding_invoices.change <= 0 %}text-success{% else %}text-danger{% endif %}"
+                  >
+                    {% if financial_summary.outstanding_invoices.change >= 0
+                    %}+{% endif %}{{
+                    financial_summary.outstanding_invoices.percent_change|round(2)
+                    }}%
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
       </div>
-      <div class="card-body">
-        <div class="table-responsive">
-          <table class="table table-bordered" width="100%" cellspacing="0">
-            <thead>
-              <tr>
-                <th>Metric</th>
-                <th>Current Period</th>
-                <th>Previous Period</th>
-                <th>Change</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>Revenue</td>
-                <td>₹{{ financial_summary.revenue.current|round(2) }}</td>
-                <td>₹{{ financial_summary.revenue.previous|round(2) }}</td>
-                <td
-                  class="{% if financial_summary.revenue.change >= 0 %}text-success{% else %}text-danger{% endif %}"
-                >
-                  {% if financial_summary.revenue.change >= 0 %}+{% endif %}{{
-                  financial_summary.revenue.percent_change|round(2) }}%
-                </td>
-              </tr>
-              <tr>
-                <td>Expenses</td>
-                <td>₹{{ financial_summary.expenses.current|round(2) }}</td>
-                <td>₹{{ financial_summary.expenses.previous|round(2) }}</td>
-                <td
-                  class="{% if financial_summary.expenses.change <= 0 %}text-success{% else %}text-danger{% endif %}"
-                >
-                  {% if financial_summary.expenses.change >= 0 %}+{% endif %}{{
-                  financial_summary.expenses.percent_change|round(2) }}%
-                </td>
-              </tr>
-              <tr>
-                <td>Profit</td>
-                <td>₹{{ financial_summary.profit.current|round(2) }}</td>
-                <td>₹{{ financial_summary.profit.previous|round(2) }}</td>
-                <td
-                  class="{% if financial_summary.profit.change >= 0 %}text-success{% else %}text-danger{% endif %}"
-                >
-                  {% if financial_summary.profit.change >= 0 %}+{% endif %}{{
-                  financial_summary.profit.percent_change|round(2) }}%
-                </td>
-              </tr>
-              <tr>
-                <td>Outstanding Invoices</td>
-                <td>
-                  ₹{{ financial_summary.outstanding_invoices.current|round(2) }}
-                </td>
-                <td>
-                  ₹{{ financial_summary.outstanding_invoices.previous|round(2)
-                  }}
-                </td>
-                <td
-                  class="{% if financial_summary.outstanding_invoices.change <= 0 %}text-success{% else %}text-danger{% endif %}"
-                >
-                  {% if financial_summary.outstanding_invoices.change >= 0 %}+{%
-                  endif %}{{
-                  financial_summary.outstanding_invoices.percent_change|round(2)
-                  }}%
-                </td>
-              </tr>
-            </tbody>
-          </table>
+    </div>
+
+    <div class="col-lg-6">
+      <div class="card card-legal mb-4">
+        <div class="card-header py-3">
+          <h6 class="m-0 font-weight-bold">Performance Metrics</h6>
+        </div>
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table table-bordered" width="100%" cellspacing="0">
+              <thead>
+                <tr>
+                  <th>Metric</th>
+                  <th>Current</th>
+                  <th>Target</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Billable Hours</td>
+                  <td>{{ performance_metrics.billable_hours.current }}</td>
+                  <td>{{ performance_metrics.billable_hours.target }}</td>
+                  <td>
+                    {% if performance_metrics.billable_hours.percentage >= 100
+                    %}
+                    <span class="badge bg-success">Achieved</span>
+                    {% else %}
+                    <span class="badge bg-warning"
+                      >{{ performance_metrics.billable_hours.percentage|round(0)
+                      }}%</span
+                    >
+                    {% endif %}
+                  </td>
+                </tr>
+                <tr>
+                  <td>Collection Rate</td>
+                  <td>
+                    {{ performance_metrics.collection_rate.current|round(1) }}%
+                  </td>
+                  <td>
+                    {{ performance_metrics.collection_rate.target|round(1) }}%
+                  </td>
+                  <td>
+                    {% if performance_metrics.collection_rate.percentage >= 100
+                    %}
+                    <span class="badge bg-success">Achieved</span>
+                    {% else %}
+                    <span class="badge bg-warning"
+                      >{{
+                      performance_metrics.collection_rate.percentage|round(0)
+                      }}%</span
+                    >
+                    {% endif %}
+                  </td>
+                </tr>
+                <tr>
+                  <td>Client Satisfaction</td>
+                  <td>
+                    {{ performance_metrics.client_satisfaction.current|round(1)
+                    }}%
+                  </td>
+                  <td>
+                    {{ performance_metrics.client_satisfaction.target|round(1)
+                    }}%
+                  </td>
+                  <td>
+                    {% if performance_metrics.client_satisfaction.percentage >=
+                    100 %}
+                    <span class="badge bg-success">Achieved</span>
+                    {% else %}
+                    <span class="badge bg-warning"
+                      >{{
+                      performance_metrics.client_satisfaction.percentage|round(0)
+                      }}%</span
+                    >
+                    {% endif %}
+                  </td>
+                </tr>
+                <tr>
+                  <td>Case Resolution</td>
+                  <td>
+                    {{ performance_metrics.case_resolution.current|round(1) }}%
+                  </td>
+                  <td>
+                    {{ performance_metrics.case_resolution.target|round(1) }}%
+                  </td>
+                  <td>
+                    {% if performance_metrics.case_resolution.percentage >= 100
+                    %}
+                    <span class="badge bg-success">Achieved</span>
+                    {% else %}
+                    <span class="badge bg-warning"
+                      >{{
+                      performance_metrics.case_resolution.percentage|round(0)
+                      }}%</span
+                    >
+                    {% endif %}
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
     </div>
   </div>
+  {% endblock %} {% block scripts %}
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- Hidden div to store chart data -->
+  <script>
+    // Store chart data directly in JavaScript variables to avoid JSON parsing issues
+    var chartData = {
+        revenueLabels: {{ revenue_chart.labels|tojson|safe }},
+        revenueData: {{ revenue_chart.data|tojson|safe }},
+        caseStatusLabels: {{ case_status_chart.labels|tojson|safe }},
+        caseStatusData: {{ case_status_chart.data|tojson|safe }},
+        timeCategoryLabels: {{ time_category_chart.labels|tojson|safe }},
+        timeCategoryData: {{ time_category_chart.data|tojson|safe }},
+        expenseCategoryLabels: {{ expense_category_chart.labels|tojson|safe }},
+        expenseCategoryData: {{ expense_category_chart.data|tojson|safe }},
+        clientAcquisitionLabels: {{ client_acquisition_chart.labels|tojson|safe }},
+        clientAcquisitionData: {{ client_acquisition_chart.data|tojson|safe }}
+    };
+  </script>
 
-  <div class="col-lg-6">
-    <div class="card shadow mb-4">
-      <div class="card-header py-3">
-        <h6 class="m-0 font-weight-bold text-primary">Performance Metrics</h6>
-      </div>
-      <div class="card-body">
-        <div class="table-responsive">
-          <table class="table table-bordered" width="100%" cellspacing="0">
-            <thead>
-              <tr>
-                <th>Metric</th>
-                <th>Current</th>
-                <th>Target</th>
-                <th>Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>Billable Hours</td>
-                <td>{{ performance_metrics.billable_hours.current }}</td>
-                <td>{{ performance_metrics.billable_hours.target }}</td>
-                <td>
-                  {% if performance_metrics.billable_hours.percentage >= 100 %}
-                  <span class="badge bg-success">Achieved</span>
-                  {% else %}
-                  <span class="badge bg-warning"
-                    >{{ performance_metrics.billable_hours.percentage|round(0)
-                    }}%</span
-                  >
-                  {% endif %}
-                </td>
-              </tr>
-              <tr>
-                <td>Collection Rate</td>
-                <td>
-                  {{ performance_metrics.collection_rate.current|round(1) }}%
-                </td>
-                <td>
-                  {{ performance_metrics.collection_rate.target|round(1) }}%
-                </td>
-                <td>
-                  {% if performance_metrics.collection_rate.percentage >= 100 %}
-                  <span class="badge bg-success">Achieved</span>
-                  {% else %}
-                  <span class="badge bg-warning"
-                    >{{ performance_metrics.collection_rate.percentage|round(0)
-                    }}%</span
-                  >
-                  {% endif %}
-                </td>
-              </tr>
-              <tr>
-                <td>Client Satisfaction</td>
-                <td>
-                  {{ performance_metrics.client_satisfaction.current|round(1)
-                  }}%
-                </td>
-                <td>
-                  {{ performance_metrics.client_satisfaction.target|round(1) }}%
-                </td>
-                <td>
-                  {% if performance_metrics.client_satisfaction.percentage >=
-                  100 %}
-                  <span class="badge bg-success">Achieved</span>
-                  {% else %}
-                  <span class="badge bg-warning"
-                    >{{
-                    performance_metrics.client_satisfaction.percentage|round(0)
-                    }}%</span
-                  >
-                  {% endif %}
-                </td>
-              </tr>
-              <tr>
-                <td>Case Resolution</td>
-                <td>
-                  {{ performance_metrics.case_resolution.current|round(1) }}%
-                </td>
-                <td>
-                  {{ performance_metrics.case_resolution.target|round(1) }}%
-                </td>
-                <td>
-                  {% if performance_metrics.case_resolution.percentage >= 100 %}
-                  <span class="badge bg-success">Achieved</span>
-                  {% else %}
-                  <span class="badge bg-warning"
-                    >{{ performance_metrics.case_resolution.percentage|round(0)
-                    }}%</span
-                  >
-                  {% endif %}
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-{% endblock %} {% block scripts %}
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<!-- Hidden div to store chart data -->
-<div id="chart-data"
-     data-revenue-labels="{{ revenue_chart.labels|tojson }}"
-     data-revenue-data="{{ revenue_chart.data|tojson }}"
-     data-case-status-labels="{{ case_status_chart.labels|tojson }}"
-     data-case-status-data="{{ case_status_chart.data|tojson }}"
-     data-time-category-labels="{{ time_category_chart.labels|tojson }}"
-     data-time-category-data="{{ time_category_chart.data|tojson }}"
-     data-expense-category-labels="{{ expense_category_chart.labels|tojson }}"
-     data-expense-category-data="{{ expense_category_chart.data|tojson }}"
-     data-client-acquisition-labels="{{ client_acquisition_chart.labels|tojson }}"
-     data-client-acquisition-data="{{ client_acquisition_chart.data|tojson }}"
-     style="display: none;">
-</div>
+  <script>
+    $(document).ready(function () {
+      // Check if chartData exists and has the required properties
+      if (typeof chartData === "undefined") {
+        console.error("Chart data is not available");
+        return;
+      }
 
-<script>
-  $(document).ready(function() {
-      // Get chart data from data attributes
-      var chartDataDiv = document.getElementById('chart-data');
-      var revenueLabels = JSON.parse(chartDataDiv.getAttribute('data-revenue-labels'));
-      var revenueData = JSON.parse(chartDataDiv.getAttribute('data-revenue-data'));
-      var caseStatusLabels = JSON.parse(chartDataDiv.getAttribute('data-case-status-labels'));
-      var caseStatusData = JSON.parse(chartDataDiv.getAttribute('data-case-status-data'));
-      var timeCategoryLabels = JSON.parse(chartDataDiv.getAttribute('data-time-category-labels'));
-      var timeCategoryData = JSON.parse(chartDataDiv.getAttribute('data-time-category-data'));
-      var expenseCategoryLabels = JSON.parse(chartDataDiv.getAttribute('data-expense-category-labels'));
-      var expenseCategoryData = JSON.parse(chartDataDiv.getAttribute('data-expense-category-data'));
-      var clientAcquisitionLabels = JSON.parse(chartDataDiv.getAttribute('data-client-acquisition-labels'));
-      var clientAcquisitionData = JSON.parse(chartDataDiv.getAttribute('data-client-acquisition-data'));
-      
-      // Revenue Chart
-      var revenueCtx = document.getElementById('revenueChart').getContext('2d');
-      var revenueChart = new Chart(revenueCtx, {
-          type: 'line',
+      // Get chart data from JavaScript variables (no parsing needed)
+      var revenueLabels = chartData.revenueLabels || [];
+      var revenueData = chartData.revenueData || [];
+      var caseStatusLabels = chartData.caseStatusLabels || [];
+      var caseStatusData = chartData.caseStatusData || [];
+      var timeCategoryLabels = chartData.timeCategoryLabels || [];
+      var timeCategoryData = chartData.timeCategoryData || [];
+      var expenseCategoryLabels = chartData.expenseCategoryLabels || [];
+      var expenseCategoryData = chartData.expenseCategoryData || [];
+      var clientAcquisitionLabels = chartData.clientAcquisitionLabels || [];
+      var clientAcquisitionData = chartData.clientAcquisitionData || [];
+
+      // Revenue Chart - Check if canvas exists
+      var revenueCanvas = document.getElementById("revenueChart");
+      if (!revenueCanvas) {
+        console.error("Revenue chart canvas not found");
+      } else {
+        var revenueCtx = revenueCanvas.getContext("2d");
+        var revenueChart = new Chart(revenueCtx, {
+          type: "line",
           data: {
-              labels: revenueLabels,
-              datasets: [{
-                  label: 'Revenue',
-                  data: revenueData,
-                  backgroundColor: 'rgba(78, 115, 223, 0.05)',
-                  borderColor: 'rgba(78, 115, 223, 1)',
-                  pointBackgroundColor: 'rgba(78, 115, 223, 1)',
-                  pointBorderColor: '#fff',
-                  pointHoverBackgroundColor: '#fff',
-                  pointHoverBorderColor: 'rgba(78, 115, 223, 1)',
-                  tension: 0.3,
-                  fill: true
-              }]
-          },
-          options: {
-              maintainAspectRatio: false,
-              scales: {
-                  y: {
-                      beginAtZero: true,
-                      ticks: {
-                          callback: function(value) {
-                              return '₹' + value.toLocaleString();
-                          }
-                      }
-                  }
+            labels: revenueLabels,
+            datasets: [
+              {
+                label: "Revenue",
+                data: revenueData,
+                backgroundColor: "rgba(59, 130, 246, 0.1)",
+                borderColor: "rgba(59, 130, 246, 1)",
+                pointBackgroundColor: "rgba(59, 130, 246, 1)",
+                pointBorderColor: "#fff",
+                pointHoverBackgroundColor: "#fff",
+                pointHoverBorderColor: "rgba(59, 130, 246, 1)",
+                tension: 0.3,
+                fill: true,
               },
-              plugins: {
-                  tooltip: {
-                      callbacks: {
-                          label: function(context) {
-                              return 'Revenue: ₹' + context.parsed.y.toLocaleString();
-                          }
-                      }
-                  }
-              }
-          }
-      });
-
-      // Case Status Chart
-      var caseStatusCtx = document.getElementById('caseStatusChart').getContext('2d');
-      var caseStatusChart = new Chart(caseStatusCtx, {
-          type: 'doughnut',
-          data: {
-              labels: caseStatusLabels,
-              datasets: [{
-                  data: caseStatusData,
-                  backgroundColor: [
-                      'rgba(78, 115, 223, 0.8)',
-                      'rgba(28, 200, 138, 0.8)',
-                      'rgba(54, 185, 204, 0.8)'
-                  ],
-                  hoverBackgroundColor: [
-                      'rgba(78, 115, 223, 1)',
-                      'rgba(28, 200, 138, 1)',
-                      'rgba(54, 185, 204, 1)'
-                  ],
-                  hoverBorderColor: "rgba(234, 236, 244, 1)",
-              }]
+            ],
           },
           options: {
-              maintainAspectRatio: false,
-              plugins: {
-                  legend: {
-                      position: 'bottom'
-                  }
-              }
-          }
-      });
-
-      // Time Category Chart
-      var timeCategoryCtx = document.getElementById('timeCategoryChart').getContext('2d');
-      var timeCategoryChart = new Chart(timeCategoryCtx, {
-          type: 'bar',
-          data: {
-              labels: timeCategoryLabels,
-              datasets: [{
-                  label: 'Hours',
-                  data: timeCategoryData,
-                  backgroundColor: 'rgba(28, 200, 138, 0.8)',
-                  borderColor: 'rgba(28, 200, 138, 1)',
-                  borderWidth: 1
-              }]
-          },
-          options: {
-              maintainAspectRatio: false,
-              scales: {
-                  y: {
-                      beginAtZero: true,
-                      ticks: {
-                          callback: function(value) {
-                              return value + ' hrs';
-                          }
-                      }
-                  }
-              },
-              plugins: {
-                  legend: {
-                      display: false
-                  }
-              }
-          }
-      });
-
-      // Expense Category Chart
-      var expenseCategoryCtx = document.getElementById('expenseCategoryChart').getContext('2d');
-      var expenseCategoryChart = new Chart(expenseCategoryCtx, {
-          type: 'pie',
-          data: {
-              labels: expenseCategoryLabels,
-              datasets: [{
-                  data: expenseCategoryData,
-                  backgroundColor: [
-                      'rgba(231, 74, 59, 0.8)',
-                      'rgba(246, 194, 62, 0.8)',
-                      'rgba(52, 152, 219, 0.8)',
-                      'rgba(46, 204, 113, 0.8)',
-                      'rgba(155, 89, 182, 0.8)'
-                  ],
-                  hoverBackgroundColor: [
-                      'rgba(231, 74, 59, 1)',
-                      'rgba(246, 194, 62, 1)',
-                      'rgba(52, 152, 219, 1)',
-                      'rgba(46, 204, 113, 1)',
-                      'rgba(155, 89, 182, 1)'
-                  ],
-                  hoverBorderColor: "rgba(234, 236, 244, 1)",
-              }]
-          },
-          options: {
-              maintainAspectRatio: false,
-              plugins: {
-                  legend: {
-                      position: 'bottom'
+            maintainAspectRatio: false,
+            scales: {
+              y: {
+                beginAtZero: true,
+                ticks: {
+                  callback: function (value) {
+                    return "₹" + value.toLocaleString();
                   },
-                  tooltip: {
-                      callbacks: {
-                          label: function(context) {
-                              return context.label + ': ₹' + context.parsed.toLocaleString();
-                          }
-                      }
-                  }
-              }
-          }
-      });
+                },
+              },
+            },
+            plugins: {
+              tooltip: {
+                callbacks: {
+                  label: function (context) {
+                    return "Revenue: ₹" + context.parsed.y.toLocaleString();
+                  },
+                },
+              },
+            },
+          },
+        });
+      }
 
-      // Client Acquisition Chart
-      var clientAcquisitionCtx = document.getElementById('clientAcquisitionChart').getContext('2d');
-      var clientAcquisitionChart = new Chart(clientAcquisitionCtx, {
-          type: 'bar',
+      // Case Status Chart - Check if canvas exists
+      var caseStatusCanvas = document.getElementById("caseStatusChart");
+      if (!caseStatusCanvas) {
+        console.error("Case status chart canvas not found");
+      } else {
+        var caseStatusCtx = caseStatusCanvas.getContext("2d");
+        var caseStatusChart = new Chart(caseStatusCtx, {
+          type: "doughnut",
           data: {
-              labels: clientAcquisitionLabels,
-              datasets: [{
-                  label: 'New Clients',
-                  data: clientAcquisitionData,
-                  backgroundColor: 'rgba(54, 185, 204, 0.8)',
-                  borderColor: 'rgba(54, 185, 204, 1)',
-                  borderWidth: 1
-              }]
+            labels: caseStatusLabels,
+            datasets: [
+              {
+                data: caseStatusData,
+                backgroundColor: [
+                  "rgba(59, 130, 246, 0.8)",
+                  "rgba(34, 197, 94, 0.8)",
+                  "rgba(14, 165, 233, 0.8)",
+                ],
+                hoverBackgroundColor: [
+                  "rgba(59, 130, 246, 1)",
+                  "rgba(34, 197, 94, 1)",
+                  "rgba(14, 165, 233, 1)",
+                ],
+                hoverBorderColor: "rgba(255, 255, 255, 1)",
+              },
+            ],
           },
           options: {
-              maintainAspectRatio: false,
-              scales: {
-                  y: {
-                      beginAtZero: true,
-                      ticks: {
-                          stepSize: 1
-                      }
-                  }
+            maintainAspectRatio: false,
+            plugins: {
+              legend: {
+                position: "bottom",
               },
-              plugins: {
-                  legend: {
-                      display: false
-                  }
-              }
-          }
-      });
-  });
-</script>
-{% endblock %}
+            },
+          },
+        });
+      }
+
+      // Time Category Chart - Check if canvas exists
+      var timeCategoryCanvas = document.getElementById("timeCategoryChart");
+      if (!timeCategoryCanvas) {
+        console.error("Time category chart canvas not found");
+      } else {
+        var timeCategoryCtx = timeCategoryCanvas.getContext("2d");
+        var timeCategoryChart = new Chart(timeCategoryCtx, {
+          type: "bar",
+          data: {
+            labels: timeCategoryLabels,
+            datasets: [
+              {
+                label: "Hours",
+                data: timeCategoryData,
+                backgroundColor: "rgba(34, 197, 94, 0.8)",
+                borderColor: "rgba(34, 197, 94, 1)",
+                borderWidth: 1,
+              },
+            ],
+          },
+          options: {
+            maintainAspectRatio: false,
+            scales: {
+              y: {
+                beginAtZero: true,
+                ticks: {
+                  callback: function (value) {
+                    return value + " hrs";
+                  },
+                },
+              },
+            },
+            plugins: {
+              legend: {
+                display: false,
+              },
+            },
+          },
+        });
+      }
+
+      // Expense Category Chart - Check if canvas exists
+      var expenseCategoryCanvas = document.getElementById(
+        "expenseCategoryChart"
+      );
+      if (!expenseCategoryCanvas) {
+        console.error("Expense category chart canvas not found");
+      } else {
+        var expenseCategoryCtx = expenseCategoryCanvas.getContext("2d");
+        var expenseCategoryChart = new Chart(expenseCategoryCtx, {
+          type: "pie",
+          data: {
+            labels: expenseCategoryLabels,
+            datasets: [
+              {
+                data: expenseCategoryData,
+                backgroundColor: [
+                  "rgba(239, 68, 68, 0.8)",
+                  "rgba(245, 158, 11, 0.8)",
+                  "rgba(59, 130, 246, 0.8)",
+                  "rgba(34, 197, 94, 0.8)",
+                  "rgba(168, 85, 247, 0.8)",
+                ],
+                hoverBackgroundColor: [
+                  "rgba(239, 68, 68, 1)",
+                  "rgba(245, 158, 11, 1)",
+                  "rgba(59, 130, 246, 1)",
+                  "rgba(34, 197, 94, 1)",
+                  "rgba(168, 85, 247, 1)",
+                ],
+                hoverBorderColor: "rgba(255, 255, 255, 1)",
+              },
+            ],
+          },
+          options: {
+            maintainAspectRatio: false,
+            plugins: {
+              legend: {
+                position: "bottom",
+              },
+              tooltip: {
+                callbacks: {
+                  label: function (context) {
+                    return (
+                      context.label + ": ₹" + context.parsed.toLocaleString()
+                    );
+                  },
+                },
+              },
+            },
+          },
+        });
+      }
+
+      // Client Acquisition Chart - Check if canvas exists
+      var clientAcquisitionCanvas = document.getElementById(
+        "clientAcquisitionChart"
+      );
+      if (!clientAcquisitionCanvas) {
+        console.error("Client acquisition chart canvas not found");
+      } else {
+        var clientAcquisitionCtx = clientAcquisitionCanvas.getContext("2d");
+        var clientAcquisitionChart = new Chart(clientAcquisitionCtx, {
+          type: "bar",
+          data: {
+            labels: clientAcquisitionLabels,
+            datasets: [
+              {
+                label: "New Clients",
+                data: clientAcquisitionData,
+                backgroundColor: "rgba(14, 165, 233, 0.8)",
+                borderColor: "rgba(14, 165, 233, 1)",
+                borderWidth: 1,
+              },
+            ],
+          },
+          options: {
+            maintainAspectRatio: false,
+            scales: {
+              y: {
+                beginAtZero: true,
+                ticks: {
+                  stepSize: 1,
+                },
+              },
+            },
+            plugins: {
+              legend: {
+                display: false,
+              },
+            },
+          },
+        });
+      }
+    });
+  </script>
+  {% endblock %}
+</div>

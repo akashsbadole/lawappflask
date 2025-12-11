@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+{% block title %}Add Permission{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>Add Permission</h1>
+    <a href="{{ url_for('permissions') }}" class="btn btn-secondary">
+        <i class="fas fa-arrow-left"></i> Back to Permissions
+    </a>
+</div>
+
+<div class="card">
+    <div class="card-header bg-primary text-white">
+        <h5 class="mb-0">Permission Information</h5>
+    </div>
+    <div class="card-body">
+        <form method="POST">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="name">Permission Name <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="name" name="name" required>
+                        <small class="form-text text-muted">Use a unique identifier (e.g., view_clients, edit_cases)</small>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="module">Module <span class="text-danger">*</span></label>
+                        <select class="form-control" id="module" name="module" required>
+                            <option value="">Select Module</option>
+                            <option value="clients">Clients</option>
+                            <option value="cases">Cases</option>
+                            <option value="appointments">Appointments</option>
+                            <option value="documents">Documents</option>
+                            <option value="invoices">Invoices</option>
+                            <option value="time_entries">Time Entries</option>
+                            <option value="expenses">Expenses</option>
+                            <option value="reports">Reports</option>
+                            <option value="users">Users</option>
+                            <option value="system">System</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="description">Description <span class="text-danger">*</span></label>
+                <textarea class="form-control" id="description" name="description" rows="3" required></textarea>
+                <small class="form-text text-muted">Provide a clear description of what this permission allows</small>
+            </div>
+            
+            <div class="form-group">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i> Save Permission
+                </button>
+                <a href="{{ url_for('permissions') }}" class="btn btn-secondary">
+                    <i class="fas fa-times"></i> Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

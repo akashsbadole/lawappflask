@@ -3,7 +3,9 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>{% block title %}Law Firm Management System{% endblock %}</title>
+    <title>
+      {% block title %}LawEdge - Law Firm Management System{% endblock %}
+    </title>
 
     <!-- Bootstrap CSS -->
     <link
@@ -15,20 +17,45 @@
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
     />
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
     <!-- Custom CSS -->
     <link
       rel="stylesheet"
       href="{{ url_for('static', filename='css/style.css') }}"
     />
 
+    <!-- Favicons -->
+    <link
+      rel="apple-touch-icon"
+      sizes="180x180"
+      href="{{ url_for('static', filename='images/apple-touch-icon.png') }}"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="32x32"
+      href="{{ url_for('static', filename='images/favicon-32x32.png') }}"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="16x16"
+      href="{{ url_for('static', filename='images/favicon-16x16.png') }}"
+    />
+    <link
+      rel="manifest"
+      href="{{ url_for('static', filename='site.webmanifest') }}"
+    />
+
     {% block head %}{% endblock %}
   </head>
   <body>
-    <!-- Navigation -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <!-- Enhanced Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-light nav-enhanced">
       <div class="container-fluid">
         <a class="navbar-brand" href="{{ url_for('index') }}">
-          <i class="fas fa-balance-scale me-2"></i>LawEdge
+          <i class="fas fa-gavel me-2"></i>LawEdge
         </a>
 
         <button
@@ -42,10 +69,162 @@
 
         <div class="collapse navbar-collapse" id="navbarNav">
           <ul class="navbar-nav me-auto">
+            <!-- Public Menu Items -->
+            <li class="nav-item">
+              <a class="nav-link" href="{{ url_for('index') }}">
+                <i class="fas fa-home me-1"></i>Home
+              </a>
+            </li>
+
+            <li class="nav-item dropdown">
+              <a
+                class="nav-link dropdown-toggle"
+                href="#"
+                id="featuresDropdown"
+                role="button"
+                data-bs-toggle="dropdown"
+              >
+                <i class="fas fa-star me-1"></i>Features
+              </a>
+              <ul class="dropdown-menu">
+                <li>
+                  <a class="dropdown-item" href="#features">
+                    <i class="fas fa-list me-2"></i>All Features
+                  </a>
+                </li>
+                <li>
+                  <a class="dropdown-item" href="#">
+                    <i class="fas fa-users me-2"></i>Client Management
+                  </a>
+                </li>
+                <li>
+                  <a class="dropdown-item" href="#">
+                    <i class="fas fa-briefcase me-2"></i>Case Management
+                  </a>
+                </li>
+                <li>
+                  <a class="dropdown-item" href="#">
+                    <i class="fas fa-calendar-alt me-2"></i>Calendar &
+                    Scheduling
+                  </a>
+                </li>
+                <li>
+                  <a class="dropdown-item" href="#">
+                    <i class="fas fa-file-alt me-2"></i>Document Management
+                  </a>
+                </li>
+                <li>
+                  <a class="dropdown-item" href="#">
+                    <i class="fas fa-clock me-2"></i>Time Tracking
+                  </a>
+                </li>
+                <li>
+                  <a class="dropdown-item" href="#">
+                    <i class="fas fa-dollar-sign me-2"></i>Billing & Invoicing
+                  </a>
+                </li>
+              </ul>
+            </li>
+
+            <li class="nav-item dropdown">
+              <a
+                class="nav-link dropdown-toggle"
+                href="#"
+                id="solutionsDropdown"
+                role="button"
+                data-bs-toggle="dropdown"
+              >
+                <i class="fas fa-lightbulb me-1"></i>Solutions
+              </a>
+              <ul class="dropdown-menu">
+                <li>
+                  <a class="dropdown-item" href="#">
+                    <i class="fas fa-building me-2"></i>Small Law Firms
+                  </a>
+                </li>
+                <li>
+                  <a class="dropdown-item" href="#">
+                    <i class="fas fa-building me-2"></i>Medium Law Firms
+                  </a>
+                </li>
+                <li>
+                  <a class="dropdown-item" href="#">
+                    <i class="fas fa-building me-2"></i>Large Law Firms
+                  </a>
+                </li>
+                <li>
+                  <a class="dropdown-item" href="#">
+                    <i class="fas fa-gavel me-2"></i>Corporate Legal Teams
+                  </a>
+                </li>
+                <li>
+                  <a class="dropdown-item" href="#">
+                    <i class="fas fa-user-tie me-2"></i>Solo Practitioners
+                  </a>
+                </li>
+              </ul>
+            </li>
+
+            <li class="nav-item dropdown">
+              <a
+                class="nav-link dropdown-toggle"
+                href="#"
+                id="resourcesDropdown"
+                role="button"
+                data-bs-toggle="dropdown"
+              >
+                <i class="fas fa-book me-1"></i>Resources
+              </a>
+              <ul class="dropdown-menu">
+                <li>
+                  <a class="dropdown-item" href="#">
+                    <i class="fas fa-blog me-2"></i>Blog
+                  </a>
+                </li>
+                <li>
+                  <a class="dropdown-item" href="#">
+                    <i class="fas fa-book-open me-2"></i>Case Studies
+                  </a>
+                </li>
+                <li>
+                  <a class="dropdown-item" href="#">
+                    <i class="fas fa-video me-2"></i>Video Tutorials
+                  </a>
+                </li>
+                <li>
+                  <a class="dropdown-item" href="#">
+                    <i class="fas fa-file-pdf me-2"></i>Whitepapers
+                  </a>
+                </li>
+                <li>
+                  <a class="dropdown-item" href="#">
+                    <i class="fas fa-question-circle me-2"></i>FAQ
+                  </a>
+                </li>
+                <li>
+                  <a class="dropdown-item" href="#">
+                    <i class="fas fa-headset me-2"></i>Support Center
+                  </a>
+                </li>
+              </ul>
+            </li>
+
+            <li class="nav-item">
+              <a class="nav-link" href="#pricing">
+                <i class="fas fa-tags me-1"></i>Pricing
+              </a>
+            </li>
+
+            <li class="nav-item">
+              <a class="nav-link" href="{{ url_for('enquiry.contact') }}">
+                <i class="fas fa-envelope me-1"></i>Contact Us
+              </a>
+            </li>
+
             {% if session.user_id %}
             <li class="nav-item">
               <a class="nav-link" href="{{ url_for('dashboard') }}">
-                <i class="fas fa-tachometer-alt me-1"></i>Dashboard
+                <i class="fas fa-chart-line me-1"></i>Dashboard
               </a>
             </li>
 
@@ -58,7 +237,7 @@
                 role="button"
                 data-bs-toggle="dropdown"
               >
-                <i class="fas fa-users me-1"></i>Clients
+                <i class="fas fa-user-tie me-1"></i>Clients
               </a>
               <ul class="dropdown-menu">
                 <li>
@@ -69,6 +248,11 @@
                 <li>
                   <a class="dropdown-item" href="{{ url_for('add_client') }}"
                     >Add Client</a
+                  >
+                </li>
+                <li>
+                  <a class="dropdown-item" href="{{ url_for('leads') }}"
+                    >Leads</a
                   >
                 </li>
               </ul>
@@ -82,7 +266,7 @@
                 role="button"
                 data-bs-toggle="dropdown"
               >
-                <i class="fas fa-briefcase me-1"></i>Cases
+                <i class="fas fa-balance-scale me-1"></i>Cases
               </a>
               <ul class="dropdown-menu">
                 <li>
@@ -92,7 +276,21 @@
                 </li>
                 <li>
                   <a class="dropdown-item" href="{{ url_for('add_case') }}"
-                    >Add Case</a
+                    >New Case</a
+                  >
+                </li>
+                <li>
+                  <a
+                    class="dropdown-item"
+                    href="{{ url_for('cases', status='active') }}"
+                    >Active Cases</a
+                  >
+                </li>
+                <li>
+                  <a
+                    class="dropdown-item"
+                    href="{{ url_for('cases', status='pending') }}"
+                    >Pending Cases</a
                   >
                 </li>
               </ul>
@@ -107,7 +305,7 @@
                 role="button"
                 data-bs-toggle="dropdown"
               >
-                <i class="fas fa-calendar-alt me-1"></i>Appointments
+                <i class="fas fa-calendar-check me-1"></i>Calendar
               </a>
               <ul class="dropdown-menu">
                 <li>
@@ -122,6 +320,20 @@
                     >Schedule Appointment</a
                   >
                 </li>
+                <li>
+                  <a
+                    class="dropdown-item"
+                    href="{{ url_for('appointments', view='day') }}"
+                    >Daily View</a
+                  >
+                </li>
+                <li>
+                  <a
+                    class="dropdown-item"
+                    href="{{ url_for('appointments', view='week') }}"
+                    >Weekly View</a
+                  >
+                </li>
               </ul>
             </li>
             {% endif %} {% if session.role in ['admin', 'lawyer', 'paralegal',
@@ -134,7 +346,7 @@
                 role="button"
                 data-bs-toggle="dropdown"
               >
-                <i class="fas fa-file-alt me-1"></i>Documents
+                <i class="fas fa-file-contract me-1"></i>Documents
               </a>
               <ul class="dropdown-menu">
                 <li>
@@ -149,6 +361,20 @@
                     >Upload Document</a
                   >
                 </li>
+                <li>
+                  <a
+                    class="dropdown-item"
+                    href="{{ url_for('documents', category='contracts') }}"
+                    >Contracts</a
+                  >
+                </li>
+                <li>
+                  <a
+                    class="dropdown-item"
+                    href="{{ url_for('documents', category='pleadings') }}"
+                    >Pleadings</a
+                  >
+                </li>
               </ul>
             </li>
             {% endif %} {% if session.role in ['admin', 'lawyer', 'paralegal',
@@ -161,7 +387,7 @@
                 role="button"
                 data-bs-toggle="dropdown"
               >
-                <i class="fas fa-rupee-sign me-1"></i>Billing
+                <i class="fas fa-receipt me-1"></i>Billing
               </a>
               <ul class="dropdown-menu">
                 <li>
@@ -172,6 +398,13 @@
                 <li>
                   <a class="dropdown-item" href="{{ url_for('invoices') }}"
                     >Invoices</a
+                  >
+                </li>
+                <li>
+                  <a
+                    class="dropdown-item"
+                    href="{{ url_for('time_entries', tab='expense') }}"
+                    >Expenses</a
                   >
                 </li>
                 {% if session.role in ['admin', 'finance'] %}
@@ -194,7 +427,7 @@
                 role="button"
                 data-bs-toggle="dropdown"
               >
-                <i class="fas fa-cogs me-1"></i>Admin
+                <i class="fas fa-user-shield me-1"></i>Admin
               </a>
               <ul class="dropdown-menu">
                 <li>
@@ -206,12 +439,17 @@
                   <a
                     class="dropdown-item"
                     href="{{ url_for('reports_compliance') }}"
-                    >Reports</a
+                    >Reports & Compliance</a
                   >
                 </li>
                 <li>
                   <a class="dropdown-item" href="{{ url_for('settings') }}"
                     >Settings</a
+                  >
+                </li>
+                <li>
+                  <a class="dropdown-item" href="{{ url_for('firms') }}"
+                    >Firm Management</a
                   >
                 </li>
               </ul>
@@ -275,19 +513,140 @@
       {% endfor %} {% endif %} {% endwith %}
     </div>
 
+    <!-- Floating Sidebar -->
+    <div class="floating-sidebar" id="floatingSidebar">
+      <div class="sidebar-header">
+        <h5>Quick Actions</h5>
+        <button class="btn-close" id="closeSidebar"></button>
+      </div>
+      <div class="sidebar-content">
+        <div class="sidebar-section">
+          <h6>Navigation</h6>
+          <ul class="sidebar-nav">
+            {% if session.user_id %}
+            <li class="sidebar-item">
+              <a href="{{ url_for('dashboard') }}" class="sidebar-link">
+                <i data-lucide="layout-dashboard" class="lucide-icon"></i>
+                <span>Dashboard</span>
+              </a>
+            </li>
+
+            {% if session.role in ['admin', 'lawyer', 'paralegal'] %}
+            <li class="sidebar-item">
+              <a href="{{ url_for('clients') }}" class="sidebar-link">
+                <i data-lucide="users" class="lucide-icon"></i>
+                <span>Clients</span>
+              </a>
+            </li>
+
+            <li class="sidebar-item">
+              <a href="{{ url_for('cases') }}" class="sidebar-link">
+                <i data-lucide="briefcase" class="lucide-icon"></i>
+                <span>Cases</span>
+              </a>
+            </li>
+            {% endif %} {% if session.role in ['admin', 'lawyer', 'paralegal',
+            'staff'] %}
+            <li class="sidebar-item">
+              <a href="{{ url_for('appointments') }}" class="sidebar-link">
+                <i data-lucide="calendar" class="lucide-icon"></i>
+                <span>Appointments</span>
+              </a>
+            </li>
+
+            <li class="sidebar-item">
+              <a href="{{ url_for('documents') }}" class="sidebar-link">
+                <i data-lucide="file-text" class="lucide-icon"></i>
+                <span>Documents</span>
+              </a>
+            </li>
+            {% endif %} {% if session.role in ['admin', 'lawyer', 'paralegal',
+            'staff'] %}
+            <li class="sidebar-item">
+              <a href="{{ url_for('time_entries') }}" class="sidebar-link">
+                <i data-lucide="clock" class="lucide-icon"></i>
+                <span>Time Entries</span>
+              </a>
+            </li>
+
+            <li class="sidebar-item">
+              <a href="{{ url_for('invoices') }}" class="sidebar-link">
+                <i data-lucide="receipt" class="lucide-icon"></i>
+                <span>Invoices</span>
+              </a>
+            </li>
+            {% endif %} {% if session.role == 'admin' %}
+            <li class="sidebar-item">
+              <a href="{{ url_for('users') }}" class="sidebar-link">
+                <i data-lucide="settings" class="lucide-icon"></i>
+                <span>Admin</span>
+              </a>
+            </li>
+            {% endif %} {% endif %}
+          </ul>
+        </div>
+
+        {% if session.user_id %}
+        <div class="sidebar-section">
+          <h6>Quick Actions</h6>
+          <div class="quick-actions">
+            {% if session.role in ['admin', 'lawyer', 'paralegal'] %}
+            <a
+              href="{{ url_for('add_client') }}"
+              class="btn btn-primary btn-sm mb-2 w-100"
+            >
+              <i data-lucide="user-plus" class="lucide-icon"></i>
+              Add Client
+            </a>
+
+            <a
+              href="{{ url_for('add_case') }}"
+              class="btn btn-primary btn-sm mb-2 w-100"
+            >
+              <i data-lucide="folder-plus" class="lucide-icon"></i>
+              Add Case
+            </a>
+            {% endif %} {% if session.role in ['admin', 'lawyer', 'paralegal',
+            'staff'] %}
+            <a
+              href="{{ url_for('add_appointment') }}"
+              class="btn btn-primary btn-sm mb-2 w-100"
+            >
+              <i data-lucide="calendar-plus" class="lucide-icon"></i>
+              Schedule Appointment
+            </a>
+
+            <a
+              href="{{ url_for('upload_document') }}"
+              class="btn btn-primary btn-sm mb-2 w-100"
+            >
+              <i data-lucide="upload" class="lucide-icon"></i>
+              Upload Document
+            </a>
+            {% endif %}
+          </div>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Sidebar Toggle Button -->
+    <button class="sidebar-toggle" id="sidebarToggle">
+      <i data-lucide="menu" class="lucide-icon"></i>
+    </button>
+
     <!-- Main Content -->
-    <main class="container-fluid mt-4">{% block content %}{% endblock %}</main>
+    <main class="container mt-4">{% block content %}{% endblock %}</main>
 
     <!-- Footer -->
-    <footer class="bg-dark text-light py-4 mt-5">
+    <footer class="bg-dark text-light">
       <div class="container">
         <div class="row">
           <div class="col-md-6">
             <h5>Law Firm Management System</h5>
-            <p>Complete solution for modern law firms.</p>
           </div>
           <div class="col-md-6 text-md-end">
-            <p>&copy; 2023 LawEdge. All rights reserved.</p>
+            <p>&copy; 2025 LawEdge. All rights reserved.</p>
           </div>
         </div>
       </div>
@@ -297,8 +656,58 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <!-- jQuery -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- jQuery UI -->
+    <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
+    <link
+      rel="stylesheet"
+      href="https://code.jquery.com/ui/1.13.2/themes/ui-lightness/jquery-ui.css"
+    />
+    <!-- Time Picker -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-timepicker/0.5.2/js/bootstrap-timepicker.min.js"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-timepicker/0.5.2/css/bootstrap-timepicker.min.css"
+    />
     <!-- Custom JS -->
     <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+
+    <!-- Initialize Lucide Icons -->
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        // Initialize Lucide icons
+        if (typeof lucide !== "undefined") {
+          lucide.createIcons();
+        }
+
+        // Sidebar toggle functionality
+        const sidebarToggle = document.getElementById("sidebarToggle");
+        const floatingSidebar = document.getElementById("floatingSidebar");
+        const closeSidebar = document.getElementById("closeSidebar");
+
+        if (sidebarToggle && floatingSidebar && closeSidebar) {
+          sidebarToggle.addEventListener("click", function () {
+            floatingSidebar.classList.toggle("open");
+          });
+
+          closeSidebar.addEventListener("click", function () {
+            floatingSidebar.classList.remove("open");
+          });
+
+          // Close sidebar when clicking outside
+          document.addEventListener("click", function (event) {
+            if (
+              floatingSidebar &&
+              !floatingSidebar.contains(event.target) &&
+              sidebarToggle &&
+              !sidebarToggle.contains(event.target) &&
+              floatingSidebar.classList.contains("open")
+            ) {
+              floatingSidebar.classList.remove("open");
+            }
+          });
+        }
+      });
+    </script>
 
     {% block scripts %}{% endblock %}
   </body>

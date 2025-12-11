@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Thank You for Your Enquiry - LawEdge</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        line-height: 1.6;
+        color: #333;
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+      .header {
+        background: linear-gradient(135deg, #1a365d 0%, #2c5282 100%);
+        color: white;
+        padding: 30px;
+        text-align: center;
+        border-radius: 10px 10px 0 0;
+      }
+      .header h1 {
+        margin: 0;
+        font-size: 28px;
+      }
+      .content {
+        background: #f8f9fa;
+        padding: 30px;
+        border-radius: 0 0 10px 10px;
+      }
+      .confirmation-box {
+        background: white;
+        padding: 25px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        text-align: center;
+      }
+      .success-icon {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #28a745, #20c997);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 40px;
+        margin: 0 auto 20px;
+      }
+      .enquiry-summary {
+        background: #e3f2fd;
+        padding: 20px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+      }
+      .enquiry-summary h3 {
+        margin-top: 0;
+        color: #1565c0;
+      }
+      .detail-row {
+        display: flex;
+        margin-bottom: 10px;
+        align-items: flex-start;
+      }
+      .detail-label {
+        font-weight: bold;
+        color: #1a365d;
+        width: 140px;
+        flex-shrink: 0;
+      }
+      .detail-value {
+        flex: 1;
+      }
+      .timeline-section {
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+      .timeline-item {
+        display: flex;
+        align-items: center;
+        margin-bottom: 15px;
+        padding-bottom: 15px;
+        border-bottom: 1px solid #e9ecef;
+      }
+      .timeline-item:last-child {
+        margin-bottom: 0;
+        padding-bottom: 0;
+        border-bottom: none;
+      }
+      .timeline-number {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        background: #d69e2e;
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        margin-right: 15px;
+        flex-shrink: 0;
+      }
+      .timeline-text h4 {
+        margin: 0 0 5px 0;
+        color: #1a365d;
+      }
+      .timeline-text p {
+        margin: 0;
+        color: #6c757d;
+        font-size: 14px;
+      }
+      .contact-info {
+        background: #f8f9fa;
+        border-left: 4px solid #d69e2e;
+        padding: 15px;
+        margin-bottom: 20px;
+      }
+      .contact-info h4 {
+        margin-top: 0;
+        color: #1a365d;
+      }
+      .action-buttons {
+        text-align: center;
+        margin-top: 20px;
+      }
+      .btn {
+        display: inline-block;
+        padding: 12px 24px;
+        margin: 5px;
+        text-decoration: none;
+        border-radius: 5px;
+        font-weight: bold;
+      }
+      .btn-primary {
+        background: linear-gradient(135deg, #d69e2e 0%, #b7791f 100%);
+        color: white;
+      }
+      .btn-secondary {
+        background: #6c757d;
+        color: white;
+      }
+      .footer {
+        text-align: center;
+        margin-top: 30px;
+        padding-top: 20px;
+        border-top: 1px solid #dee2e6;
+        color: #6c757d;
+        font-size: 14px;
+      }
+      .urgency-notice {
+        background: #fff3cd;
+        border: 1px solid #ffeaa7;
+        color: #856404;
+        padding: 15px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        text-align: center;
+      }
+      .urgency-notice.urgent {
+        background: #f8d7da;
+        border: 1px solid #f5c6cb;
+        color: #721c24;
+      }
+      .urgency-notice.high {
+        background: #f8d7da;
+        border: 1px solid #f5c6cb;
+        color: #721c24;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="header">
+      <h1>🤝 Thank You for Your Enquiry</h1>
+      <p>We've received your request and will be in touch soon</p>
+    </div>
+
+    <div class="content">
+      <div class="confirmation-box">
+        <div class="success-icon">✓</div>
+        <h2 style="color: #1a365d; margin-bottom: 10px">Enquiry Received!</h2>
+        <p style="margin: 0; color: #6c757d">
+          Thank you for contacting LawEdge. Our legal team has received your
+          enquiry and will review it shortly.
+        </p>
+      </div>
+
+      {% if enquiry.urgency_level in ['urgent', 'high'] %}
+      <div class="urgency-notice {{ enquiry.urgency_level }}">
+        <strong>⚠️ {{ enquiry.urgency_level.title() }} Priority Notice:</strong>
+        {% if enquiry.urgency_level == 'urgent' %} Your enquiry has been marked
+        as urgent. We will prioritize your request and contact you as soon as
+        possible. {% else %} Your enquiry has been marked as high priority. We
+        will expedite our response to address your needs promptly. {% endif %}
+      </div>
+      {% endif %}
+
+      <div class="enquiry-summary">
+        <h3>📋 Your Enquiry Summary</h3>
+
+        <div class="detail-row">
+          <div class="detail-label">Reference:</div>
+          <div class="detail-value">
+            <strong
+              >#ENQ-{{ enquiry.id }}-{{ enquiry.created_at.strftime('%Y%m%d')
+              }}</strong
+            >
+          </div>
+        </div>
+
+        <div class="detail-row">
+          <div class="detail-label">Name:</div>
+          <div class="detail-value">{{ enquiry.name }}</div>
+        </div>
+
+        <div class="detail-row">
+          <div class="detail-label">Email:</div>
+          <div class="detail-value">{{ enquiry.email }}</div>
+        </div>
+
+        {% if enquiry.phone %}
+        <div class="detail-row">
+          <div class="detail-label">Phone:</div>
+          <div class="detail-value">{{ enquiry.phone }}</div>
+        </div>
+        {% endif %}
+
+        <div class="detail-row">
+          <div class="detail-label">Subject:</div>
+          <div class="detail-value"><strong>{{ enquiry.subject }}</strong></div>
+        </div>
+
+        {% if enquiry.practice_area %}
+        <div class="detail-row">
+          <div class="detail-label">Practice Area:</div>
+          <div class="detail-value">
+            {{ enquiry.practice_area.replace('_', ' ').title() }}
+          </div>
+        </div>
+        {% endif %}
+
+        <div class="detail-row">
+          <div class="detail-label">Urgency Level:</div>
+          <div class="detail-value">
+            {{ enquiry.urgency_level.replace('_', ' ').title() }}
+          </div>
+        </div>
+
+        <div class="detail-row">
+          <div class="detail-label">Preferred Contact:</div>
+          <div class="detail-value">
+            {{ enquiry.preferred_contact.title() }}
+          </div>
+        </div>
+
+        <div class="detail-row">
+          <div class="detail-label">Submitted:</div>
+          <div class="detail-value">
+            {{ enquiry.created_at.strftime('%B %d, %Y at %I:%M %p') }}
+          </div>
+        </div>
+      </div>
+
+      <div class="timeline-section">
+        <h3 style="margin-top: 0; color: #1a365d">📅 What Happens Next?</h3>
+
+        <div class="timeline-item">
+          <div class="timeline-number">1</div>
+          <div class="timeline-text">
+            <h4>Immediate Confirmation</h4>
+            <p>
+              You'll receive this email confirming we've received your enquiry.
+            </p>
+          </div>
+        </div>
+
+        <div class="timeline-item">
+          <div class="timeline-number">2</div>
+          <div class="timeline-text">
+            <h4>Expert Review (Within 2 Hours)</h4>
+            <p>
+              Our legal team will review your enquiry to understand your needs.
+            </p>
+          </div>
+        </div>
+
+        <div class="timeline-item">
+          <div class="timeline-number">3</div>
+          <div class="timeline-text">
+            <h4>Personalized Response (Within 24 Hours)</h4>
+            <p>
+              We'll contact you using your preferred method to discuss your
+              legal matter.
+            </p>
+          </div>
+        </div>
+
+        <div class="timeline-item">
+          <div class="timeline-number">4</div>
+          <div class="timeline-text">
+            <h4>Consultation (If Required)</h4>
+            <p>
+              We'll schedule a consultation to provide detailed legal guidance.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="contact-info">
+        <h4>📞 Need to Speak with Someone Immediately?</h4>
+        <p style="margin-bottom: 0">
+          For urgent matters, please call us directly at
+          <strong>1-800-LAWEDGE</strong>. Our office hours are Monday-Friday
+          9:00 AM - 6:00 PM, Saturday 9:00 AM - 2:00 PM.
+        </p>
+      </div>
+
+      <div class="action-buttons">
+        <a href="https://lawedge.com" class="btn btn-primary"
+          >Visit Our Website</a
+        >
+        <a href="tel:1-800-LAWEDGE" class="btn btn-secondary">Call Us Now</a>
+      </div>
+
+      <div
+        style="
+          background: #f8f9fa;
+          padding: 20px;
+          border-radius: 8px;
+          margin-top: 20px;
+        "
+      >
+        <h4 style="margin-top: 0; color: #1a365d">
+          🛡️ Your Privacy is Important
+        </h4>
+        <p style="margin-bottom: 0">
+          LawEdge takes your privacy seriously. All information you've shared
+          with us is protected by attorney-client privilege and will be kept
+          strictly confidential. We will never share your information with third
+          parties without your explicit consent.
+        </p>
+      </div>
+    </div>
+
+    <div class="footer">
+      <p><strong>LawEdge Legal Practice Management System</strong></p>
+      <p>Professional Legal Services You Can Trust</p>
+      <p style="margin-bottom: 0">
+        This is an automated message. Please do not reply to this email.
+      </p>
+    </div>
+  </body>
+</html>

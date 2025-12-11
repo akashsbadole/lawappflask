@@ -1,0 +1,175 @@
+{% extends "base.html" %}
+
+{% block title %}Expense Report by Date - Law Firm Management System{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Expense Report by Date</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <div class="btn-group me-2">
+            <a href="{{ url_for('reports_compliance', tab='reports') }}" class="btn btn-sm btn-outline-secondary">
+                <i class="fas fa-arrow-left me-1"></i>Back to Reports
+            </a>
+        </div>
+        <div class="btn-group">
+            <button type="button" class="btn btn-sm btn-outline-primary" onclick="window.print()">
+                <i class="fas fa-print me-1"></i>Print
+            </button>
+            <a href="{{ url_for('export_expenses') }}" class="btn btn-sm btn-outline-secondary">
+                <i class="fas fa-download me-1"></i>Export
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Report Filters</h5>
+            </div>
+            <div class="card-body">
+                <form method="GET" action="{{ url_for('expense_report_by_date') }}">
+                    <div class="mb-3">
+                        <label for="date_from" class="form-label">Date From</label>
+                        <input type="date" class="form-control" id="date_from" name="date_from" value="{{ date_from or '' }}" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="date_to" class="form-label">Date To</label>
+                        <input type="date" class="form-control" id="date_to" name="date_to" value="{{ date_to or '' }}" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="group_by" class="form-label">Group By</label>
+                        <select class="form-select" id="group_by" name="group_by">
+                            <option value="day" {% if group_by == 'day' %}selected{% endif %}>Day</option>
+                            <option value="week" {% if group_by == 'week' %}selected{% endif %}>Week</option>
+                            <option value="month" {% if group_by == 'month' %}selected{% endif %}>Month</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="category" class="form-label">Category</label>
+                        <select class="form-select" id="category" name="category">
+                            <option value="">All Categories</option>
+                            <option value="travel" {% if category == 'travel' %}selected{% endif %}>Travel</option>
+                            <option value="meals" {% if category == 'meals' %}selected{% endif %}>Meals</option>
+                            <option value="office" {% if category == 'office' %}selected{% endif %}>Office Supplies</option>
+                            <option value="research" {% if category == 'research' %}selected{% endif %}>Research</option>
+                            <option value="court" {% if category == 'court' %}selected{% endif %}>Court Fees</option>
+                            <option value="other" {% if category == 'other' %}selected{% endif %}>Other</option>
+                        </select>
+                    </div>
+                    
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary">Generate Report</button>
+                        <a href="{{ url_for('expense_report_by_date') }}" class="btn btn-outline-secondary">Clear Filters</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Expenses by Date</h5>
+            </div>
+            <div class="card-body">
+                {% if grouped_expenses %}
+                {% for period, expenses in grouped_expenses.items() %}
+                <div class="mb-4">
+                    <h6 class="text-primary">{{ period }}</h6>
+                    <div class="table-responsive">
+                        <table class="table table-sm table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Lawyer</th>
+                                    <th>Description</th>
+                                    <th>Category</th>
+                                    <th>Amount</th>
+                                    <th>Status</th>
+                                    <th>Billable</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for expense in expenses %}
+                                <tr>
+                                    <td>{{ expense.date.strftime('%Y-%m-%d') }}</td>
+                                    <td>{{ expense.user.full_name }}</td>
+                                    <td>{{ expense.description[:50] }}{% if expense.description|length > 50 %}...{% endif %}</td>
+                                    <td>
+                                        {% if expense.category == 'travel' %}
+                                            <span class="badge bg-primary">Travel</span>
+                                        {% elif expense.category == 'meals' %}
+                                            <span class="badge bg-success">Meals</span>
+                                        {% elif expense.category == 'office' %}
+                                            <span class="badge bg-info">Office</span>
+                                        {% elif expense.category == 'research' %}
+                                            <span class="badge bg-warning">Research</span>
+                                        {% elif expense.category == 'court' %}
+                                            <span class="badge bg-danger">Court</span>
+                                        {% else %}
+                                            <span class="badge bg-secondary">{{ expense.category|title }}</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>₹{{ expense.amount|round(2) }}</td>
+                                    <td>
+                                        {% if expense.status == 'pending' %}
+                                            <span class="badge bg-warning">Pending</span>
+                                        {% elif expense.status == 'approved' %}
+                                            <span class="badge bg-success">Approved</span>
+                                        {% elif expense.status == 'rejected' %}
+                                            <span class="badge bg-danger">Rejected</span>
+                                        {% elif expense.status == 'reimbursed' %}
+                                            <span class="badge bg-info">Reimbursed</span>
+                                        {% else %}
+                                            <span class="badge bg-light text-dark">{{ expense.status|title }}</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if expense.is_billable %}
+                                            <span class="badge bg-success">Yes</span>
+                                        {% else %}
+                                            <span class="badge bg-secondary">No</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="mt-2">
+                        <span class="fw-bold">Subtotal:</span> 
+                        ₹{{ period_totals[period]|round(2) }}
+                    </div>
+                </div>
+                {% endfor %}
+                
+                <div class="row mt-4">
+                    <div class="col-md-6">
+                        <h5>Grand Total</h5>
+                        <p><strong>Total Amount:</strong> ₹{{ total_amount|round(2) }}</p>
+                        <p><strong>Billable Amount:</strong> ₹{{ billable_amount|round(2) }}</p>
+                        <p><strong>Non-Billable Amount:</strong> ₹{{ non_billable_amount|round(2) }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <h5>By Category</h5>
+                        {% for category, amount in category_totals.items() %}
+                        <p><strong>{{ category|title }}:</strong> ₹{{ amount|round(2) }}</p>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% else %}
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>
+                    No expenses found matching your criteria. Please adjust your filters and try again.
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

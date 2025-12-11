@@ -1,5 +1,5 @@
 from flask_sqlalchemy import SQLAlchemy
-from datetime import datetime
+from datetime import datetime, timedelta
 from werkzeug.security import generate_password_hash, check_password_hash
 import uuid
 
@@ -275,7 +275,7 @@ class LegalResearch(db.Model):
     
     # Relationships
     case = db.relationship('Case', backref='legal_research')
-    user = db.relationship('User', backref='legal_research')
+    user = db.relationship('User', foreign_keys='LegalResearch.user_id', backref='legal_research')
     
     def __repr__(self):
         return f'<LegalResearch {self.query[:50]}>'
@@ -330,17 +330,66 @@ class User(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     last_login = db.Column(db.DateTime)
     
+    # Enhanced Security Fields
+    two_factor_enabled = db.Column(db.Boolean, default=False)
+    two_factor_secret = db.Column(db.String(32))
+    backup_codes = db.Column(db.Text)  # Comma-separated backup codes
+    sms_login_enabled = db.Column(db.Boolean, default=False)
+    failed_login_attempts = db.Column(db.Integer, default=0)
+    account_locked_until = db.Column(db.DateTime)
+    last_password_change = db.Column(db.DateTime, default=datetime.utcnow)
+    
     # Relationships
     clients_assigned = db.relationship('Client', foreign_keys='Client.assigned_lawyer_id', backref='assigned_lawyer', lazy='dynamic')
     cases_assigned = db.relationship('Case', foreign_keys='Case.assigned_lawyer_id', backref='assigned_lawyer', lazy='dynamic')
     appointments = db.relationship('Appointment', foreign_keys='Appointment.lawyer_id', backref='lawyer', lazy='dynamic')
-    time_entries = db.relationship('TimeEntry', backref='user', lazy='dynamic')
+    time_entries = db.relationship('TimeEntry', foreign_keys='TimeEntry.user_id', backref='user', lazy='dynamic')
+    attendance_records = db.relationship('Attendance', foreign_keys='Attendance.user_id', backref='user', lazy='dynamic')
     
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
+        self.last_password_change = datetime.utcnow()
     
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
+    
+    def is_account_locked(self):
+        """Check if account is locked due to failed attempts"""
+        if self.account_locked_until:
+            return datetime.utcnow() < self.account_locked_until
+        return False
+    
+    def lock_account(self, hours=24):
+        """Lock account for specified hours"""
+        self.account_locked_until = datetime.utcnow() + timedelta(hours=hours)
+        self.failed_login_attempts = 0
+    
+    def unlock_account(self):
+        """Unlock account"""
+        self.account_locked_until = None
+        self.failed_login_attempts = 0
+    
+    def increment_failed_login(self):
+        """Increment failed login attempts"""
+        self.failed_login_attempts += 1
+        # Lock account after 5 failed attempts
+        if self.failed_login_attempts >= 5:
+            self.lock_account()
+    
+    def verify_backup_code(self, code):
+        """Verify backup code for 2FA"""
+        if not self.backup_codes:
+            return False
+        
+        codes = self.backup_codes.split(',')
+        if code in codes:
+            # Remove used backup code
+            codes.remove(code)
+            self.backup_codes = ','.join(codes)
+            db.session.commit()
+            return True
+        
+        return False
     
     def __repr__(self):
         return f'<User {self.username}>'
@@ -400,6 +449,7 @@ class Case(db.Model):
     billing_method = db.Column(db.String(20), default='hourly')  # hourly, flat_fee, retainer
     hourly_rate = db.Column(db.Float)
     budget = db.Column(db.Float)
+    court_number = db.Column(db.String(100))  # Court case number for legal tracking
     notes = db.Column(db.Text)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
@@ -573,7 +623,7 @@ class Notification(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     
     # Relationships
-    recipient = db.relationship('User', foreign_keys=[user_id], backref='notifications')
+    recipient = db.relationship('User', foreign_keys='Notification.user_id', backref='notifications')
     
     def __repr__(self):
         return f'<Notification {self.title}>'
@@ -591,7 +641,167 @@ class ActivityLog(db.Model):
     timestamp = db.Column(db.DateTime, default=datetime.utcnow)
     
     # Relationships
-    user = db.relationship('User', foreign_keys=[user_id], backref='activity_logs')
+    user = db.relationship('User', foreign_keys='ActivityLog.user_id', backref='activity_logs')
     
     def __repr__(self):
         return f'<ActivityLog {self.action}>'
+
+# Attendance Model for Enhanced User Management
+class Attendance(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    date = db.Column(db.Date, nullable=False)
+    check_in_time = db.Column(db.DateTime, nullable=False)
+    check_out_time = db.Column(db.DateTime)
+    check_in_latitude = db.Column(db.Float)
+    check_in_longitude = db.Column(db.Float)
+    check_out_latitude = db.Column(db.Float)
+    check_out_longitude = db.Column(db.Float)
+    check_in_method = db.Column(db.String(20), default='manual')  # manual, gps, biometric
+    check_out_method = db.Column(db.String(20), default='manual')
+    break_duration_minutes = db.Column(db.Integer, default=0)
+    total_hours = db.Column(db.Float)
+    overtime_hours = db.Column(db.Float, default=0)
+    status = db.Column(db.String(20), default='present')  # present, absent, half_day, leave
+    notes = db.Column(db.Text)
+    approved_by = db.Column(db.Integer, db.ForeignKey('user.id'))
+    approved_at = db.Column(db.DateTime)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    # Relationships
+    approver = db.relationship('User', foreign_keys=[approved_by])
+    
+    def calculate_total_hours(self):
+        """Calculate total working hours"""
+        if self.check_out_time and self.check_in_time:
+            total_seconds = (self.check_out_time - self.check_in_time).total_seconds()
+            total_hours = total_seconds / 3600
+            # Subtract break time
+            if self.break_duration_minutes:
+                total_hours -= (self.break_duration_minutes / 60)
+            self.total_hours = max(0, total_hours)
+            
+            # Calculate overtime (assuming 8 hours is standard)
+            if self.total_hours > 8:
+                self.overtime_hours = self.total_hours - 8
+            else:
+                self.overtime_hours = 0
+        
+        return self.total_hours or 0
+    
+    def is_late(self, standard_time='09:00'):
+        """Check if check-in is late"""
+        if self.check_in_time:
+            standard_hour, standard_minute = map(int, standard_time.split(':'))
+            standard_time_obj = self.check_in_time.replace(
+                hour=standard_hour, 
+                minute=standard_minute, 
+                second=0, 
+                microsecond=0
+            )
+            return self.check_in_time > standard_time_obj
+        return False
+    
+    def __repr__(self):
+        return f'<Attendance {self.user.full_name} - {self.date}>'
+
+# User Performance Metrics Model
+class UserPerformance(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    period = db.Column(db.String(20), nullable=False)  # monthly, quarterly, yearly
+    period_start = db.Column(db.Date, nullable=False)
+    period_end = db.Column(db.Date, nullable=False)
+    total_hours_worked = db.Column(db.Float, default=0)
+    billable_hours = db.Column(db.Float, default=0)
+    utilization_rate = db.Column(db.Float, default=0)  # percentage
+    cases_handled = db.Column(db.Integer, default=0)
+    cases_won = db.Column(db.Integer, default=0)
+    revenue_generated = db.Column(db.Float, default=0)
+    client_satisfaction_score = db.Column(db.Float)  # 1-5 scale
+    productivity_score = db.Column(db.Float, default=0)  # calculated metric
+    attendance_score = db.Column(db.Float, default=0)  # percentage
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    # Relationships
+    user = db.relationship('User', foreign_keys='UserPerformance.user_id', backref='performance_metrics')
+    
+    def calculate_utilization_rate(self):
+        """Calculate utilization rate (billable hours / total hours)"""
+        if self.total_hours_worked > 0:
+            self.utilization_rate = (self.billable_hours / self.total_hours_worked) * 100
+        else:
+            self.utilization_rate = 0
+        return self.utilization_rate
+    
+    def calculate_productivity_score(self):
+        """Calculate overall productivity score"""
+        # Weighted calculation based on multiple factors
+        weights = {
+            'utilization': 0.3,
+            'cases_won_rate': 0.25,
+            'revenue_per_hour': 0.2,
+            'client_satisfaction': 0.15,
+            'attendance': 0.1
+        }
+        
+        score = 0
+        
+        # Utilization score (0-100)
+        score += (self.utilization_rate / 100) * weights['utilization'] * 100
+        
+        # Cases won rate (0-100)
+        if self.cases_handled > 0:
+            cases_won_rate = (self.cases_won / self.cases_handled) * 100
+            score += (cases_won_rate / 100) * weights['cases_won_rate'] * 100
+        
+        # Revenue per hour (normalized)
+        if self.total_hours_worked > 0:
+            revenue_per_hour = self.revenue_generated / self.total_hours_worked
+            # Assuming $100/hour as benchmark
+            revenue_score = min(revenue_per_hour / 100, 1) * 100
+            score += revenue_score * weights['revenue_per_hour']
+        
+        # Client satisfaction (0-100)
+        if self.client_satisfaction_score:
+            score += (self.client_satisfaction_score / 5) * weights['client_satisfaction'] * 100
+        
+        # Attendance (0-100)
+        score += self.attendance_score * weights['attendance']
+        
+        self.productivity_score = min(score, 100)
+        return self.productivity_score
+    
+    def __repr__(self):
+        return f'<UserPerformance {self.user.full_name} - {self.period}>'
+
+# Enquiry Model for Public Enquiry Form
+class Enquiry(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(200), nullable=False)
+    email = db.Column(db.String(120), nullable=False)
+    phone = db.Column(db.String(20))
+    subject = db.Column(db.String(200), nullable=False)
+    message = db.Column(db.Text, nullable=False)
+    practice_area = db.Column(db.String(100))
+    urgency_level = db.Column(db.String(20), default='medium')  # low, medium, high, urgent
+    preferred_contact = db.Column(db.String(50))  # email, phone, both
+    status = db.Column(db.String(20), default='pending')  # pending, contacted, assigned, closed
+    assigned_to = db.Column(db.Integer, db.ForeignKey('user.id'))
+    notes = db.Column(db.Text)
+    ip_address = db.Column(db.String(45))
+    user_agent = db.Column(db.String(500))
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    # Relationships
+    assigned_user = db.relationship('User', foreign_keys=[assigned_to], backref='assigned_enquiries')
+    
+    @property
+    def full_name(self):
+        return self.name
+    
+    def __repr__(self):
+        return f'<Enquiry {self.name} - {self.subject}>'
