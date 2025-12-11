@@ -293,7 +293,7 @@ app.mail = mail
 
 # Import models first to get the db instance
 import models
-from models import db, User, Client, Case, Appointment, Document, TimeEntry, Invoice, Payment, TrustAccount, TrustTransaction, Notification, ActivityLog, Firm, Branch, Permission, RolePermission, Communication, Lead, CaseWorkflow, DocumentVersion, Expense, InvoiceLineItem, ClientPortalUser, DocumentAnalysis, LegalResearch, AutomationRule, SystemSetting
+from models import db, User, Client, Case, Appointment, Document, TimeEntry, Invoice, Payment, TrustAccount, TrustTransaction, Notification, ActivityLog, Firm, Branch, Permission, RolePermission, Communication, Lead, CaseWorkflow, DocumentVersion, Expense, InvoiceLineItem, ClientPortalUser, DocumentAnalysis, LegalResearch, AutomationRule, SystemSetting, AttendanceRecord, SecurityEvent
 
 # Import enhanced modules
 try:
@@ -302,6 +302,13 @@ try:
 except ImportError:
     ENHANCED_SECURITY_AVAILABLE = False
     print("Warning: Enhanced security module not available")
+
+try:
+    from enhanced_security_routes import enhanced_security_bp
+    ENHANCED_SECURITY_ROUTES_AVAILABLE = True
+except ImportError:
+    ENHANCED_SECURITY_ROUTES_AVAILABLE = False
+    print("Warning: Enhanced security routes not available")
 
 try:
     from document_ocr import ocr_engine, document_analyzer, document_search, process_document_ocr
@@ -356,6 +363,9 @@ if ANALYTICS_AVAILABLE:
 # Register blueprints
 if AUTH_ROUTES_AVAILABLE:
     app.register_blueprint(auth_bp, url_prefix='/auth')
+
+if ENHANCED_SECURITY_ROUTES_AVAILABLE:
+    app.register_blueprint(enhanced_security_bp, url_prefix='/security')
 
 if ENHANCED_DOCUMENTS_AVAILABLE:
     app.register_blueprint(documents_bp, url_prefix='/documents_enhanced')

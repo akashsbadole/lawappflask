@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+
+{% block title %}Two-Factor Authentication Setup - Law Firm Management System{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">Two-Factor Authentication Setup</h4>
+                </div>
+                <div class="card-body">
+                    {% with messages = get_flashed_messages(with_categories=true) %}
+                        {% if messages %}
+                            {% for category, message in messages %}
+                                <div class="alert alert-{{ category }}">{{ message }}</div>
+                            {% endfor %}
+                        {% endif %}
+                    {% endwith %}
+                    
+                    {% if step == 'setup' %}
+                    <div class="alert alert-info">
+                        <h5>What is Two-Factor Authentication?</h5>
+                        <p>Two-factor authentication (2FA) adds an extra layer of security to your account by requiring a second form of verification in addition to your password.</p>
+                    </div>
+                    
+                    <form method="POST">
+                        <div class="d-grid gap-2">
+                            <button type="submit" name="enable" class="btn btn-primary">Enable Two-Factor Authentication</button>
+                        </div>
+                    </form>
+                    
+                    {% elif step == 'verify' %}
+                    <div class="alert alert-info">
+                        <h5>Step 1: Scan the QR Code</h5>
+                        <p>Use your authenticator app (Google Authenticator, Authy, etc.) to scan the QR code below.</p>
+                    </div>
+                    
+                    {% if setup_data %}
+                    <div class="text-center mb-4">
+                        <img src="{{ setup_data.qr_code }}" alt="QR Code" class="img-fluid" style="max-width: 200px;">
+                    </div>
+                    
+                    <div class="mb-4">
+                        <h6>Can't scan the QR code?</h6>
+                        <p>Enter this code manually in your authenticator app:</p>
+                        <div class="input-group">
+                            <input type="text" class="form-control font-monospace" value="{{ setup_data.manual_entry_key }}" readonly>
+                            <button class="btn btn-outline-secondary" type="button" id="copy-btn">Copy</button>
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    <div class="alert alert-info">
+                        <h5>Step 2: Enter Verification Code</h5>
+                        <p>Enter the 6-digit code from your authenticator app to complete the setup.</p>
+                    </div>
+                    
+                    <form method="POST">
+                        <div class="mb-3">
+                            <label for="token" class="form-label">Verification Code</label>
+                            <input type="text" class="form-control" id="token" name="token" 
+                                   pattern="[0-9]{6}" maxlength="6" required
+                                   placeholder="Enter 6-digit code">
+                        </div>
+                        
+                        <div class="d-grid gap-2">
+                            <button type="submit" name="verify" class="btn btn-primary">Verify and Enable</button>
+                        </div>
+                    </form>
+                    {% endif %}
+                    
+                    <div class="mt-3">
+                        <a href="{{ url_for('enhanced_security.security_settings') }}" class="text-decoration-none">Back to Security Settings</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const copyBtn = document.getElementById('copy-btn');
+    if (copyBtn) {
+        copyBtn.addEventListener('click', function() {
+            const input = this.previousElementSibling;
+            input.select();
+            document.execCommand('copy');
+            
+            const originalText = this.textContent;
+            this.textContent = 'Copied!';
+            setTimeout(() => {
+                this.textContent = originalText;
+            }, 2000);
+        });
+    }
+});
+</script>
+{% endblock %}

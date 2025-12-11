@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+
+{% block title %}Two-Factor Authentication - Law Firm Management System{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">Two-Factor Authentication</h4>
+                </div>
+                <div class="card-body">
+                    <p class="card-text">Enter the 6-digit code from your authenticator app to complete the login process.</p>
+                    
+                    {% with messages = get_flashed_messages(with_categories=true) %}
+                        {% if messages %}
+                            {% for category, message in messages %}
+                                <div class="alert alert-{{ category }}">{{ message }}</div>
+                            {% endfor %}
+                        {% endif %}
+                    {% endwith %}
+                    
+                    <form method="POST">
+                        <div class="mb-3">
+                            <label for="token" class="form-label">Authentication Code</label>
+                            <input type="text" class="form-control" id="token" name="token" 
+                                   pattern="[0-9]{6}" maxlength="6" required
+                                   placeholder="Enter 6-digit code" autofocus>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="trust-device" name="trust-device">
+                                <label class="form-check-label" for="trust-device">
+                                    Trust this device for 30 days
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary">Verify</button>
+                        </div>
+                    </form>
+                    
+                    <div class="mt-3">
+                        <a href="{{ url_for('enhanced_security.backup_codes') }}" class="text-decoration-none">Having trouble? Use backup codes</a>
+                    </div>
+                    
+                    <div class="mt-3 text-center">
+                        <a href="{{ url_for('logout') }}" class="text-decoration-none">Cancel</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Auto-focus on the token input
+    document.getElementById('token').focus();
+    
+    // Auto-submit when 6 digits are entered
+    const tokenInput = document.getElementById('token');
+    tokenInput.addEventListener('input', function() {
+        if (this.value.length === 6) {
+            this.form.submit();
+        }
+    });
+});
+</script>
+{% endblock %}

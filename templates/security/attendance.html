@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+
+{% block title %}Attendance History - Law Firm Management System{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2>Attendance History</h2>
+                <div>
+                    <a href="{{ url_for('enhanced_security.attendance_check_in') }}" class="btn btn-success me-2">
+                        <i class="bi bi-check-circle"></i> Check In
+                    </a>
+                    <a href="{{ url_for('enhanced_security.attendance_check_out') }}" class="btn btn-danger">
+                        <i class="bi bi-x-circle"></i> Check Out
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Attendance Statistics -->
+            <div class="row mb-4">
+                <div class="col-md-4">
+                    <div class="card bg-primary text-white">
+                        <div class="card-body">
+                            <h5 class="card-title">Total Days</h5>
+                            <h2 class="card-text">{{ total_days }}</h2>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card bg-success text-white">
+                        <div class="card-body">
+                            <h5 class="card-title">Total Hours</h5>
+                            <h2 class="card-text">{{ "%.1f"|format(total_hours) }}</h2>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card bg-warning text-dark">
+                        <div class="card-body">
+                            <h5 class="card-title">Overtime Hours</h5>
+                            <h2 class="card-text">{{ "%.1f"|format(overtime_hours) }}</h2>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Attendance Records -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Attendance Records</h5>
+                </div>
+                <div class="card-body">
+                    {% with messages = get_flashed_messages(with_categories=true) %}
+                        {% if messages %}
+                            {% for category, message in messages %}
+                                <div class="alert alert-{{ category }}">{{ message }}</div>
+                            {% endfor %}
+                        {% endif %}
+                    {% endwith %}
+                    
+                    {% if attendance_records %}
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Check In</th>
+                                    <th>Check Out</th>
+                                    <th>Total Hours</th>
+                                    <th>Overtime</th>
+                                    <th>Method</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for record in attendance_records %}
+                                <tr>
+                                    <td>{{ record.date.strftime('%d-%m-%Y') }}</td>
+                                    <td>{{ record.check_in_time.strftime('%I:%M %p') if record.check_in_time else '-' }}</td>
+                                    <td>{{ record.check_out_time.strftime('%I:%M %p') if record.check_out_time else '-' }}</td>
+                                    <td>{{ "%.1f"|format(record.total_hours) if record.total_hours else '-' }}</td>
+                                    <td>{{ "%.1f"|format(record.overtime_hours) if record.overtime_hours else '-' }}</td>
+                                    <td>
+                                        <span class="badge bg-{{ 'success' if record.check_in_method == 'gps' else 'secondary' }}">
+                                            {{ record.check_in_method.title() }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        {% if record.check_out_time %}
+                                            <span class="badge bg-success">Complete</span>
+                                        {% else %}
+                                            <span class="badge bg-warning">Active</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="alert alert-info">
+                        <h5>No attendance records found</h5>
+                        <p>You haven't checked in yet this month. Click the "Check In" button to mark your attendance.</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

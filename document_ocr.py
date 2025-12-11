@@ -1,47 +1,31 @@
 """
-Advanced Document Management with OCR
-Implements OCR-based document text extraction, AI document summarization, and advanced search
+Document OCR Module
+Implements OCR-based document text extraction and AI document analysis
 """
 
 try:
-    from PIL import Image
-except ImportError:
-    Image = None
-
-try:
     import pytesseract
+    from PIL import Image
+    import pdf2image
+    import io
+    import cv2
+    import numpy as np
 except ImportError:
     pytesseract = None
-
-try:
-    from pdf2image import convert_from_path
-except ImportError:
-    convert_from_path = None
-
-try:
-    import docx
-except ImportError:
-    docx = None
-
-try:
-    import PyPDF2
-except ImportError:
-    PyPDF2 = None
+    Image = None
+    pdf2image = None
+    cv2 = None
+    np = None
 
 import os
-import io
 import json
-from flask import current_app
-from models import db, Document, DocumentAnalysis, Client
-import logging
-from datetime import datetime
 import re
+from datetime import datetime
+from flask import current_app
+from models import db, Document, DocumentAnalysis
 
-# Configure logging
-logger = logging.getLogger(__name__)
-
-class DocumentOCREngine:
-    """OCR engine for document text extraction"""
+class OCREngine:
+    """OCR Engine for extracting text from documents"""
     
     def __init__(self, app=None):
         self.app = app
@@ -50,158 +34,125 @@ class DocumentOCREngine:
     
     def init_app(self, app):
         self.app = app
-        # Configure Tesseract path if needed
-        self.tesseract_path = app.config.get('TESSERACT_PATH', None)
-        if self.tesseract_path:
+        # Configure Tesseract path if provided
+        self.tesseract_path = app.config.get('TESSERACT_PATH')
+        if self.tesseract_path and pytesseract:
             pytesseract.pytesseract.tesseract_cmd = self.tesseract_path
         
-        # Supported languages
-        self.supported_languages = app.config.get('OCR_LANGUAGES', ['eng', 'hin', 'mar', 'tam'])
+        # Supported file formats
+        self.supported_formats = ['pdf', 'jpg', 'jpeg', 'png', 'tiff', 'bmp']
+        
+        # OCR languages
+        self.languages = app.config.get('OCR_LANGUAGES', 'eng')
     
-    def extract_text_from_document(self, document_path, file_type):
-        """Extract text from various document types"""
+    def extract_text_from_file(self, file_path, file_type=None):
+        """Extract text from a file using OCR"""
+        if not pytesseract or not Image:
+            current_app.logger.error("OCR libraries not available")
+            return None, "OCR libraries not available"
+        
         try:
-            if file_type.lower() in ['jpg', 'jpeg', 'png', 'bmp', 'tiff']:
-                return self._extract_from_image(document_path)
-            elif file_type.lower() == 'pdf':
-                return self._extract_from_pdf(document_path)
-            elif file_type.lower() in ['doc', 'docx']:
-                return self._extract_from_docx(document_path)
-            elif file_type.lower() == 'txt':
-                return self._extract_from_text(document_path)
+            # Determine file type if not provided
+            if not file_type:
+                file_type = os.path.splitext(file_path)[1].lower().lstrip('.')
+            
+            if file_type not in self.supported_formats:
+                return None, f"Unsupported file format: {file_type}"
+            
+            # Process based on file type
+            if file_type == 'pdf':
+                return self._extract_from_pdf(file_path)
             else:
-                logger.warning(f"Unsupported file type: {file_type}")
-                return None
+                return self._extract_from_image(file_path)
+        
         except Exception as e:
-            logger.error(f"Error extracting text from {document_path}: {str(e)}")
-            return None
+            current_app.logger.error(f"OCR extraction error: {str(e)}")
+            return None, f"OCR extraction failed: {str(e)}"
     
-    def _extract_from_image(self, image_path):
-        """Extract text from image using OCR"""
-        if Image is None or pytesseract is None:
-            logger.error("PIL or pytesseract not available for OCR")
-            return None
-            
+    def _extract_from_pdf(self, file_path):
+        """Extract text from PDF file"""
+        if not pdf2image:
+            return None, "pdf2image library not available"
+        
         try:
-            image = Image.open(image_path)
+            # Convert PDF to images
+            images = pdf2image.convert_from_path(file_path)
+            all_text = []
             
-            # Preprocess image for better OCR
-            image = self._preprocess_image(image)
+            for i, image in enumerate(images):
+                # Preprocess image for better OCR
+                processed_image = self._preprocess_image(image)
+                
+                # Extract text
+                text = pytesseract.image_to_string(
+                    processed_image,
+                    lang=self.languages,
+                    config='--psm 6'  # Assume uniform block of text
+                )
+                
+                if text.strip():
+                    all_text.append(f"--- Page {i+1} ---\n{text}")
             
-            # Extract text using multiple languages
+            full_text = '\n\n'.join(all_text)
+            return full_text, None
+        
+        except Exception as e:
+            return None, f"PDF processing failed: {str(e)}"
+    
+    def _extract_from_image(self, file_path):
+        """Extract text from image file"""
+        try:
+            # Open image
+            image = Image.open(file_path)
+            
+            # Preprocess image
+            processed_image = self._preprocess_image(image)
+            
+            # Extract text
             text = pytesseract.image_to_string(
-                image, 
-                lang='+'.join(self.supported_languages),
-                config='--psm 6 --oem 3'
+                processed_image,
+                lang=self.languages,
+                config='--psm 6'
             )
             
-            return text.strip()
+            return text, None
+        
         except Exception as e:
-            logger.error(f"Error extracting text from image {image_path}: {str(e)}")
-            return None
-    
-    def _extract_from_pdf(self, pdf_path):
-        """Extract text from PDF file"""
-        try:
-            text = ""
-            
-            # First try to extract text directly
-            if PyPDF2 is not None:
-                try:
-                    with open(pdf_path, 'rb') as file:
-                        pdf_reader = PyPDF2.PdfReader(file)
-                        for page in pdf_reader.pages:
-                            text += page.extract_text() + "\n"
-                except:
-                    text = ""
-            
-            # If direct extraction fails or returns minimal text, use OCR
-            if len(text.strip()) < 100 and convert_from_path is not None and pytesseract is not None:
-                try:
-                    images = convert_from_path(pdf_path)
-                    for i, image in enumerate(images):
-                        # Preprocess image
-                        image = self._preprocess_image(image)
-                        
-                        # Extract text
-                        page_text = pytesseract.image_to_string(
-                            image, 
-                            lang='+'.join(self.supported_languages),
-                            config='--psm 6 --oem 3'
-                        )
-                        text += page_text + "\n"
-                except Exception as e:
-                    logger.error(f"Error processing PDF with OCR: {str(e)}")
-            
-            return text.strip()
-        except Exception as e:
-            logger.error(f"Error extracting text from PDF {pdf_path}: {str(e)}")
-            return None
-    
-    def _extract_from_docx(self, docx_path):
-        """Extract text from DOCX file"""
-        if docx is None:
-            logger.error("python-docx not available for DOCX extraction")
-            return None
-            
-        try:
-            doc = docx.Document(docx_path)
-            text = ""
-            
-            for paragraph in doc.paragraphs:
-                text += paragraph.text + "\n"
-            
-            # Extract text from tables
-            for table in doc.tables:
-                for row in table.rows:
-                    for cell in row.cells:
-                        text += cell.text + " "
-                    text += "\n"
-            
-            return text.strip()
-        except Exception as e:
-            logger.error(f"Error extracting text from DOCX {docx_path}: {str(e)}")
-            return None
-    
-    def _extract_from_text(self, text_path):
-        """Extract text from plain text file"""
-        try:
-            with open(text_path, 'r', encoding='utf-8') as file:
-                return file.read()
-        except UnicodeDecodeError:
-            # Try with different encoding
-            try:
-                with open(text_path, 'r', encoding='latin-1') as file:
-                    return file.read()
-            except Exception as e:
-                logger.error(f"Error reading text file {text_path}: {str(e)}")
-                return None
-        except Exception as e:
-            logger.error(f"Error reading text file {text_path}: {str(e)}")
-            return None
+            return None, f"Image processing failed: {str(e)}"
     
     def _preprocess_image(self, image):
-        """Preprocess image for better OCR accuracy"""
+        """Preprocess image for better OCR results"""
+        if not cv2 or not np:
+            return image
+        
         try:
+            # Convert PIL to OpenCV format
+            cv_image = np.array(image)
+            
             # Convert to grayscale
-            if image.mode != 'L':
-                image = image.convert('L')
+            if len(cv_image.shape) == 3:
+                cv_image = cv2.cvtColor(cv_image, cv2.COLOR_RGB2GRAY)
             
-            # Resize if too small
-            width, height = image.size
-            if width < 300 or height < 300:
-                scale = max(300/width, 300/height)
-                new_width = int(width * scale)
-                new_height = int(height * scale)
-                image = image.resize((new_width, new_height), Image.Resampling.LANCZOS)
+            # Apply threshold to get binary image
+            _, cv_image = cv2.threshold(cv_image, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
             
-            return image
+            # Noise removal
+            cv_image = cv2.medianBlur(cv_image, 3)
+            
+            # Convert back to PIL
+            return Image.fromarray(cv_image)
+        
         except Exception as e:
-            logger.error(f"Error preprocessing image: {str(e)}")
+            current_app.logger.warning(f"Image preprocessing failed: {str(e)}")
             return image
+    
+    def is_supported_format(self, file_path):
+        """Check if file format is supported for OCR"""
+        file_type = os.path.splitext(file_path)[1].lower().lstrip('.')
+        return file_type in self.supported_formats
 
 class DocumentAnalyzer:
-    """AI-powered document analysis and summarization"""
+    """AI-powered document analysis"""
     
     def __init__(self, app=None):
         self.app = app
@@ -211,425 +162,402 @@ class DocumentAnalyzer:
     def init_app(self, app):
         self.app = app
         # AI service configuration
-        self.ai_service = app.config.get('AI_SERVICE', 'mock')  # mock, openai, gemini
-        self.api_key = app.config.get('AI_API_KEY')
+        self.ai_service = app.config.get('AI_SERVICE', 'local')
+        self.ai_api_key = app.config.get('AI_API_KEY')
+        self.ai_model = app.config.get('AI_MODEL', 'gpt-3.5-turbo')
     
-    def analyze_document(self, document_id, text_content):
+    def analyze_document(self, document_id, text=None):
         """Analyze document content and extract insights"""
+        document = Document.query.get(document_id)
+        if not document:
+            return False, "Document not found"
+        
+        # Get text if not provided
+        if not text:
+            text = document.ocr_text
+            if not text:
+                return False, "No text available for analysis"
+        
         try:
-            if not text_content or len(text_content.strip()) < 10:
-                return None
-            
             # Perform different types of analysis
             analyses = {}
             
-            # Generate summary
-            summary = self._generate_summary(text_content)
-            if summary:
-                analyses['summary'] = summary
-            
             # Extract keywords
-            keywords = self._extract_keywords(text_content)
-            if keywords:
-                analyses['keywords'] = keywords
-            
-            # Extract entities (names, dates, amounts, etc.)
-            entities = self._extract_entities(text_content)
-            if entities:
-                analyses['entities'] = entities
+            analyses['keywords'] = self._extract_keywords(text)
             
             # Detect document type
-            doc_type = self._detect_document_type(text_content)
-            if doc_type:
-                analyses['document_type'] = doc_type
+            analyses['document_type'] = self._detect_document_type(text)
             
-            # Extract legal references
-            legal_refs = self._extract_legal_references(text_content)
-            if legal_refs:
-                analyses['legal_references'] = legal_refs
+            # Extract entities
+            analyses['entities'] = self._extract_entities(text)
             
-            # Calculate confidence score
-            confidence_score = self._calculate_confidence_score(analyses)
+            # Generate summary
+            analyses['summary'] = self._generate_summary(text)
+            
+            # Extract dates
+            analyses['dates'] = self._extract_dates(text)
+            
+            # Extract amounts/money
+            analyses['amounts'] = self._extract_amounts(text)
+            
+            # Legal-specific analysis
+            if document.category in ['contract', 'court_filing', 'legal_brief', 'motion', 'pleading']:
+                analyses['legal_analysis'] = self._legal_document_analysis(text)
             
             # Save analyses to database
             for analysis_type, result in analyses.items():
-                document_analysis = DocumentAnalysis(
-                    document_id=document_id,
-                    analysis_type=analysis_type,
-                    analysis_result=json.dumps(result) if isinstance(result, (dict, list)) else str(result),
-                    confidence_score=confidence_score
-                )
-                db.session.add(document_analysis)
+                if result:
+                    analysis = DocumentAnalysis(
+                        document_id=document_id,
+                        analysis_type=analysis_type,
+                        analysis_result=json.dumps(result) if isinstance(result, dict) else result,
+                        confidence_score=0.85  # Placeholder confidence score
+                    )
+                    db.session.add(analysis)
             
             db.session.commit()
-            
-            return analyses
-            
+            return True, "Document analysis completed"
+        
         except Exception as e:
-            logger.error(f"Error analyzing document {document_id}: {str(e)}")
-            return None
-    
-    def _generate_summary(self, text, max_sentences=3):
-        """Generate document summary"""
-        try:
-            if self.ai_service == 'openai':
-                return self._generate_summary_openai(text, max_sentences)
-            elif self.ai_service == 'gemini':
-                return self._generate_summary_gemini(text, max_sentences)
-            else:
-                # Mock summary using extractive summarization
-                return self._generate_summary_mock(text, max_sentences)
-        except Exception as e:
-            logger.error(f"Error generating summary: {str(e)}")
-            return None
-    
-    def _generate_summary_mock(self, text, max_sentences):
-        """Mock summary using extractive summarization"""
-        sentences = re.split(r'[.!?]+', text)
-        sentences = [s.strip() for s in sentences if len(s.strip()) > 20]
-        
-        if len(sentences) <= max_sentences:
-            return sentences
-        
-        # Score sentences based on length and position
-        scored_sentences = []
-        for i, sentence in enumerate(sentences):
-            score = len(sentence) * (1 - i / len(sentences))  # Prefer earlier sentences
-            scored_sentences.append((score, sentence))
-        
-        # Sort by score and take top sentences
-        scored_sentences.sort(reverse=True, key=lambda x: x[0])
-        top_sentences = [sent[1] for sent in scored_sentences[:max_sentences]]
-        
-        # Reorder by original position
-        summary = []
-        for sentence in sentences:
-            if sentence in top_sentences:
-                summary.append(sentence)
-                if len(summary) >= max_sentences:
-                    break
-        
-        return summary
-    
-    def _generate_summary_openai(self, text, max_sentences):
-        """Generate summary using OpenAI API"""
-        # Placeholder for OpenAI integration
-        # You would need to install openai package and configure API key
-        pass
-    
-    def _generate_summary_gemini(self, text, max_sentences):
-        """Generate summary using Google Gemini API"""
-        # Placeholder for Gemini integration
-        # You would need to install google-generativeai package and configure API key
-        pass
+            current_app.logger.error(f"Document analysis error: {str(e)}")
+            return False, f"Analysis failed: {str(e)}"
     
     def _extract_keywords(self, text):
         """Extract keywords from text"""
-        try:
-            # Simple keyword extraction using frequency and legal terms
-            legal_terms = [
-                'agreement', 'contract', 'court', 'judge', 'law', 'legal', 'party',
-                'plaintiff', 'defendant', 'attorney', 'lawyer', 'evidence', 'testimony',
-                'judgment', 'verdict', 'appeal', 'motion', 'hearing', 'trial',
-                'settlement', 'damages', 'liability', 'breach', 'clause', 'provision',
-                'statute', 'regulation', 'compliance', 'jurisdiction', 'precedent'
-            ]
-            
-            words = re.findall(r'\b\w+\b', text.lower())
-            word_freq = {}
-            
-            for word in words:
-                if len(word) > 3 and word not in ['the', 'and', 'for', 'are', 'with', 'this', 'that', 'from']:
-                    word_freq[word] = word_freq.get(word, 0) + 1
-            
-            # Prioritize legal terms
-            keywords = []
-            for term in legal_terms:
-                if term in word_freq:
-                    keywords.append((term, word_freq[term]))
-            
-            # Add other frequent words
-            for word, freq in sorted(word_freq.items(), key=lambda x: x[1], reverse=True)[:20]:
-                if word not in [kw[0] for kw in keywords]:
-                    keywords.append((word, freq))
-            
-            return keywords[:15]  # Return top 15 keywords
-            
-        except Exception as e:
-            logger.error(f"Error extracting keywords: {str(e)}")
-            return []
-    
-    def _extract_entities(self, text):
-        """Extract named entities from text"""
-        entities = {}
+        # Simple keyword extraction using frequency and legal terms
+        legal_terms = [
+            'agreement', 'contract', 'party', 'clause', 'liability', 'indemnity',
+            'jurisdiction', 'governing law', 'termination', 'breach', 'damages',
+            'court', 'judge', 'plaintiff', 'defendant', 'evidence', 'testimony',
+            'attorney', 'counsel', 'legal', 'law', 'statute', 'regulation'
+        ]
         
-        try:
-            # Extract dates
-            date_pattern = r'\b\d{1,2}[/-]\d{1,2}[/-]\d{2,4}\b|\b\d{4}[/-]\d{1,2}[/-]\d{1,2}\b'
-            dates = re.findall(date_pattern, text)
-            if dates:
-                entities['dates'] = dates
-            
-            # Extract monetary amounts
-            amount_pattern = r'[₹$€£]\s*\d+(?:,\d{3})*(?:\.\d{2})?|\d+(?:,\d{3})*(?:\.\d{2})?\s*(?:rupees|dollars|euros|pounds|rs|USD|EUR|GBP|INR)'
-            amounts = re.findall(amount_pattern, text, re.IGNORECASE)
-            if amounts:
-                entities['amounts'] = amounts
-            
-            # Extract phone numbers
-            phone_pattern = r'\b(?:\+91[-\s]?|0)?[6-9]\d{9}\b|\b\d{3}[-\s]?\d{3}[-\s]?\d{4}\b'
-            phones = re.findall(phone_pattern, text)
-            if phones:
-                entities['phone_numbers'] = phones
-            
-            # Extract email addresses
-            email_pattern = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b'
-            emails = re.findall(email_pattern, text)
-            if emails:
-                entities['emails'] = emails
-            
-            # Extract potential names (simplified)
-            name_pattern = r'\b[A-Z][a-z]+\s+[A-Z][a-z]+\b'
-            names = re.findall(name_pattern, text)
-            if names:
-                entities['names'] = list(set(names))  # Remove duplicates
-            
-            return entities
-            
-        except Exception as e:
-            logger.error(f"Error extracting entities: {str(e)}")
-            return {}
+        # Count word frequency
+        words = re.findall(r'\b[a-zA-Z]{4,}\b', text.lower())
+        word_freq = {}
+        
+        for word in words:
+            if word in legal_terms or len(word) > 6:
+                word_freq[word] = word_freq.get(word, 0) + 1
+        
+        # Sort by frequency and return top keywords
+        sorted_words = sorted(word_freq.items(), key=lambda x: x[1], reverse=True)
+        return [word for word, freq in sorted_words[:20]]
     
     def _detect_document_type(self, text):
         """Detect document type based on content"""
-        text_lower = text.lower()
-        
-        document_types = {
-            'contract': ['agreement', 'contract', 'terms', 'conditions', 'party', 'signature'],
-            'court_filing': ['court', 'filed', 'petition', 'motion', 'judge', 'jurisdiction'],
-            'legal_notice': ['notice', 'legal', 'demand', 'breach', 'compliance'],
-            'power_of_attorney': ['power of attorney', 'poa', 'attorney-in-fact', 'authorize'],
-            'will': ['last will', 'testament', 'beneficiary', 'executor', 'inheritance'],
-            'deed': ['deed', 'property', 'transfer', 'grantor', 'grantee'],
-            'affidavit': ['affidavit', 'sworn', 'declaration', 'oath', 'notary'],
-            'invoice': ['invoice', 'bill', 'amount due', 'payment terms'],
-            'receipt': ['receipt', 'received', 'payment', 'acknowledged'],
-            'correspondence': ['dear', 'sincerely', 'regards', 'yours truly']
+        # Simple pattern matching for document types
+        patterns = {
+            'contract': [
+                r'agreement', r'contract', r'terms and conditions', r'party',
+                r'signature', r'date of execution', r'consideration'
+            ],
+            'court_filing': [
+                r'court', r'case number', r'plaintiff', r'defendant',
+                r'filed', r'judgment', r'decree'
+            ],
+            'invoice': [
+                r'invoice', r'bill to', r'amount due', r'payment terms',
+                r'tax', r'due date'
+            ],
+            'legal_notice': [
+                r'legal notice', r'demand', r'notice period', r'breach',
+                r'cure period', r'legal action'
+            ],
+            'power_of_attorney': [
+                r'power of attorney', r'attorney-in-fact', r'authorize',
+                r'special power', r'general power'
+            ]
         }
         
+        text_lower = text.lower()
         scores = {}
-        for doc_type, keywords in document_types.items():
-            score = sum(1 for keyword in keywords if keyword in text_lower)
+        
+        for doc_type, pattern_list in patterns.items():
+            score = 0
+            for pattern in pattern_list:
+                if re.search(pattern, text_lower):
+                    score += 1
             scores[doc_type] = score
         
-        if max(scores.values()) == 0:
-            return 'unknown'
+        # Return document type with highest score
+        if scores:
+            detected_type = max(scores, key=scores.get)
+            if scores[detected_type] > 0:
+                return detected_type
         
-        return max(scores, key=scores.get)
+        return 'unknown'
     
-    def _extract_legal_references(self, text):
-        """Extract legal references like case numbers, statutes, etc."""
-        references = {}
+    def _extract_entities(self, text):
+        """Extract named entities from text"""
+        entities = {
+            'persons': [],
+            'organizations': [],
+            'locations': [],
+            'dates': [],
+            'amounts': []
+        }
         
-        try:
-            # Extract case numbers
-            case_pattern = r'\b(?:Case|Civil|Criminal|Suit|Petition)\s+No\.?\s*[\d/-]+'
-            case_numbers = re.findall(case_pattern, text, re.IGNORECASE)
-            if case_numbers:
-                references['case_numbers'] = case_numbers
-            
-            # Extract section references
-            section_pattern = r'\bSection\s+\d+\s*(?:of\s*[A-Za-z\s]+)?'
-            sections = re.findall(section_pattern, text, re.IGNORECASE)
-            if sections:
-                references['sections'] = sections
-            
-            # Extract act/statute references
-            act_pattern = r'\b[A-Za-z\s]+Act\s*,?\s*\d{4}\b'
-            acts = re.findall(act_pattern, text)
-            if acts:
-                references['acts'] = acts
-            
-            return references
-            
-        except Exception as e:
-            logger.error(f"Error extracting legal references: {str(e)}")
-            return {}
+        # Extract person names (simple pattern)
+        person_pattern = r'\b([A-Z][a-z]+ [A-Z][a-z]+(?:\s+[A-Z][a-z]+)*)\b'
+        potential_names = re.findall(person_pattern, text)
+        entities['persons'] = list(set(potential_names))[:10]  # Limit to 10
+        
+        # Extract organizations (simple pattern)
+        org_pattern = r'\b([A-Z][a-zA-Z&\s]+(?:Inc|Ltd|LLC|Corp|Corporation|Company|LLP|Pvt\.? Ltd\.?)\b'
+        potential_orgs = re.findall(org_pattern, text)
+        entities['organizations'] = list(set(potential_orgs))[:10]
+        
+        # Extract dates
+        date_pattern = r'\b(\d{1,2}[/-]\d{1,2}[/-]\d{2,4}|\d{4}[/-]\d{1,2}[/-]\d{1,2})\b'
+        entities['dates'] = list(set(re.findall(date_pattern, text)))[:10]
+        
+        # Extract monetary amounts
+        amount_pattern = r'\b(?:₹|Rs\.?|\$|USD|EUR|GBP)?\s*[\d,]+(?:\.\d{2})?\b'
+        entities['amounts'] = list(set(re.findall(amount_pattern, text)))[:10]
+        
+        return entities
     
-    def _calculate_confidence_score(self, analyses):
-        """Calculate confidence score for the analysis"""
-        if not analyses:
-            return 0.0
+    def _generate_summary(self, text):
+        """Generate a summary of the document"""
+        # Simple extractive summarization
+        sentences = re.split(r'[.!?]+', text)
+        sentences = [s.strip() for s in sentences if s.strip()]
         
-        # Base score on number of successful analyses
-        score = min(len(analyses) * 0.2, 1.0)
+        if len(sentences) <= 3:
+            return text[:500] + '...' if len(text) > 500 else text
         
-        # Boost score if we have a good summary
-        if 'summary' in analyses and analyses['summary']:
-            score += 0.2
+        # Score sentences based on position and length
+        scored_sentences = []
+        for i, sentence in enumerate(sentences):
+            score = 0
+            
+            # Prefer sentences at the beginning
+            if i < len(sentences) * 0.3:
+                score += 2
+            elif i < len(sentences) * 0.6:
+                score += 1
+            
+            # Prefer sentences with legal terms
+            legal_terms = ['agreement', 'contract', 'party', 'court', 'law', 'legal']
+            for term in legal_terms:
+                if term.lower() in sentence.lower():
+                    score += 1
+            
+            # Prefer sentences with moderate length
+            if 50 <= len(sentence) <= 200:
+                score += 1
+            
+            scored_sentences.append((sentence, score))
         
-        # Boost score if we have keywords
-        if 'keywords' in analyses and len(analyses['keywords']) > 5:
-            score += 0.1
+        # Sort by score and take top sentences
+        scored_sentences.sort(key=lambda x: x[1], reverse=True)
+        summary_sentences = [s[0] for s in scored_sentences[:3]]
         
-        # Boost score if we have entities
-        if 'entities' in analyses and analyses['entities']:
-            score += 0.1
+        return '. '.join(summary_sentences) + '.'
+    
+    def _extract_dates(self, text):
+        """Extract and normalize dates from text"""
+        date_patterns = [
+            r'\b(\d{1,2})[/-](\d{1,2})[/-](\d{2,4})\b',
+            r'\b(\d{4})[/-](\d{1,2})[/-](\d{1,2})\b',
+            r'\b(\d{1,2})(?:st|nd|rd|th)\s+(January|February|March|April|May|June|July|August|September|October|November|December),?\s+(\d{4})\b'
+        ]
         
-        return min(score, 1.0)
+        dates = []
+        for pattern in date_patterns:
+            matches = re.findall(pattern, text, re.IGNORECASE)
+            dates.extend(matches)
+        
+        return dates[:10]  # Limit to 10 dates
+    
+    def _extract_amounts(self, text):
+        """Extract monetary amounts from text"""
+        # Indian currency patterns
+        inr_patterns = [
+            r'₹\s*[\d,]+(?:\.\d{2})?',
+            r'Rs\.?\s*[\d,]+(?:\.\d{2})?',
+            r'[\d,]+(?:\.\d{2})?\s*(?:rupees|Rs\.?|INR)'
+        ]
+        
+        # International currency patterns
+        other_patterns = [
+            r'\$\s*[\d,]+(?:\.\d{2})?',
+            r'[\d,]+(?:\.\d{2})?\s*(?:USD|dollars)',
+            r'EUR\s*[\d,]+(?:\.\d{2})?',
+            r'£\s*[\d,]+(?:\.\d{2})?'
+        ]
+        
+        amounts = []
+        all_patterns = inr_patterns + other_patterns
+        
+        for pattern in all_patterns:
+            matches = re.findall(pattern, text, re.IGNORECASE)
+            amounts.extend(matches)
+        
+        return list(set(amounts))[:10]  # Limit to 10 unique amounts
+    
+    def _legal_document_analysis(self, text):
+        """Perform legal-specific document analysis"""
+        analysis = {
+            'clauses_identified': [],
+            'risk_indicators': [],
+            'key_terms': [],
+            'jurisdiction': None,
+            'governing_law': None,
+            'parties': []
+        }
+        
+        # Identify common legal clauses
+        clause_patterns = {
+            'indemnity': r'indemnif[y|i](?:es|ication)?',
+            'liability': r'liabilit[y|ies]',
+            'termination': r'terminat(?:e|ion)(?:\s+clause)?',
+            'confidentiality': r'confidential(?:ity|ity\s+agreement)',
+            'force_majeure': r'force\s+majeure',
+            'dispute_resolution': r'dispute\s+resolution',
+            'governing_law': r'governing\s+law',
+            'jurisdiction': r'jurisdicition',
+            'assignment': r'assign(?:ment|able)?',
+            'amendment': r'amend(?:ment|s)?'
+        }
+        
+        for clause, pattern in clause_patterns.items():
+            if re.search(pattern, text, re.IGNORECASE):
+                analysis['clauses_identified'].append(clause)
+        
+        # Identify risk indicators
+        risk_patterns = [
+            (r'as\s+is', "No warranty provided"),
+            (r'limit(?:s)?\s+liabilit[y|ies]', "Liability limitations"),
+            (r'no\s+warrant[y|ies]', "No warranties"),
+            (r'penalt(?:y|ies)', "Penalty clauses"),
+            (r'liquidated\s+damages', "Liquidated damages")
+        ]
+        
+        for pattern, description in risk_patterns:
+            if re.search(pattern, text, re.IGNORECASE):
+                analysis['risk_indicators'].append(description)
+        
+        # Extract jurisdiction and governing law
+        jurisdiction_match = re.search(r'jurisdic[t|i]ion[^.]*', text, re.IGNORECASE)
+        if jurisdiction_match:
+            analysis['jurisdiction'] = jurisdiction_match.group(0).strip()
+        
+        law_match = re.search(r'governing\s+law[^.]*', text, re.IGNORECASE)
+        if law_match:
+            analysis['governing_law'] = law_match.group(0).strip()
+        
+        return analysis
 
-class AdvancedDocumentSearch:
-    """Advanced search functionality for documents"""
+class DocumentSearcher:
+    """Advanced document search functionality"""
     
     def __init__(self, app=None):
         self.app = app
+        if app is not None:
+            self.init_app(app)
     
-    def search_documents(self, query, user_id=None, filters=None):
-        """Search documents with advanced filters"""
-        try:
-            # Base query
-            query_obj = Document.query
-            
-            # Apply user filter if specified
-            if user_id:
-                query_obj = query_obj.filter(
-                    (Document.uploaded_by == user_id) |
-                    (Document.client_id.in_(
-                        db.session.query(Client.id).filter_by(assigned_lawyer_id=user_id)
-                    ))
-                )
-            
-            # Apply text search
-            if query:
-                search_terms = query.split()
-                search_conditions = []
-                
-                for term in search_terms:
-                    search_conditions.append(
-                        Document.title.contains(term)
-                    )
-                    search_conditions.append(
-                        Document.description.contains(term)
-                    )
-                    search_conditions.append(
-                        Document.ocr_text.contains(term)
-                    )
-                    search_conditions.append(
-                        Document.tags.contains(term)
-                    )
-                
-                if search_conditions:
-                    from sqlalchemy import or_
-                    query_obj = query_obj.filter(or_(*search_conditions))
-            
-            # Apply additional filters
-            if filters:
-                if filters.get('category'):
-                    query_obj = query_obj.filter(Document.category == filters['category'])
-                
-                if filters.get('client_id'):
-                    query_obj = query_obj.filter(Document.client_id == filters['client_id'])
-                
-                if filters.get('case_id'):
-                    query_obj = query_obj.filter(Document.case_id == filters['case_id'])
-                
-                if filters.get('date_from'):
-                    query_obj = query_obj.filter(Document.created_at >= filters['date_from'])
-                
-                if filters.get('date_to'):
-                    query_obj = query_obj.filter(Document.created_at <= filters['date_to'])
-                
-                if filters.get('file_type'):
-                    query_obj = query_obj.filter(Document.file_type.like(f"%{filters['file_type']}%"))
-            
-            # Execute query
-            documents = query_obj.order_by(Document.created_at.desc()).all()
-            
-            # Calculate relevance scores
-            scored_documents = []
-            for doc in documents:
-                score = self._calculate_relevance_score(doc, query, filters)
-                scored_documents.append((doc, score))
-            
-            # Sort by relevance score
-            scored_documents.sort(key=lambda x: x[1], reverse=True)
-            
-            return [doc[0] for doc in scored_documents]
-            
-        except Exception as e:
-            logger.error(f"Error searching documents: {str(e)}")
-            return []
+    def init_app(self, app):
+        self.app = app
     
-    def _calculate_relevance_score(self, document, query, filters=None):
-        """Calculate relevance score for document"""
-        score = 0.0
+    def search_documents(self, query, user_id=None, case_id=None, client_id=None):
+        """Search documents with advanced filtering"""
+        # Build base query
+        documents = Document.query
         
-        if query:
-            search_terms = query.split()
-            content = f"{document.title} {document.description or ''} {document.ocr_text or ''} {document.tags or ''}"
-            content_lower = content.lower()
+        # Apply filters
+        if user_id:
+            documents = documents.filter(Document.uploaded_by == user_id)
+        
+        if case_id:
+            documents = documents.filter(Document.case_id == case_id)
+        
+        if client_id:
+            documents = documents.filter(Document.client_id == client_id)
+        
+        # Get all documents that match filters
+        documents = documents.all()
+        
+        # Search in OCR text and metadata
+        results = []
+        query_lower = query.lower()
+        
+        for doc in documents:
+            score = 0
+            match_context = []
             
-            # Score based on term frequency
-            for term in search_terms:
-                term_lower = term.lower()
-                count = content_lower.count(term_lower)
-                score += count * 0.1
-                
-                # Boost score for title matches
-                if term_lower in document.title.lower():
-                    score += 0.5
-                
-                # Boost score for tag matches
-                if document.tags and term_lower in document.tags.lower():
-                    score += 0.3
+            # Search in title
+            if doc.title and query_lower in doc.title.lower():
+                score += 10
+                match_context.append(f"Title: {doc.title}")
+            
+            # Search in description
+            if doc.description and query_lower in doc.description.lower():
+                score += 5
+                match_context.append(f"Description: {doc.description[:100]}...")
+            
+            # Search in OCR text
+            if doc.ocr_text and query_lower in doc.ocr_text.lower():
+                score += 3
+                # Find context around match
+                text_lower = doc.ocr_text.lower()
+                start_idx = text_lower.find(query_lower)
+                if start_idx != -1:
+                    context_start = max(0, start_idx - 50)
+                    context_end = min(len(doc.ocr_text), start_idx + len(query) + 50)
+                    context = doc.ocr_text[context_start:context_end].replace('\n', ' ')
+                    match_context.append(f"Content: ...{context}...")
+            
+            # Search in tags
+            if doc.tags and query_lower in doc.tags.lower():
+                score += 2
+                match_context.append(f"Tags: {doc.tags}")
+            
+            # Add to results if matched
+            if score > 0:
+                results.append({
+                    'document': doc,
+                    'score': score,
+                    'context': match_context
+                })
         
-        # Boost score for recently uploaded documents
-        days_since_upload = (datetime.utcnow() - document.created_at).days
-        recency_boost = max(0, 1 - days_since_upload / 365)  # Decay over a year
-        score += recency_boost * 0.2
+        # Sort by relevance score
+        results.sort(key=lambda x: x['score'], reverse=True)
         
-        # Boost score for documents with analyses
-        if document.analyses:
-            score += 0.1
-        
-        return score
+        return results
 
-# Initialize OCR and analysis engines
-ocr_engine = DocumentOCREngine()
+# Initialize OCR engine components
+ocr_engine = OCREngine()
 document_analyzer = DocumentAnalyzer()
-document_search = AdvancedDocumentSearch()
+document_searcher = DocumentSearcher()
 
 def process_document_ocr(document_id):
-    """Process document OCR in background"""
+    """Process OCR for a document (background task)"""
+    document = Document.query.get(document_id)
+    if not document:
+        return False, "Document not found"
+    
     try:
-        document = Document.query.get(document_id)
-        if not document:
-            logger.error(f"Document {document_id} not found")
-            return
+        # Check if file exists
+        if not os.path.exists(document.file_path):
+            return False, "File not found"
         
         # Extract text using OCR
-        extracted_text = ocr_engine.extract_text_from_document(
-            document.file_path, 
-            document.file_type
-        )
+        text, error = ocr_engine.extract_text_from_file(document.file_path)
         
-        if extracted_text:
-            # Update document with extracted text
-            document.ocr_text = extracted_text
-            
-            # Analyze document content
-            analyses = document_analyzer.analyze_document(document_id, extracted_text)
-            
-            if analyses and 'summary' in analyses:
-                # Update document with AI summary
-                document.ai_summary = ' '.join(analyses['summary']) if isinstance(analyses['summary'], list) else str(analyses['summary'])
-            
-            db.session.commit()
-            
-            logger.info(f"Successfully processed OCR for document {document_id}")
-        else:
-            logger.warning(f"No text extracted from document {document_id}")
-            
+        if error:
+            return False, error
+        
+        # Update document with OCR text
+        document.ocr_text = text
+        db.session.commit()
+        
+        # Analyze document
+        analysis_success, analysis_message = document_analyzer.analyze_document(document_id, text)
+        
+        return True, "OCR processing completed"
+    
     except Exception as e:
-        logger.error(f"Error processing OCR for document {document_id}: {str(e)}")
-        db.session.rollback()
+        current_app.logger.error(f"OCR processing error for document {document_id}: {str(e)}")
+        return False, f"OCR processing failed: {str(e)}"

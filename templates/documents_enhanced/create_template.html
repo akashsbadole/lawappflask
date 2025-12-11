@@ -1,0 +1,559 @@
+{% extends "base.html" %}
+
+{% block title %}Create Document Template{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <h2><i class="fas fa-file-alt"></i> Create Document Template</h2>
+            <p class="text-muted">Create a reusable document template with variable placeholders.</p>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-plus"></i> Template Details</h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="{{ url_for('documents.create_template') }}" id="templateForm">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="title">Template Title *</label>
+                                    <input type="text" class="form-control" id="title" name="title" required
+                                           placeholder="e.g., Non-Disclosure Agreement">
+                                    <small class="form-text text-muted">A descriptive name for your template</small>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="category">Category</label>
+                                    <select class="form-control" id="category" name="category">
+                                        <option value="">Select a category</option>
+                                        <option value="Contracts">Contracts</option>
+                                        <option value="Agreements">Agreements</option>
+                                        <option value="Letters">Letters</option>
+                                        <option value="Notices">Notices</option>
+                                        <option value="Petitions">Petitions</option>
+                                        <option value="Applications">Applications</option>
+                                        <option value="Affidavits">Affidavits</option>
+                                        <option value="Other">Other</option>
+                                    </select>
+                                    <small class="form-text text-muted">Group similar templates together</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="form-group">
+                                    <label for="description">Description</label>
+                                    <textarea class="form-control" id="description" name="description" rows="3"
+                                              placeholder="Brief description of what this template is used for..."></textarea>
+                                    <small class="form-text text-muted">Help others understand when to use this template</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="form-group">
+                                    <label for="template_content">Template Content *</label>
+                                    <textarea class="form-control" id="template_content" name="template_content" rows="15" required
+                                              placeholder="Enter your template content here... Use {variable_name} for placeholders"></textarea>
+                                    <small class="form-text text-muted">
+                                        Use curly braces for variables: {client_name}, {case_number}, {current_date}, etc.
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="form-group">
+                                    <label for="variables">Template Variables</label>
+                                    <div class="input-group">
+                                        <input type="text" class="form-control" id="variableInput" 
+                                               placeholder="Enter variable name (e.g., client_name)">
+                                        <div class="input-group-append">
+                                            <button class="btn btn-outline-secondary" type="button" id="addVariable">
+                                                <i class="fas fa-plus"></i> Add
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <small class="form-text text-muted">
+                                        Add variables that will be replaced when using this template
+                                    </small>
+                                    <div id="variablesList" class="mt-2">
+                                        <!-- Variables will be added here dynamically -->
+                                    </div>
+                                    <input type="hidden" id="variables" name="variables" value="">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="form-group">
+                                    <label>Common Variables</label>
+                                    <div class="row">
+                                        <div class="col-md-3 col-sm-6 mb-2">
+                                            <button type="button" class="btn btn-sm btn-outline-primary common-variable" 
+                                                    data-variable="client_name">
+                                                {client_name}
+                                            </button>
+                                        </div>
+                                        <div class="col-md-3 col-sm-6 mb-2">
+                                            <button type="button" class="btn btn-sm btn-outline-primary common-variable" 
+                                                    data-variable="case_number">
+                                                {case_number}
+                                            </button>
+                                        </div>
+                                        <div class="col-md-3 col-sm-6 mb-2">
+                                            <button type="button" class="btn btn-sm btn-outline-primary common-variable" 
+                                                    data-variable="current_date">
+                                                {current_date}
+                                            </button>
+                                        </div>
+                                        <div class="col-md-3 col-sm-6 mb-2">
+                                            <button type="button" class="btn btn-sm btn-outline-primary common-variable" 
+                                                    data-variable="firm_name">
+                                                {firm_name}
+                                            </button>
+                                        </div>
+                                        <div class="col-md-3 col-sm-6 mb-2">
+                                            <button type="button" class="btn btn-sm btn-outline-primary common-variable" 
+                                                    data-variable="lawyer_name">
+                                                {lawyer_name}
+                                            </button>
+                                        </div>
+                                        <div class="col-md-3 col-sm-6 mb-2">
+                                            <button type="button" class="btn btn-sm btn-outline-primary common-variable" 
+                                                    data-variable="court_name">
+                                                {court_name}
+                                            </button>
+                                        </div>
+                                        <div class="col-md-3 col-sm-6 mb-2">
+                                            <button type="button" class="btn btn-sm btn-outline-primary common-variable" 
+                                                    data-variable="address">
+                                                {address}
+                                            </button>
+                                        </div>
+                                        <div class="col-md-3 col-sm-6 mb-2">
+                                            <button type="button" class="btn btn-sm btn-outline-primary common-variable" 
+                                                    data-variable="phone">
+                                                {phone}
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="form-group">
+                                    <button type="button" class="btn btn-outline-secondary" id="previewTemplate">
+                                        <i class="fas fa-eye"></i> Preview Template
+                                    </button>
+                                    <button type="button" class="btn btn-outline-info" id="validateTemplate">
+                                        <i class="fas fa-check"></i> Validate Template
+                                    </button>
+                                    <button type="button" class="btn btn-outline-warning" id="loadSample">
+                                        <i class="fas fa-file-import"></i> Load Sample Template
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="form-group text-right">
+                                    <a href="{{ url_for('documents.document_templates') }}" class="btn btn-secondary">
+                                        <i class="fas fa-times"></i> Cancel
+                                    </a>
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-save"></i> Create Template
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Template Preview Modal -->
+    <div class="modal fade" id="previewModal" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Template Preview</h5>
+                    <button type="button" class="close" data-dismiss="modal">
+                        <span>&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div id="previewContent" class="border p-3 bg-light">
+                        <!-- Preview content will be displayed here -->
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sample Templates Modal -->
+    <div class="modal fade" id="sampleModal" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Sample Templates</h5>
+                    <button type="button" class="close" data-dismiss="modal">
+                        <span>&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="list-group">
+                        <a href="#" class="list-group-item list-group-item-action sample-template" 
+                           data-category="Contracts" data-title="Non-Disclosure Agreement">
+                            <h6 class="mb-1">Non-Disclosure Agreement</h6>
+                            <p class="mb-1">Standard NDA template for protecting confidential information</p>
+                            <small>Contracts</small>
+                        </a>
+                        <a href="#" class="list-group-item list-group-item-action sample-template" 
+                           data-category="Letters" data-title="Legal Notice">
+                            <h6 class="mb-1">Legal Notice</h6>
+                            <p class="mb-1">Template for sending legal notices to opposing parties</p>
+                            <small>Letters</small>
+                        </a>
+                        <a href="#" class="list-group-item list-group-item-action sample-template" 
+                           data-category="Agreements" data-title="Settlement Agreement">
+                            <h6 class="mb-1">Settlement Agreement</h6>
+                            <p class="mb-1">Template for documenting settlement terms between parties</p>
+                            <small>Agreements</small>
+                        </a>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const variables = [];
+    
+    // Add variable button
+    document.getElementById('addVariable').addEventListener('click', function() {
+        const input = document.getElementById('variableInput');
+        const variableName = input.value.trim();
+        
+        if (variableName && !variables.includes(variableName)) {
+            variables.push(variableName);
+            updateVariablesList();
+            input.value = '';
+        }
+    });
+    
+    // Common variable buttons
+    document.querySelectorAll('.common-variable').forEach(button => {
+        button.addEventListener('click', function() {
+            const variable = this.dataset.variable;
+            if (!variables.includes(variable)) {
+                variables.push(variable);
+                updateVariablesList();
+            }
+            
+            // Insert variable at cursor position in template content
+            const textarea = document.getElementById('template_content');
+            const start = textarea.selectionStart;
+            const end = textarea.selectionEnd;
+            const text = textarea.value;
+            const before = text.substring(0, start);
+            const after = text.substring(end, text.length);
+            
+            textarea.value = before + variable + after;
+            textarea.selectionStart = textarea.selectionEnd = start + variable.length;
+            textarea.focus();
+        });
+    });
+    
+    // Preview template
+    document.getElementById('previewTemplate').addEventListener('click', function() {
+        const templateContent = document.getElementById('template_content').value;
+        const previewContent = document.getElementById('previewContent');
+        
+        // Replace variables with sample values for preview
+        let preview = templateContent;
+        variables.forEach(variable => {
+            const sampleValue = getSampleValue(variable);
+            preview = preview.replace(new RegExp(`{${variable}}`, 'g'), sampleValue);
+        });
+        
+        previewContent.innerHTML = `<pre>${preview}</pre>`;
+        $('#previewModal').modal('show');
+    });
+    
+    // Validate template
+    document.getElementById('validateTemplate').addEventListener('click', function() {
+        const templateContent = document.getElementById('template_content').value;
+        const errors = validateTemplateContent(templateContent);
+        
+        if (errors.length === 0) {
+            showNotification('Template is valid!', 'success');
+        } else {
+            showNotification('Template validation errors: ' + errors.join(', '), 'danger');
+        }
+    });
+    
+    // Load sample template
+    document.getElementById('loadSample').addEventListener('click', function() {
+        $('#sampleModal').modal('show');
+    });
+    
+    // Sample template selection
+    document.querySelectorAll('.sample-template').forEach(item => {
+        item.addEventListener('click', function(e) {
+            e.preventDefault();
+            const category = this.dataset.category;
+            const title = this.dataset.title;
+            
+            loadSampleTemplate(title, category);
+            $('#sampleModal').modal('hide');
+        });
+    });
+    
+    // Form submission
+    document.getElementById('templateForm').addEventListener('submit', function(e) {
+        // Update hidden variables field
+        document.getElementById('variables').value = variables.join(',');
+    });
+    
+    function updateVariablesList() {
+        const list = document.getElementById('variablesList');
+        
+        if (variables.length === 0) {
+            list.innerHTML = '<span class="text-muted">No variables added yet</span>';
+            return;
+        }
+        
+        list.innerHTML = variables.map((variable, index) => `
+            <span class="badge badge-primary mr-2 mb-2">
+                {${variable}}
+                <button type="button" class="btn btn-sm btn-light ml-1" onclick="removeVariable(${index})">
+                    <i class="fas fa-times"></i>
+                </button>
+            </span>
+        `).join('');
+    }
+    
+    window.removeVariable = function(index) {
+        variables.splice(index, 1);
+        updateVariablesList();
+    };
+    
+    function getSampleValue(variable) {
+        const samples = {
+            'client_name': 'John Doe',
+            'case_number': 'CASE/2023/001',
+            'current_date': new Date().toLocaleDateString(),
+            'firm_name': 'Legal Associates',
+            'lawyer_name': 'Adv. Jane Smith',
+            'court_name': 'High Court',
+            'address': '123 Main Street, City, State',
+            'phone': '+91 98765 43210'
+        };
+        
+        return samples[variable] || `[${variable.replace('_', ' ').toUpperCase()}]`;
+    }
+    
+    function validateTemplateContent(content) {
+        const errors = [];
+        
+        // Check for unmatched braces
+        const openBraces = (content.match(/{/g) || []).length;
+        const closeBraces = (content.match(/}/g) || []).length;
+        
+        if (openBraces !== closeBraces) {
+            errors.push('Unmatched braces in template');
+        }
+        
+        // Check for empty variables
+        const emptyVars = content.match(/{\s*}/g);
+        if (emptyVars) {
+            errors.push('Empty variable placeholders found');
+        }
+        
+        // Check for invalid variable names
+        const invalidVars = content.match(/{[^a-zA-Z0-9_]+}/g);
+        if (invalidVars) {
+            errors.push('Invalid variable names found');
+        }
+        
+        return errors;
+    }
+    
+    function loadSampleTemplate(title, category) {
+        const samples = {
+            'Non-Disclosure Agreement': {
+                category: 'Contracts',
+                content: `NON-DISCLOSURE AGREEMENT
+
+This Non-Disclosure Agreement ("Agreement") is entered into on {current_date} ("Effective Date") between:
+
+{firm_name} ("Disclosing Party")
+And:
+{client_name} ("Receiving Party")
+
+WHEREAS, Disclosing Party possesses certain confidential information that may be disclosed to Receiving Party;
+
+NOW, THEREFORE, in consideration of the mutual covenants contained herein, the parties agree as follows:
+
+1. Definition of Confidential Information
+   "Confidential Information" shall include all information disclosed by Disclosing Party to Receiving Party.
+
+2. Obligations of Receiving Party
+   Receiving Party shall hold all Confidential Information in strict confidence.
+
+3. Term
+   This Agreement shall remain in effect for a period of {term_years} years.
+
+IN WITNESS WHEREOF, the parties have executed this Agreement as of the Effective Date.
+
+_________________________
+{lawyer_name}
+For: {firm_name}
+
+_________________________
+{client_name}`,
+                variables: ['current_date', 'firm_name', 'client_name', 'term_years', 'lawyer_name']
+            },
+            'Legal Notice': {
+                category: 'Letters',
+                content: `LEGAL NOTICE
+
+Date: {current_date}
+
+To,
+{recipient_name}
+{recipient_address}
+
+Subject: LEGAL NOTICE REGARDING {case_subject}
+
+Dear {recipient_name},
+
+Under instructions and on behalf of our client {client_name}, we hereby serve you with the following legal notice:
+
+1. That our client is the rightful owner of {property_description}.
+
+2. That your actions constitute a breach of {breach_type}.
+
+3. That you are hereby called upon to cease and desist from such activities within {notice_period} days.
+
+Should you fail to comply with this notice, our client shall be constrained to initiate appropriate legal proceedings against you at your sole risk, cost, and consequences.
+
+A copy of this notice is retained in our office for further action.
+
+Yours faithfully,
+
+{lawyer_name}
+{firm_name}
+{address}
+{phone}`,
+                variables: ['current_date', 'recipient_name', 'recipient_address', 'case_subject', 'client_name', 'property_description', 'breach_type', 'notice_period', 'lawyer_name', 'firm_name', 'address', 'phone']
+            },
+            'Settlement Agreement': {
+                category: 'Agreements',
+                content: `SETTLEMENT AGREEMENT
+
+This Settlement Agreement ("Agreement") is made and entered into on {current_date} ("Effective Date") by and between:
+
+{party1_name} ("Party 1")
+And:
+{party2_name} ("Party 2")
+
+RECITALS
+
+WHEREAS, Party 1 and Party 2 are parties to {case_description};
+
+NOW, THEREFORE, in consideration of the mutual promises contained herein, the parties agree as follows:
+
+1. Settlement Amount
+   Party 2 shall pay Party 1 the sum of {settlement_amount} ({amount_in_words}) as full and final settlement.
+
+2. Payment Terms
+   The payment shall be made within {payment_days} days of signing this Agreement.
+
+3. Release
+   Upon receipt of the settlement amount, Party 1 releases Party 2 from all claims related to {case_description}.
+
+4. Confidentiality
+   The terms of this settlement shall remain confidential.
+
+IN WITNESS WHEREOF, the parties have executed this Agreement as of the Effective Date.
+
+_________________________
+{party1_name}
+
+_________________________
+{party2_name}
+
+Witnessed by:
+
+_________________________
+{lawyer_name}
+For: {firm_name}`,
+                variables: ['current_date', 'party1_name', 'party2_name', 'case_description', 'settlement_amount', 'amount_in_words', 'payment_days', 'lawyer_name', 'firm_name']
+            }
+        };
+        
+        const sample = samples[title];
+        if (sample) {
+            document.getElementById('title').value = title;
+            document.getElementById('category').value = sample.category;
+            document.getElementById('template_content').value = sample.content;
+            
+            // Clear and update variables list
+            variables.length = 0;
+            variables.push(...sample.variables);
+            updateVariablesList();
+        }
+    }
+    
+    function showNotification(message, type) {
+        // Create notification element
+        const notification = document.createElement('div');
+        notification.className = `alert alert-${type} alert-dismissible fade show position-fixed`;
+        notification.style.top = '20px';
+        notification.style.right = '20px';
+        notification.style.zIndex = '9999';
+        notification.innerHTML = `
+            ${message}
+            <button type="button" class="close" data-dismiss="alert">
+                <span>&times;</span>
+            </button>
+        `;
+        
+        document.body.appendChild(notification);
+        
+        // Auto-remove after 5 seconds
+        setTimeout(() => {
+            notification.remove();
+        }, 5000);
+    }
+    
+    // Initialize variables list
+    updateVariablesList();
+});
+</script>
+{% endblock %}

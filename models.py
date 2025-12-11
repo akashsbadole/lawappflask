@@ -338,6 +338,20 @@ class User(db.Model):
     failed_login_attempts = db.Column(db.Integer, default=0)
     account_locked_until = db.Column(db.DateTime)
     last_password_change = db.Column(db.DateTime, default=datetime.utcnow)
+    sms_otp_enabled = db.Column(db.Boolean, default=False)
+    last_sms_otp = db.Column(db.String(6))
+    last_sms_otp_time = db.Column(db.DateTime)
+    
+    # Attendance Fields
+    check_in_location = db.Column(db.Text)
+    check_in_time = db.Column(db.DateTime)
+    check_out_location = db.Column(db.Text)
+    check_out_time = db.Column(db.DateTime)
+    total_work_hours = db.Column(db.Float, default=0)
+    
+    # Security Event Fields
+    last_security_event = db.Column(db.Text)
+    last_security_event_time = db.Column(db.DateTime)
     
     # Relationships
     clients_assigned = db.relationship('Client', foreign_keys='Client.assigned_lawyer_id', backref='assigned_lawyer', lazy='dynamic')
@@ -508,6 +522,19 @@ class Document(db.Model):
     ai_summary = db.Column(db.Text)  # AI-generated summary
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    # Enhanced Document Management Fields
+    is_template = db.Column(db.Boolean, default=False)
+    template_details = db.Column(db.Text)  # Template content with placeholders
+    retention_policy_id = db.Column(db.Integer)  # Reference to retention policy
+    expiry_date = db.Column(db.DateTime)  # Document expiry date
+    ocr_processed = db.Column(db.Boolean, default=False)
+    ocr_error = db.Column(db.Text)  # OCR processing error message
+    search_vector = db.Column(db.Text)  # Full-text search vector
+    checksum = db.Column(db.String(64))  # File checksum for integrity
+    document_metadata = db.Column(db.Text)  # JSON metadata
+    last_accessed = db.Column(db.DateTime)  # Last access tracking
+    access_count = db.Column(db.Integer, default=0)  # Access counter
     
     # Relationships
     uploader = db.relationship('User', foreign_keys=[uploaded_by], backref='uploaded_documents')
@@ -805,3 +832,45 @@ class Enquiry(db.Model):
     
     def __repr__(self):
         return f'<Enquiry {self.name} - {self.subject}>'
+
+# AttendanceRecord Model for Enhanced Attendance Tracking
+class AttendanceRecord(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    check_in_time = db.Column(db.DateTime, nullable=False)
+    check_in_location = db.Column(db.Text)
+    check_out_time = db.Column(db.DateTime)
+    check_out_location = db.Column(db.Text)
+    total_hours = db.Column(db.Float, default=0)
+    notes = db.Column(db.Text)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    # Relationships
+    user = db.relationship('User', foreign_keys='AttendanceRecord.user_id')
+    
+    def calculate_total_hours(self):
+        """Calculate total working hours"""
+        if self.check_out_time and self.check_in_time:
+            total_seconds = (self.check_out_time - self.check_in_time).total_seconds()
+            self.total_hours = total_seconds / 3600
+        return self.total_hours or 0
+    
+    def __repr__(self):
+        return f'<AttendanceRecord {self.user.full_name} - {self.check_in_time}>'
+
+# SecurityEvent Model for Security Event Logging
+class SecurityEvent(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    event_type = db.Column(db.String(50), nullable=False)
+    event_description = db.Column(db.Text)
+    ip_address = db.Column(db.String(45))
+    user_agent = db.Column(db.Text)
+    success = db.Column(db.Boolean, default=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    # Relationships
+    user = db.relationship('User', foreign_keys='SecurityEvent.user_id', backref='security_events')
+    
+    def __repr__(self):
+        return f'<SecurityEvent {self.event_type} - {self.user.username if self.user else "Unknown"}>'

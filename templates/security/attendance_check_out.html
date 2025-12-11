@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+
+{% block title %}Check Out - Law Firm Management System{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-danger text-white">
+                    <h4 class="mb-0">Check Out</h4>
+                </div>
+                <div class="card-body">
+                    <p class="card-text">Mark your check-out for today. You can optionally include your location.</p>
+                    
+                    {% with messages = get_flashed_messages(with_categories=true) %}
+                        {% if messages %}
+                            {% for category, message in messages %}
+                                <div class="alert alert-{{ category }}">{{ message }}</div>
+                            {% endfor %}
+                        {% endif %}
+                    {% endwith %}
+                    
+                    <form method="POST">
+                        <div class="mb-3">
+                            <label class="form-label">Location (Optional)</label>
+                            <div class="mb-2">
+                                <button type="button" class="btn btn-outline-primary" id="get-location">
+                                    <i class="bi bi-geo-alt"></i> Get Current Location
+                                </button>
+                                <span id="location-status" class="ms-2"></span>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="latitude" class="form-label">Latitude</label>
+                                        <input type="text" class="form-control" id="latitude" name="latitude" readonly>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="longitude" class="form-label">Longitude</label>
+                                        <input type="text" class="form-control" id="longitude" name="longitude" readonly>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-danger">
+                                <i class="bi bi-x-circle"></i> Check Out
+                            </button>
+                        </div>
+                    </form>
+                    
+                    <div class="mt-3">
+                        <a href="{{ url_for('enhanced_security.attendance') }}" class="text-decoration-none">View Attendance History</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const getLocationBtn = document.getElementById('get-location');
+    const latitudeInput = document.getElementById('latitude');
+    const longitudeInput = document.getElementById('longitude');
+    const locationStatus = document.getElementById('location-status');
+    
+    // Get current location
+    getLocationBtn.addEventListener('click', function() {
+        if (!navigator.geolocation) {
+            locationStatus.textContent = 'Geolocation is not supported by your browser';
+            locationStatus.className = 'text-danger ms-2';
+            return;
+        }
+        
+        locationStatus.textContent = 'Getting location...';
+        locationStatus.className = 'text-info ms-2';
+        getLocationBtn.disabled = true;
+        
+        navigator.geolocation.getCurrentPosition(
+            function(position) {
+                latitudeInput.value = position.coords.latitude;
+                longitudeInput.value = position.coords.longitude;
+                locationStatus.textContent = 'Location obtained successfully';
+                locationStatus.className = 'text-success ms-2';
+                getLocationBtn.disabled = false;
+            },
+            function(error) {
+                let errorMessage = 'Unable to get location';
+                switch(error.code) {
+                    case error.PERMISSION_DENIED:
+                        errorMessage = 'Location permission denied';
+                        break;
+                    case error.POSITION_UNAVAILABLE:
+                        errorMessage = 'Location information unavailable';
+                        break;
+                    case error.TIMEOUT:
+                        errorMessage = 'Location request timed out';
+                        break;
+                }
+                locationStatus.textContent = errorMessage;
+                locationStatus.className = 'text-danger ms-2';
+                getLocationBtn.disabled = false;
+            }
+        );
+    });
+});
+</script>
+{% endblock %}

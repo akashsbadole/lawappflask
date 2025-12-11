@@ -1,0 +1,577 @@
+{% extends "base.html" %}
+
+{% block title %}Document Analysis - {{ document.title }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <h2><i class="fas fa-chart-line"></i> Document Analysis</h2>
+            <p class="text-muted">AI-powered analysis and insights for: <strong>{{ document.title }}</strong></p>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5><i class="fas fa-file-alt"></i> Document Information</h5>
+                    <div>
+                        <a href="{{ url_for('view_document', document_id=document.id) }}" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left"></i> Back to Document
+                        </a>
+                        <button class="btn btn-primary" id="reanalyzeDocument">
+                            <i class="fas fa-sync"></i> Re-analyze
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <table class="table table-sm">
+                                <tr>
+                                    <th>Title:</th>
+                                    <td>{{ document.title }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Category:</th>
+                                    <td>{{ document.category or 'Uncategorized' }}</td>
+                                </tr>
+                                <tr>
+                                    <th>File Type:</th>
+                                    <td>{{ document.file_type }}</td>
+                                </tr>
+                                <tr>
+                                    <th>File Size:</th>
+                                    <td>{{ (document.file_size / 1024)|round(1) }} KB</td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="col-md-6">
+                            <table class="table table-sm">
+                                <tr>
+                                    <th>Created:</th>
+                                    <td>{{ document.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                                </tr>
+                                <tr>
+                                    <th>OCR Status:</th>
+                                    <td>
+                                        {% if document.ocr_text %}
+                                            <span class="badge badge-success">
+                                                <i class="fas fa-check"></i> Processed
+                                            </span>
+                                        {% else %}
+                                            <span class="badge badge-warning">
+                                                <i class="fas fa-times"></i> Not Processed
+                                            </span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>Analysis Status:</th>
+                                    <td>
+                                        {% if analyses %}
+                                            <span class="badge badge-success">
+                                                <i class="fas fa-check"></i> Analyzed
+                                            </span>
+                                        {% else %}
+                                            <span class="badge badge-warning">
+                                                <i class="fas fa-times"></i> Not Analyzed
+                                            </span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% if analyses %}
+    <div class="row mt-4">
+        <div class="col-12">
+            <ul class="nav nav-tabs" id="analysisTabs" role="tablist">
+                {% if analysis_data.summary %}
+                <li class="nav-item">
+                    <a class="nav-link active" id="summary-tab" data-toggle="tab" href="#summary" role="tab">
+                        <i class="fas fa-file-alt"></i> Summary
+                    </a>
+                </li>
+                {% endif %}
+                
+                {% if analysis_data.keywords %}
+                <li class="nav-item">
+                    <a class="nav-link {% if not analysis_data.summary %}active{% endif %}" id="keywords-tab" data-toggle="tab" href="#keywords" role="tab">
+                        <i class="fas fa-tags"></i> Keywords
+                    </a>
+                </li>
+                {% endif %}
+                
+                {% if analysis_data.entities %}
+                <li class="nav-item">
+                    <a class="nav-link {% if not analysis_data.summary and not analysis_data.keywords %}active{% endif %}" id="entities-tab" data-toggle="tab" href="#entities" role="tab">
+                        <i class="fas fa-users"></i> Entities
+                    </a>
+                </li>
+                {% endif %}
+                
+                {% if analysis_data.dates %}
+                <li class="nav-item">
+                    <a class="nav-link {% if not analysis_data.summary and not analysis_data.keywords and not analysis_data.entities %}active{% endif %}" id="dates-tab" data-toggle="tab" href="#dates" role="tab">
+                        <i class="fas fa-calendar"></i> Dates
+                    </a>
+                </li>
+                {% endif %}
+                
+                {% if analysis_data.amounts %}
+                <li class="nav-item">
+                    <a class="nav-link {% if not analysis_data.summary and not analysis_data.keywords and not analysis_data.entities and not analysis_data.dates %}active{% endif %}" id="amounts-tab" data-toggle="tab" href="#amounts" role="tab">
+                        <i class="fas fa-rupee-sign"></i> Amounts
+                    </a>
+                </li>
+                {% endif %}
+                
+                {% if analysis_data.legal_analysis %}
+                <li class="nav-item">
+                    <a class="nav-link {% if not analysis_data.summary and not analysis_data.keywords and not analysis_data.entities and not analysis_data.dates and not analysis_data.amounts %}active{% endif %}" id="legal-tab" data-toggle="tab" href="#legal" role="tab">
+                        <i class="fas fa-balance-scale"></i> Legal Analysis
+                    </a>
+                </li>
+                {% endif %}
+                
+                <li class="nav-item">
+                    <a class="nav-link" id="raw-tab" data-toggle="tab" href="#raw" role="tab">
+                        <i class="fas fa-code"></i> Raw Data
+                    </a>
+                </li>
+            </ul>
+            
+            <div class="tab-content" id="analysisTabsContent">
+                {% if analysis_data.summary %}
+                <div class="tab-pane fade show active" id="summary" role="tabpanel">
+                    <div class="card mt-3">
+                        <div class="card-header">
+                            <h5><i class="fas fa-file-alt"></i> Document Summary</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="summary-content">
+                                {{ analysis_data.summary|safe }}
+                            </div>
+                            <div class="mt-3">
+                                <small class="text-muted">
+                                    Generated on: {{ analyses|selectattr('analysis_type', 'equalto', 'summary')|first.processed_at.strftime('%Y-%m-%d %H:%M:%S') }}
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+                
+                {% if analysis_data.keywords %}
+                <div class="tab-pane fade {% if not analysis_data.summary %}show active{% endif %}" id="keywords" role="tabpanel">
+                    <div class="card mt-3">
+                        <div class="card-header">
+                            <h5><i class="fas fa-tags"></i> Keywords & Key Phrases</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                {% for keyword in analysis_data.keywords %}
+                                <div class="col-md-3 col-sm-6 mb-3">
+                                    <div class="keyword-card">
+                                        <div class="card-body p-3">
+                                            <h6 class="keyword-text">{{ keyword.text }}</h6>
+                                            <div class="keyword-meta">
+                                                <small class="text-muted">
+                                                    Relevance: {{ (keyword.relevance * 100)|round(0) }}%
+                                                    {% if keyword.frequency %}
+                                                    | Frequency: {{ keyword.frequency }}
+                                                    {% endif %}
+                                                </small>
+                                            </div>
+                                            <div class="keyword-confidence mt-1">
+                                                <div class="progress" style="height: 5px;">
+                                                    <div class="progress-bar" style="width: {{ keyword.relevance * 100 }}%"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+                
+                {% if analysis_data.entities %}
+                <div class="tab-pane fade {% if not analysis_data.summary and not analysis_data.keywords %}show active{% endif %}" id="entities" role="tabpanel">
+                    <div class="card mt-3">
+                        <div class="card-header">
+                            <h5><i class="fas fa-users"></i> Named Entities</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                {% for entity_type, entities in analysis_data.entities.items() %}
+                                <div class="col-md-6 mb-4">
+                                    <h6 class="entity-type">{{ entity_type|title }}</h6>
+                                    <div class="entity-list">
+                                        {% for entity in entities %}
+                                        <div class="entity-item">
+                                            <span class="entity-name">{{ entity.name }}</span>
+                                            {% if entity.confidence %}
+                                            <span class="entity-confidence badge badge-secondary">
+                                                {{ (entity.confidence * 100)|round(0) }}%
+                                            </span>
+                                            {% endif %}
+                                            {% if entity.context %}
+                                            <div class="entity-context text-muted small">{{ entity.context }}</div>
+                                            {% endif %}
+                                        </div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+                
+                {% if analysis_data.dates %}
+                <div class="tab-pane fade {% if not analysis_data.summary and not analysis_data.keywords and not analysis_data.entities %}show active{% endif %}" id="dates" role="tabpanel">
+                    <div class="card mt-3">
+                        <div class="card-header">
+                            <h5><i class="fas fa-calendar"></i> Important Dates</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="timeline">
+                                {% for date in analysis_data.dates %}
+                                <div class="timeline-item">
+                                    <div class="timeline-marker">
+                                        <i class="fas fa-calendar-alt"></i>
+                                    </div>
+                                    <div class="timeline-content">
+                                        <h6 class="timeline-date">{{ date.date }}</h6>
+                                        {% if date.type %}
+                                        <span class="badge badge-info">{{ date.type }}</span>
+                                        {% endif %}
+                                        {% if date.context %}
+                                        <p class="timeline-context text-muted">{{ date.context }}</p>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+                
+                {% if analysis_data.amounts %}
+                <div class="tab-pane fade {% if not analysis_data.summary and not analysis_data.keywords and not analysis_data.entities and not analysis_data.dates %}show active{% endif %}" id="amounts" role="tabpanel">
+                    <div class="card mt-3">
+                        <div class="card-header">
+                            <h5><i class="fas fa-rupee-sign"></i> Financial Amounts</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Amount</th>
+                                            <th>Currency</th>
+                                            <th>Context</th>
+                                            <th>Confidence</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for amount in analysis_data.amounts %}
+                                        <tr>
+                                            <td>{{ amount.amount }}</td>
+                                            <td>{{ amount.currency or 'INR' }}</td>
+                                            <td>{{ amount.context or '-' }}</td>
+                                            <td>
+                                                <div class="progress" style="height: 20px;">
+                                                    <div class="progress-bar" style="width: {{ amount.confidence * 100 }}%">
+                                                        {{ (amount.confidence * 100)|round(0) }}%
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+                
+                {% if analysis_data.legal_analysis %}
+                <div class="tab-pane fade {% if not analysis_data.summary and not analysis_data.keywords and not analysis_data.entities and not analysis_data.dates and not analysis_data.amounts %}show active{% endif %}" id="legal" role="tabpanel">
+                    <div class="card mt-3">
+                        <div class="card-header">
+                            <h5><i class="fas fa-balance-scale"></i> Legal Analysis</h5>
+                        </div>
+                        <div class="card-body">
+                            {% if analysis_data.legal_analysis.document_type %}
+                            <div class="mb-3">
+                                <h6>Document Type</h6>
+                                <p>{{ analysis_data.legal_analysis.document_type }}</p>
+                            </div>
+                            {% endif %}
+                            
+                            {% if analysis_data.legal_analysis.legal_terms %}
+                            <div class="mb-3">
+                                <h6>Legal Terms Identified</h6>
+                                <div class="row">
+                                    {% for term in analysis_data.legal_analysis.legal_terms %}
+                                    <div class="col-md-4 mb-2">
+                                        <span class="badge badge-primary">{{ term }}</span>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            {% endif %}
+                            
+                            {% if analysis_data.legal_analysis.parties %}
+                            <div class="mb-3">
+                                <h6>Parties Identified</h6>
+                                <ul class="list-group">
+                                    {% for party in analysis_data.legal_analysis.parties %}
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        {{ party.name }}
+                                        <span class="badge badge-secondary">{{ party.role }}</span>
+                                    </li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                            {% endif %}
+                            
+                            {% if analysis_data.legal_analysis.obligations %}
+                            <div class="mb-3">
+                                <h6>Obligations & Responsibilities</h6>
+                                <ul>
+                                    {% for obligation in analysis_data.legal_analysis.obligations %}
+                                    <li>{{ obligation }}</li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                            {% endif %}
+                            
+                            {% if analysis_data.legal_analysis.risk_factors %}
+                            <div class="mb-3">
+                                <h6>Risk Factors</h6>
+                                <div class="alert alert-warning">
+                                    <ul class="mb-0">
+                                        {% for risk in analysis_data.legal_analysis.risk_factors %}
+                                        <li>{{ risk }}</li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+                
+                <div class="tab-pane fade" id="raw" role="tabpanel">
+                    <div class="card mt-3">
+                        <div class="card-header">
+                            <h5><i class="fas fa-code"></i> Raw Analysis Data</h5>
+                        </div>
+                        <div class="card-body">
+                            <pre class="bg-light p-3 rounded"><code>{{ analysis_data|tojson(indent=2) }}</code></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body text-center py-5">
+                    <i class="fas fa-chart-line fa-3x text-muted mb-3"></i>
+                    <h4>No Analysis Available</h4>
+                    <p class="text-muted">This document has not been analyzed yet. Click the button below to start the analysis process.</p>
+                    <button class="btn btn-primary" id="analyzeDocument">
+                        <i class="fas fa-brain"></i> Analyze Document
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Handle re-analyze button
+    document.getElementById('reanalyzeDocument').addEventListener('click', function() {
+        if (confirm('Are you sure you want to re-analyze this document? This will overwrite existing analysis results.')) {
+            analyzeDocument(true);
+        }
+    });
+    
+    // Handle analyze button (if no analysis exists)
+    const analyzeButton = document.getElementById('analyzeDocument');
+    if (analyzeButton) {
+        analyzeButton.addEventListener('click', function() {
+            analyzeDocument(false);
+        });
+    }
+    
+    function analyzeDocument(force = false) {
+        const button = force ? document.getElementById('reanalyzeDocument') : document.getElementById('analyzeDocument');
+        
+        button.disabled = true;
+        button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Analyzing...';
+        
+        fetch(`/documents_enhanced/analyze/{{ document.id }}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showNotification('Document analysis completed successfully. Reloading page...', 'success');
+                setTimeout(() => {
+                    window.location.reload();
+                }, 2000);
+            } else {
+                button.disabled = false;
+                button.innerHTML = force ? '<i class="fas fa-sync"></i> Re-analyze' : '<i class="fas fa-brain"></i> Analyze Document';
+                showNotification('Document analysis failed: ' + data.message, 'danger');
+            }
+        })
+        .catch(error => {
+            button.disabled = false;
+            button.innerHTML = force ? '<i class="fas fa-sync"></i> Re-analyze' : '<i class="fas fa-brain"></i> Analyze Document';
+            showNotification('Error analyzing document: ' + error.message, 'danger');
+        });
+    }
+    
+    function showNotification(message, type) {
+        // Create notification element
+        const notification = document.createElement('div');
+        notification.className = `alert alert-${type} alert-dismissible fade show position-fixed`;
+        notification.style.top = '20px';
+        notification.style.right = '20px';
+        notification.style.zIndex = '9999';
+        notification.innerHTML = `
+            ${message}
+            <button type="button" class="close" data-dismiss="alert">
+                <span>&times;</span>
+            </button>
+        `;
+        
+        document.body.appendChild(notification);
+        
+        // Auto-remove after 5 seconds
+        setTimeout(() => {
+            notification.remove();
+        }, 5000);
+    }
+});
+
+// Add custom styles
+const style = document.createElement('style');
+style.textContent = `
+.keyword-card {
+    border: 1px solid #e9ecef;
+    border-radius: 0.25rem;
+    height: 100%;
+}
+
+.keyword-text {
+    color: #007bff;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+}
+
+.entity-item {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid #f8f9fa;
+}
+
+.entity-item:last-child {
+    border-bottom: none;
+}
+
+.entity-name {
+    font-weight: 500;
+    margin-right: 0.5rem;
+}
+
+.entity-confidence {
+    font-size: 0.75rem;
+}
+
+.entity-context {
+    margin-top: 0.25rem;
+}
+
+.timeline {
+    position: relative;
+    padding-left: 30px;
+}
+
+.timeline::before {
+    content: '';
+    position: absolute;
+    left: 15px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background-color: #e9ecef;
+}
+
+.timeline-item {
+    position: relative;
+    margin-bottom: 2rem;
+}
+
+.timeline-item:last-child {
+    margin-bottom: 0;
+}
+
+.timeline-marker {
+    position: absolute;
+    left: -22px;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background-color: #007bff;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+}
+
+.timeline-content {
+    background-color: #f8f9fa;
+    padding: 1rem;
+    border-radius: 0.25rem;
+}
+
+.timeline-date {
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+}
+
+.timeline-context {
+    margin-bottom: 0;
+}
+`;
+document.head.appendChild(style);
+</script>
+{% endblock %}

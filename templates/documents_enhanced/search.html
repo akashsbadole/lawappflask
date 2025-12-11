@@ -1,0 +1,267 @@
+{% extends "base.html" %}
+
+{% block title %}Document Search{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <h2><i class="fas fa-search"></i> Advanced Document Search</h2>
+            <p class="text-muted">Search through documents using full-text search, filters, and AI-powered analysis.</p>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-filter"></i> Search Filters</h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="{{ url_for('documents.search_documents') }}">
+                        <div class="row">
+                            <div class="col-md-8">
+                                <div class="form-group">
+                                    <label for="query">Search Query</label>
+                                    <div class="input-group">
+                                        <input type="text" class="form-control" id="query" name="query" 
+                                               placeholder="Enter keywords, phrases, or document content..." required>
+                                        <div class="input-group-append">
+                                            <button class="btn btn-primary" type="submit">
+                                                <i class="fas fa-search"></i> Search
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <small class="form-text text-muted">Use quotes for exact phrases, AND/OR for boolean search</small>
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="form-group">
+                                    <label for="case_id">Case</label>
+                                    <select class="form-control" id="case_id" name="case_id">
+                                        <option value="">All Cases</option>
+                                        {% if cases %}
+                                            {% for case in cases %}
+                                                <option value="{{ case.id }}">{{ case.case_number }} - {{ case.title }}</option>
+                                            {% endfor %}
+                                        {% endif %}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="form-group">
+                                    <label for="client_id">Client</label>
+                                    <select class="form-control" id="client_id" name="client_id">
+                                        <option value="">All Clients</option>
+                                        {% if clients %}
+                                            {% for client in clients %}
+                                                <option value="{{ client.id }}">{{ client.full_name }}</option>
+                                            {% endfor %}
+                                        {% endif %}
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row mt-3">
+                            <div class="col-12">
+                                <button type="button" class="btn btn-outline-secondary" data-toggle="collapse" data-target="#advancedFilters">
+                                    <i class="fas fa-cog"></i> Advanced Filters
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="collapse mt-3" id="advancedFilters">
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <div class="form-group">
+                                        <label for="category">Category</label>
+                                        <select class="form-control" id="category" name="category">
+                                            <option value="">All Categories</option>
+                                            <option value="Contracts">Contracts</option>
+                                            <option value="Evidence">Evidence</option>
+                                            <option value="Petitions">Petitions</option>
+                                            <option value="Correspondence">Correspondence</option>
+                                            <option value="Research">Research</option>
+                                            <option value="Court Filings">Court Filings</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group">
+                                        <label for="date_from">Date From</label>
+                                        <input type="date" class="form-control" id="date_from" name="date_from">
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group">
+                                        <label for="date_to">Date To</label>
+                                        <input type="date" class="form-control" id="date_to" name="date_to">
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group">
+                                        <label for="file_type">File Type</label>
+                                        <select class="form-control" id="file_type" name="file_type">
+                                            <option value="">All Types</option>
+                                            <option value="application/pdf">PDF</option>
+                                            <option value="image/jpeg">JPEG</option>
+                                            <option value="image/png">PNG</option>
+                                            <option value="application/msword">Word</option>
+                                            <option value="text/plain">Text</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5><i class="fas fa-history"></i> Recent Searches</h5>
+                    <button class="btn btn-sm btn-outline-secondary" id="clearHistory">Clear History</button>
+                </div>
+                <div class="card-body">
+                    <div id="searchHistory" class="d-flex flex-wrap gap-2">
+                        <!-- Search history will be populated here -->
+                        <span class="text-muted">No recent searches</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-lightbulb"></i> Search Tips</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>Basic Search</h6>
+                            <ul>
+                                <li>Enter keywords to search in document content and metadata</li>
+                                <li>Use quotes for exact phrases: "breach of contract"</li>
+                                <li>Use AND/OR to combine terms: contract AND breach</li>
+                                <li>Use - to exclude terms: contract -employment</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>Advanced Search</h6>
+                            <ul>
+                                <li>Search for specific document types: filetype:pdf</li>
+                                <li>Search within specific date ranges: after:2023-01-01</li>
+                                <li>Find documents by client: client:"John Doe"</li>
+                                <li>Search for documents with tags: tags:urgent</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Load search history from localStorage
+    const searchHistory = JSON.parse(localStorage.getItem('documentSearchHistory') || '[]');
+    updateSearchHistoryDisplay(searchHistory);
+    
+    // Clear search history
+    document.getElementById('clearHistory').addEventListener('click', function() {
+        localStorage.removeItem('documentSearchHistory');
+        updateSearchHistoryDisplay([]);
+    });
+    
+    // Handle form submission
+    document.querySelector('form').addEventListener('submit', function(e) {
+        const query = document.getElementById('query').value.trim();
+        if (query) {
+            // Add to search history
+            searchHistory.unshift({
+                query: query,
+                timestamp: new Date().toISOString(),
+                filters: {
+                    case_id: document.getElementById('case_id').value,
+                    client_id: document.getElementById('client_id').value,
+                    category: document.getElementById('category').value,
+                    date_from: document.getElementById('date_from').value,
+                    date_to: document.getElementById('date_to').value,
+                    file_type: document.getElementById('file_type').value
+                }
+            });
+            
+            // Keep only last 10 searches
+            searchHistory.splice(10);
+            
+            // Save to localStorage
+            localStorage.setItem('documentSearchHistory', JSON.stringify(searchHistory));
+        }
+    });
+    
+    function updateSearchHistoryDisplay(history) {
+        const container = document.getElementById('searchHistory');
+        
+        if (history.length === 0) {
+            container.innerHTML = '<span class="text-muted">No recent searches</span>';
+            return;
+        }
+        
+        container.innerHTML = history.map(item => {
+            const date = new Date(item.timestamp);
+            const dateStr = date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
+            
+            return `
+                <div class="search-history-item">
+                    <a href="#" class="badge badge-light p-2" 
+                       data-query="${item.query}"
+                       data-case-id="${item.filters.case_id || ''}"
+                       data-client-id="${item.filters.client_id || ''}"
+                       title="${dateStr}">
+                        <i class="fas fa-clock"></i> ${item.query}
+                    </a>
+                </div>
+            `;
+        }).join('');
+        
+        // Add click handlers to history items
+        container.querySelectorAll('.search-history-item a').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                document.getElementById('query').value = this.dataset.query;
+                document.getElementById('case_id').value = this.dataset.caseId;
+                document.getElementById('client_id').value = this.dataset.clientId;
+            });
+        });
+    }
+});
+</script>
+
+<style>
+.search-history-item {
+    margin-bottom: 5px;
+}
+
+.search-history-item a {
+    display: inline-block;
+    max-width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.search-history-item a:hover {
+    background-color: #e9ecef;
+    text-decoration: none;
+}
+</style>
+{% endblock %}

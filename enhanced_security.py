@@ -18,7 +18,7 @@ from werkzeug.security import check_password_hash
 import requests
 import random
 import string
-from models import db, User, ActivityLog, SystemSetting
+from models import db, User, ActivityLog, SystemSetting, AttendanceRecord, SecurityEvent
 import logging
 
 # Configure logging
@@ -208,10 +208,9 @@ class EnhancedSecurity:
             # Save 2FA secret to user profile
             user = User.query.get(user_id)
             if user:
-                # Note: You'll need to add 2fa_secret column to User model
-                # user.two_factor_secret = secret
-                # user.two_factor_enabled = True
-                # db.session.commit()
+                user.two_factor_secret = secret
+                user.two_factor_enabled = True
+                db.session.commit()
                 
                 # Clear setup session
                 session.pop('2fa_setup_secret', None)
@@ -227,16 +226,15 @@ class EnhancedSecurity:
         if not user:
             return False, "User not found"
         
-        # Note: You'll need to add 2fa_secret column to User model
-        # if not user.two_factor_enabled or not user.two_factor_secret:
-        #     return False, "2FA not enabled for this user"
+        if not user.two_factor_enabled or not user.two_factor_secret:
+            return False, "2FA not enabled for this user"
         
-        # totp = pyotp.TOTP(user.two_factor_secret)
-        # if totp.verify(token):
-        #     return True, "2FA verified"
+        if pyotp:
+            totp = pyotp.TOTP(user.two_factor_secret)
+            if totp.verify(token):
+                return True, "2FA verified"
         
-        # For now, return True (implement when 2FA columns are added)
-        return True, "2FA verified"
+        return False, "Invalid verification code"
     
     def generate_backup_codes(self, user_id):
         """Generate backup codes for 2FA"""
@@ -245,16 +243,17 @@ class EnhancedSecurity:
             code = ''.join(random.choices(string.digits, k=8))
             codes.append(code)
         
-        # Store backup codes (you'll need to add backup_codes column to User model)
-        # user = User.query.get(user_id)
-        # if user:
-        #     user.backup_codes = ','.join(codes)
-        #     db.session.commit()
+        # Store backup codes
+        user = User.query.get(user_id)
+        if user:
+            user.backup_codes = ','.join(codes)
+            db.session.commit()
         
         return codes
     
     def log_security_event(self, user_id, event_type, details=None, ip_address=None):
         """Log security-related events"""
+        # Log to ActivityLog
         activity = ActivityLog(
             user_id=user_id,
             action=f"security_{event_type}",
@@ -264,6 +263,17 @@ class EnhancedSecurity:
             user_agent=request.headers.get('User-Agent')
         )
         db.session.add(activity)
+        
+        # Log to SecurityEvent
+        security_event = SecurityEvent(
+            user_id=user_id,
+            event_type=event_type,
+            event_description=details,
+            ip_address=ip_address or request.remote_addr,
+            user_agent=request.headers.get('User-Agent'),
+            success=True
+        )
+        db.session.add(security_event)
         db.session.commit()
         
         logger.info(f"Security event logged: {event_type} for user {user_id}")
@@ -287,17 +297,14 @@ class AttendanceTracker:
         if existing_checkin:
             return False, "Already checked in today"
         
-        # Create attendance record (you'll need to create Attendance model)
-        # attendance = Attendance(
-        #     user_id=user_id,
-        #     check_in_time=datetime.utcnow(),
-        #     check_in_latitude=latitude,
-        #     check_in_longitude=longitude,
-        #     check_in_method=check_in_method,
-        #     date=today
-        # )
-        # db.session.add(attendance)
-        # db.session.commit()
+        # Create attendance record
+        attendance = AttendanceRecord(
+            user_id=user_id,
+            check_in_time=datetime.utcnow(),
+            check_in_location=f"{latitude},{longitude}" if latitude and longitude else None
+        )
+        db.session.add(attendance)
+        db.session.commit()
         
         # Log activity
         activity = ActivityLog(
@@ -326,10 +333,10 @@ class AttendanceTracker:
             return False, "Already checked out today"
         
         # Update attendance record
-        # checkin.check_out_time = datetime.utcnow()
-        # checkin.check_out_latitude = latitude
-        # checkin.check_out_longitude = longitude
-        # db.session.commit()
+        checkin.check_out_time = datetime.utcnow()
+        checkin.check_out_location = f"{latitude},{longitude}" if latitude and longitude else None
+        checkin.calculate_total_hours()
+        db.session.commit()
         
         # Log activity
         activity = ActivityLog(
@@ -347,12 +354,16 @@ class AttendanceTracker:
     
     def _get_today_checkin(self, user_id, date):
         """Get today's check-in record"""
-        # attendance = Attendance.query.filter_by(
-        #     user_id=user_id,
-        #     date=date
-        # ).first()
-        # return attendance
-        return None  # Placeholder until Attendance model is created
+        # Get check-in records for today
+        start_of_day = datetime.combine(date, datetime.min.time())
+        end_of_day = datetime.combine(date, datetime.max.time())
+        
+        attendance = AttendanceRecord.query.filter(
+            AttendanceRecord.user_id == user_id,
+            AttendanceRecord.check_in_time >= start_of_day,
+            AttendanceRecord.check_in_time <= end_of_day
+        ).first()
+        return attendance
 
 class AdvancedRoleManager:
     """Advanced role hierarchy with inheritance"""

@@ -69,6 +69,14 @@
 
         <div class="collapse navbar-collapse" id="navbarNav">
           <ul class="navbar-nav me-auto">
+            {% if session.user_id %}
+            <!-- Authenticated User Menu Items -->
+            <li class="nav-item">
+              <a class="nav-link" href="{{ url_for('dashboard') }}">
+                <i class="fas fa-chart-line me-1"></i>Dashboard
+              </a>
+            </li>
+            {% else %}
             <!-- Public Menu Items -->
             <li class="nav-item">
               <a class="nav-link" href="{{ url_for('index') }}">
@@ -220,13 +228,7 @@
                 <i class="fas fa-envelope me-1"></i>Contact Us
               </a>
             </li>
-
-            {% if session.user_id %}
-            <li class="nav-item">
-              <a class="nav-link" href="{{ url_for('dashboard') }}">
-                <i class="fas fa-chart-line me-1"></i>Dashboard
-              </a>
-            </li>
+            {% endif %}
 
             {% if session.role in ['admin', 'lawyer', 'paralegal'] %}
             <li class="nav-item dropdown">
@@ -454,7 +456,46 @@
                 </li>
               </ul>
             </li>
-            {% endif %} {% endif %}
+            {% endif %} {% if session.user_id %}
+            <li class="nav-item dropdown">
+              <a
+                class="nav-link dropdown-toggle"
+                href="#"
+                id="securityDropdown"
+                role="button"
+                data-bs-toggle="dropdown"
+              >
+                <i class="fas fa-shield-alt me-1"></i>Security
+              </a>
+              <ul class="dropdown-menu">
+                <li>
+                  <a class="dropdown-item" href="{{ url_for('enhanced_security.settings') }}"
+                    >Security Settings</a
+                  >
+                </li>
+                <li>
+                  <a class="dropdown-item" href="{{ url_for('enhanced_security.sms_login') }}"
+                    >SMS Login</a
+                  >
+                </li>
+                <li>
+                  <a class="dropdown-item" href="{{ url_for('enhanced_security.2fa_setup') }}"
+                    >Two-Factor Auth</a
+                  >
+                </li>
+                <li>
+                  <a class="dropdown-item" href="{{ url_for('enhanced_security.attendance') }}"
+                    >Attendance</a
+                  >
+                </li>
+                <li>
+                  <a class="dropdown-item" href="{{ url_for('enhanced_security.backup_codes') }}"
+                    >Backup Codes</a
+                  >
+                </li>
+              </ul>
+            </li>
+            {% endif %}
           </ul>
 
           <ul class="navbar-nav">
@@ -580,6 +621,13 @@
               <a href="{{ url_for('users') }}" class="sidebar-link">
                 <i data-lucide="settings" class="lucide-icon"></i>
                 <span>Admin</span>
+              </a>
+            </li>
+            {% endif %} {% if session.user_id %}
+            <li class="sidebar-item">
+              <a href="{{ url_for('enhanced_security.settings') }}" class="sidebar-link">
+                <i data-lucide="shield" class="lucide-icon"></i>
+                <span>Security</span>
               </a>
             </li>
             {% endif %} {% endif %}
